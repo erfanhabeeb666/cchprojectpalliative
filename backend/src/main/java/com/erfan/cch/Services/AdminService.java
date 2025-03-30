@@ -5,6 +5,7 @@ import com.erfan.cch.Enums.UserType;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Repo.*;
 import com.erfan.cch.Security.AuthenticationService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ public class AdminService {
 
 
     private EquipmentRepository equipmentRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
 
@@ -32,11 +34,12 @@ public class AdminService {
 
     private AuthenticationService authenticationService;
 
-    public AdminService(PatientRepository patientRepository, VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository, EquipmentRepository equipmentRepository, ProcedureRepository procedureRepository, UserRepository userRepository, AuthenticationService authenticationService) {
+    public AdminService(PatientRepository patientRepository, VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository, EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder, ProcedureRepository procedureRepository, UserRepository userRepository, AuthenticationService authenticationService) {
         this.patientRepository = patientRepository;
         this.volunteerRepository = volunteerRepository;
         this.reportRepository = reportRepository;
         this.equipmentRepository = equipmentRepository;
+        this.passwordEncoder = passwordEncoder;
         this.procedureRepository = procedureRepository;
         this.userRepository = userRepository;
         this.authenticationService = authenticationService;
@@ -93,9 +96,11 @@ public class AdminService {
     }
 
     public void addVolunteer(Volunteer volunteer) {
-        volunteerRepository.save(volunteer);
         volunteer.setUserType(UserType.VOLUNTEER);
-        authenticationService.registerUser(volunteer);
+        volunteer.setPassword(passwordEncoder.encode(volunteer.getPassword()));
+        volunteer.setSpecialization(volunteer.getSpecialization());
+        volunteerRepository.save(volunteer);
+
     }
 
     public void addEquipment(Equipment equipment) {

@@ -39,6 +39,7 @@ public class AuthenticationService {
             user.setEmail(registrationDto.getEmail());
             user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
             user.setUserType(registrationDto.getUserType());
+            user.setName(registrationDto.getName());
             return userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             throw new RuntimeException("Email already exists: " + registrationDto.getEmail());

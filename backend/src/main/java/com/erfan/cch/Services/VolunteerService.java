@@ -23,15 +23,16 @@ public class VolunteerService {
 
     private JwtService jwtService;
 
-    JwtUtils jwtUtils;
+   private  JwtUtils jwtUtils;
 
     private final HttpServletRequest request;
 
     private VolunteerRepository volunteerRepository;
 
-    public VolunteerService(PatientVisitReportRepository reportRepository, JwtService jwtService, HttpServletRequest request, VolunteerRepository volunteerRepository) {
+    public VolunteerService(PatientVisitReportRepository reportRepository, JwtService jwtService, JwtUtils jwtUtils, HttpServletRequest request, VolunteerRepository volunteerRepository) {
         this.reportRepository = reportRepository;
         this.jwtService = jwtService;
+        this.jwtUtils = jwtUtils;
         this.request = request;
         this.volunteerRepository = volunteerRepository;
     }

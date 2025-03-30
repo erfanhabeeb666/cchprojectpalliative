@@ -33,11 +33,9 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getAllProcedures());
     }
 
-    @PostMapping("/assign-volunteer/{volunteerId}/{patientId}")
-    public ResponseEntity<String> assignVolunteer(@PathVariable Long volunteerId,
-                                                  @PathVariable Long patientId,
-                                                  @RequestBody VisitDateDto visitDateDto) {
-        adminService.assignVolunteerToVisit(volunteerId, patientId,visitDateDto.getVisitDate());
+    @PostMapping("/assign-volunteer")
+    public ResponseEntity<String> assignVolunteer(@RequestBody VisitDateDto visitDateDto) {
+        adminService.assignVolunteerToVisit(visitDateDto.getVolunteerId(),visitDateDto.getPatientId() ,visitDateDto.getVisitDate());
         return ResponseEntity.ok("Volunteer assigned successfully");
     }
     @GetMapping("list-volunteers")
