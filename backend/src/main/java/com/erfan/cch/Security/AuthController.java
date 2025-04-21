@@ -35,28 +35,23 @@ public class AuthController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request)
-    {
+    public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
     @GetMapping("/extractId")
-    public ResponseEntity<Long> printId()
-    {
+    public ResponseEntity<Long> printId() {
         return authenticationService.getIdFromToken(request);
     }
     @PostMapping("/extractId")
-    public ResponseEntity<Long> printIdUsingBody(@RequestBody ExtractEmailDto extractEmailDto)
-    {
+    public ResponseEntity<Long> printIdUsingBody(@RequestBody ExtractEmailDto extractEmailDto) {
         return authenticationService.getIdFromTokenUsingBody(extractEmailDto);
     }
     @GetMapping("/extractEmail")
-        public ResponseEntity<String> printEmail()
-    {
+    public ResponseEntity<String> printEmail() {
         return authenticationService.getEmailFromToken(request);
     }
     @PostMapping("/extractEmail")
-    public ResponseEntity<String> printEmailUsingBody(@RequestBody ExtractEmailDto extractEmailDto)
-    {
+    public ResponseEntity<String> printEmailUsingBody(@RequestBody ExtractEmailDto extractEmailDto) {
         return authenticationService.getEmailFromTokenUsingBody(extractEmailDto);
     }
 

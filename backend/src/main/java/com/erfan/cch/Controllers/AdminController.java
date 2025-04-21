@@ -1,6 +1,6 @@
 package com.erfan.cch.Controllers;
 
-import com.erfan.cch.Dto.VisitDateDto;
+import com.erfan.cch.Dto.*;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Services.AdminService;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +29,7 @@ public class AdminController {
     }
 
     @GetMapping("/procedures")
-    public ResponseEntity<List<ProcedureDone>> getAllProcedures() {
+    public ResponseEntity<List<ProcedureDoneDto>> getAllProcedures() {
         return ResponseEntity.ok(adminService.getAllProcedures());
     }
 
@@ -39,8 +39,12 @@ public class AdminController {
         return ResponseEntity.ok("Volunteer assigned successfully");
     }
     @GetMapping("list-volunteers")
-    public  List<Volunteer> getVolunteers() {
+    public  List<VolunteerDto> getVolunteers() {
          return adminService.getVolunteers();
+    }
+    @GetMapping("list-patients")
+    public List<PatientDto> getPatients() {
+        return adminService.getAllPatients();
     }
 //    @GetMapping("/consumables-report")
 //    public ResponseEntity<List<PatientVisitReport>> getConsumablesReport(
@@ -65,6 +69,11 @@ public class AdminController {
         adminService.addPatient(patient);
         return ResponseEntity.ok("Patient added successfully");
     }
+    @DeleteMapping ("/delete-patient")
+    public ResponseEntity<String> deletePatient(@RequestParam long id) {
+        adminService.deletePatient(id);
+        return ResponseEntity.ok("Patient deleted successfully");
+    }
 
     @PostMapping("/add-volunteer")
     public ResponseEntity<String> addVolunteer(@RequestBody Volunteer volunteer) {
@@ -77,9 +86,14 @@ public class AdminController {
         adminService.addEquipment(equipment);
         return ResponseEntity.ok("Equipment added successfully");
     }
-    @GetMapping("/view-freeequipments")
-    public  List<Equipment> viewFreeEquipments() {
-         return adminService.getFreeEquipments();
+    @DeleteMapping("/delete-equipment")
+    public ResponseEntity<String> deleteEquipment(@RequestParam Long id) {
+        adminService.deleteEquipment(id);
+        return ResponseEntity.ok("Equipment deleted successfully");
+    }
+    @GetMapping("/view-equipments")
+    public  List<EquipmentDto> viewEquipments() {
+         return adminService.getAllEquipment();
     }
 }
 

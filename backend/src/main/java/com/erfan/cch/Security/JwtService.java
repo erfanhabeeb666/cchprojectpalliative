@@ -1,6 +1,7 @@
 package com.erfan.cch.Security;
 
 
+import com.erfan.cch.Models.User;
 import com.erfan.cch.Services.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -54,8 +55,11 @@ public class JwtService {
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {
-        return String.valueOf(Jwts
-                        .builder()
+        User user = userService.getUserByUsername(userDetails.getUsername());
+        extraClaims.put("userType", user.getUserType().name());
+        extraClaims.put("userId", user.getId());
+
+        return Jwts.builder()
                         .setClaims(extraClaims)
                         .setId(userService.getIdfromUsername(userDetails.getUsername()))
                         .setSubject(userDetails.getUsername())
@@ -63,8 +67,7 @@ public class JwtService {
                         .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
 //                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*24*360)) for testing todo
                         .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                        .compact()
-        );
+                        .compact();
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {

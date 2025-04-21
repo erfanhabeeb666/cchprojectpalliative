@@ -1,5 +1,6 @@
 package com.erfan.cch.Controllers;
 
+import com.erfan.cch.Dto.PatientVisitReportDto;
 import com.erfan.cch.Dto.VisitReportRequest;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.PatientVisitReport;
@@ -32,11 +33,11 @@ public class VolunteerController {
     }
     
     @GetMapping("/assigned-visits")
-    public ResponseEntity<List<PatientVisitReport>> getTodaysAssignedVisits() {
+    public ResponseEntity<List<PatientVisitReportDto>> getTodaysAssignedVisits() {
         return ResponseEntity.ok(volunteerService.getTodaysAssignedVisits());
     }
     @GetMapping("/completed-visits")
-    public ResponseEntity<List<PatientVisitReport>> getCompletedVisits(@RequestParam Long volunteerId) {
+    public ResponseEntity<List<PatientVisitReportDto>> getCompletedVisits(@RequestParam Long volunteerId) {
         return ResponseEntity.ok(volunteerService.getCompletedVisits(volunteerId));
     }
 }

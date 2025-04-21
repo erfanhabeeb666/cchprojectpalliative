@@ -1,15 +1,21 @@
 package com.erfan.cch.Services;
 
+import com.erfan.cch.Dto.EquipmentDto;
+import com.erfan.cch.Dto.PatientDto;
+import com.erfan.cch.Dto.ProcedureDoneDto;
+import com.erfan.cch.Dto.VolunteerDto;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Enums.UserType;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Repo.*;
 import com.erfan.cch.Security.AuthenticationService;
+import com.erfan.cch.utils.ConvertToDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminService {
@@ -25,7 +31,6 @@ public class AdminService {
 
     private EquipmentRepository equipmentRepository;
     private final PasswordEncoder passwordEncoder;
-
 
 
     private ProcedureRepository procedureRepository;
@@ -53,8 +58,18 @@ public class AdminService {
     }
 
 
-    public List<ProcedureDone> getAllProcedures() {
-        return procedureRepository.findAll();
+    public List<ProcedureDoneDto> getAllProcedures() {
+        return procedureRepository.findAll()
+                .stream()
+                .map(ConvertToDto::convertToProcedureDoneDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<VolunteerDto> getVolunteers() {
+        return volunteerRepository.findAll()
+                .stream()
+                .map(ConvertToDto::convertToVolunteerDto)
+                .collect(Collectors.toList());
     }
 
     public void assignVolunteerToVisit(Long volunteerId, Long patientId, LocalDate visitDate) {
@@ -73,7 +88,7 @@ public class AdminService {
     }
     // todo
     //public List<PatientVisitReport> getConsumablesUsageReport(LocalDate startDate, LocalDate endDate) {
-      //  return reportRepository.findConsumableUsage(startDate, endDate);
+    //  return reportRepository.findConsumableUsage(startDate, endDate);
     //}
 
     public void allocateEquipment(Long equipmentId, Long patientId) {
@@ -109,12 +124,26 @@ public class AdminService {
         equipmentRepository.save(equipment);
     }
 
-    public List<Equipment> getFreeEquipments() {
-        return equipmentRepository.findByAllocated(false);
+    public List<EquipmentDto> getAllEquipment() {
+        return equipmentRepository.findAll()
+                .stream()
+                .map(ConvertToDto::convertToEquipmentDto)
+                .collect(Collectors.toList());
     }
 
-    public List<Volunteer> getVolunteers() {
-        return volunteerRepository.findAll();
+
+    public List<PatientDto> getAllPatients() {
+        return patientRepository.findAll()
+                .stream()
+                .map(ConvertToDto::convertToPatientDto)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteEquipment(Long id) {
+        equipmentRepository.deleteById(id);
+    }
+
+    public void deletePatient(long id) {
+        patientRepository.deleteById(id);
     }
 }
-

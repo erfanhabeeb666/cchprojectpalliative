@@ -1,20 +1,10 @@
-package com.erfan.cch.Models;
-
-
-import jakarta.persistence.*;
-
-
-@Entity
-public class Equipment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+package com.erfan.cch.Dto;
+public class EquipmentDto {
     private Long id;
-
     private String name;
     private boolean allocated;
-
-    @ManyToOne
-    private Patient allocatedTo;
+    private Long patientId;
+    private String patientName;
 
     public Long getId() {
         return id;
@@ -32,14 +22,6 @@ public class Equipment {
         this.name = name;
     }
 
-    public Patient getAllocatedTo() {
-        return allocatedTo;
-    }
-
-    public void setAllocatedTo(Patient allocatedTo) {
-        this.allocatedTo = allocatedTo;
-    }
-
     public boolean isAllocated() {
         return allocated;
     }
@@ -47,7 +29,20 @@ public class Equipment {
     public void setAllocated(boolean allocated) {
         this.allocated = allocated;
     }
+
+    public Long getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(Long patientId) {
+        this.patientId = patientId;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
 }
-
-
-
