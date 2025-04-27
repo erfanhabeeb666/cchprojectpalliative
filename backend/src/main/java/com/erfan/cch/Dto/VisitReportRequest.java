@@ -6,11 +6,16 @@ import java.util.List;
 import java.util.Map;
 
 public class VisitReportRequest {
-
+    private Long visitId;
     private List<Long> procedureIds;
     private Map<String, Integer> consumables;
     private Status status; // Assuming Status is an enum
-
+    public  Long getVisitId() {
+        return visitId;
+    }
+    public void setVisitId(Long visitId) {
+        this.visitId = visitId;
+    }
 
     public List<Long> getProcedureIds() {
         return procedureIds;

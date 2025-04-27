@@ -18,6 +18,9 @@ const Admin = () => {
     const handleGoToAddEquipment = ()=>{
         navigate("/admin/equipment");
     }
+    const handleGotoAssignVolunteer = () =>{
+        navigate("/admin/assignVolunteer")
+    }
     return (
         <div className="admin-dashboard">
             <h1>Admin Dashboard</h1>
@@ -26,6 +29,7 @@ const Admin = () => {
             <button onClick={handleGoToVolunteers}>Volunteers</button>
             <button onClick={handleGoToAddPatient}>Patient</button>
             <button onClick={handleGoToAddEquipment}>Equipment</button>
+            <button onClick={handleGotoAssignVolunteer}>Visits</button>
         </div>
     );
 };

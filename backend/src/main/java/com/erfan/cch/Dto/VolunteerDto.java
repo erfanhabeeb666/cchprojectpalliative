@@ -1,12 +1,18 @@
 package com.erfan.cch.Dto;
 
 public class VolunteerDto {
+    private Long id;
     private String name;
     private String email;
     private String phoneNumber;
     private String address;
     private String specialization;
-
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
     public String getName() {
         return name;
     }

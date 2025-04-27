@@ -1,6 +1,7 @@
 package com.erfan.cch.Controllers;
 
 import com.erfan.cch.Dto.PatientVisitReportDto;
+import com.erfan.cch.Dto.ProcedureDoneDto;
 import com.erfan.cch.Dto.VisitReportRequest;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.PatientVisitReport;
@@ -26,9 +27,8 @@ public class VolunteerController {
 
     @PostMapping("/submit-report")
     public ResponseEntity<String> submitReport(
-             @RequestParam Long visitId,
              @RequestBody VisitReportRequest reportRequest) {
-        volunteerService.submitVisitReport(visitId, reportRequest.getProcedureIds(), reportRequest.getConsumables(), reportRequest.getStatus());
+        volunteerService.submitVisitReport(reportRequest.getVisitId(),reportRequest.getProcedureIds(), reportRequest.getConsumables(), reportRequest.getStatus());
         return ResponseEntity.ok("Visit report submitted successfully");
     }
     
@@ -39,6 +39,10 @@ public class VolunteerController {
     @GetMapping("/completed-visits")
     public ResponseEntity<List<PatientVisitReportDto>> getCompletedVisits(@RequestParam Long volunteerId) {
         return ResponseEntity.ok(volunteerService.getCompletedVisits(volunteerId));
+    }
+    @GetMapping("/procedures")
+    public ResponseEntity<List<ProcedureDoneDto>> getAllProcedures() {
+        return ResponseEntity.ok(volunteerService.getAllProcedures());
     }
 }
 

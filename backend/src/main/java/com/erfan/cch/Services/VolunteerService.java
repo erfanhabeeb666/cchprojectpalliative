@@ -1,6 +1,7 @@
 package com.erfan.cch.Services;
 
 import com.erfan.cch.Dto.PatientVisitReportDto;
+import com.erfan.cch.Dto.ProcedureDoneDto;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.PatientVisitReport;
 import com.erfan.cch.Models.ProcedureDone;
@@ -45,7 +46,12 @@ public class VolunteerService {
     @Autowired
     private ProcedureRepository procedureRepository;
 
-
+    public List<ProcedureDoneDto> getAllProcedures() {
+        return procedureRepository.findAll()
+                .stream()
+                .map(ConvertToDto::convertToProcedureDoneDto)
+                .collect(Collectors.toList());
+    }
 
     public List<PatientVisitReportDto> getTodaysAssignedVisits() {
         Long jwtUserId = Long.valueOf(jwtService.extractId(jwtUtils.getJwtFromRequest(request)));

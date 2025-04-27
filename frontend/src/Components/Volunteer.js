@@ -1,11 +1,22 @@
 import React from "react";
+import {useNavigate} from "react-router-dom";
+
 
 const Volunteer = () => {
+    const navigate = useNavigate();
+
+    const handleGotoTodaysVisits = () =>{
+        navigate("/volunteer/todaysVisits")
+    }
+    const handleGotoCompletedVsits =() =>{
+        navigate("/volunteer/completedVisits")
+    }
+
     return (
         <div className="volunteer-dashboard">
             <h1>Volunteer Dashboard</h1>
-            <p>Welcome to the Volunteer Dashboard. Here you can manage your assignments and reports.</p>
-            {/* Add more components or functionality for the volunteer dashboard */}
+            <button onClick={handleGotoTodaysVisits}>Today's Visits</button>
+            <button onClick={handleGotoCompletedVsits}>Completed Visits</button>
         </div>
     );
 };

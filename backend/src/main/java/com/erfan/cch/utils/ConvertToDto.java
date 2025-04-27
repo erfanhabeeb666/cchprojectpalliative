@@ -16,6 +16,7 @@ public class ConvertToDto {
     }
     public static VolunteerDto convertToVolunteerDto(Volunteer volunteer) {
         VolunteerDto dto = new VolunteerDto();
+        dto.setId(volunteer.getId());
         dto.setName(volunteer.getName());
         dto.setEmail(volunteer.getEmail());
         dto.setPhoneNumber(volunteer.getPhoneNumber());

@@ -6,7 +6,10 @@ import Volunteer from "./Components/Volunteer";
 import Procedures from "./Components/Procedures";
 import VolunteerList from "./Components/VolunteerList";
 import Patient from "./Components/Patient/PatientPage";
-import Equipment from "./Components/Equipment/EquipmentPage"; // ✅ Keep only this one
+import Equipment from "./Components/Equipment/EquipmentPage";
+import AssignVolunteer from "./Components/AssignVolunteer";
+import TodaysVisit from "./Components/TodaysVisit";
+import CompletedVisits from "./Components/CompletedVisits";
 
 const App = () => {
     return (
@@ -19,6 +22,10 @@ const App = () => {
                 <Route path="/admin/volunteers" element={<VolunteerList />} />
                 <Route path="/admin/patient" element={<Patient />} />
                 <Route path="/admin/equipment" element={<Equipment />} />
+                <Route path="/admin/assignVolunteer" element={<AssignVolunteer />}/>
+                <Route path="/volunteer/todaysVisits" element={<TodaysVisit/>}/>
+                <Route path="/volunteer/completedVisits" element={<CompletedVisits/>}/>
+
             </Routes>
         </Router>
     );

@@ -31,8 +31,6 @@ const Procedures = () => {
         try {
             const apiUrl = process.env.REACT_APP_API_URL;
             const token = localStorage.getItem("jwtToken");
-            console.log("API URL:", process.env.REACT_APP_API_URL);
-
             await axios.post(`${apiUrl}admin/procedure?name=${newProcedureName}`, {}, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -41,7 +39,7 @@ const Procedures = () => {
             // Refresh the list of procedures after adding the new one
             setProcedures((prevProcedures) => [
                 ...prevProcedures,
-                { name: newProcedureName, visits: [] },
+                { procedureName: newProcedureName, visits: [] },
             ]);
             setShowModal(false);
             setNewProcedureName("");
