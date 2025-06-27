@@ -10,6 +10,7 @@ import Equipment from "./Components/Equipment/EquipmentPage";
 import AssignVolunteer from "./Components/AssignVolunteer";
 import TodaysVisit from "./Components/TodaysVisit";
 import CompletedVisits from "./Components/CompletedVisits";
+import Consumables from "./Components/Consumables";
 
 const App = () => {
     return (
@@ -25,6 +26,7 @@ const App = () => {
                 <Route path="/admin/assignVolunteer" element={<AssignVolunteer />}/>
                 <Route path="/volunteer/todaysVisits" element={<TodaysVisit/>}/>
                 <Route path="/volunteer/completedVisits" element={<CompletedVisits/>}/>
+                <Route path="/admin/consumables" element={<Consumables />} /> 
 
             </Routes>
         </Router>

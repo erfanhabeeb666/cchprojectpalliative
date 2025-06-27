@@ -1,74 +1,79 @@
-/* Procedures.css */
+/* ───── Page Container ───── */
 .procedures-container {
-    padding: 20px;
-    background-color: #f9f9f9;
-    min-height: 100vh;
+  padding: 20px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
 }
 
-h2 {
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 20px;
+/* ───── Heading ───── */
+.procedures-container h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
 }
 
-ul {
-    list-style-type: none;
-    padding: 0;
+/* ───── Procedure List ───── */
+.procedures-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-ul li {
-    padding: 10px;
-    background-color: #fff;
-    margin: 5px 0;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.procedures-container ul li {
+  padding: 10px;
+  background-color: #fff;
+  margin: 5px 0;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-button {
-    padding: 10px 20px;
-    margin-top: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+/* ───── Green Button ───── */
+.btn-primary {
+  padding: 10px 20px;
+  margin-top: 10px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background-color: #45a049;
 }
 
-button:hover {
-    background-color: #45a049;
+/* ───── Modal Overlay ───── */
+.procedures-modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
-/* Modal styling */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* ───── Modal Box ───── */
+.procedures-modal__content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 320px;
+  text-align: center;
 }
 
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 300px;
-    text-align: center;
+/* ───── Modal Inputs ───── */
+.procedures-modal__content input[type="text"] {
+  padding: 10px;
+  margin-top: 10px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-input {
-    padding: 10px;
-    margin-top: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-}
-
-.error {
-    color: #d9534f;
-    font-size: 0.9rem;
-    margin-top: 10px;
+/* ───── Error Text ───── */
+.procedures-modal__content .error {
+  color: #d9534f;
+  font-size: 0.9rem;
+  margin-top: 10px;
 }

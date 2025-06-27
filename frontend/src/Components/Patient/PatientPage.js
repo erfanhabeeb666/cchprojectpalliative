@@ -37,7 +37,7 @@ const PatientPage = () => {
 
     return (
         <div className="patient-dashboard">
-            <p>Here you can manage patients.</p>
+            <p>manage patients.</p>
 
             <div className="button-group space-x-4 mb-4">
                 <button
