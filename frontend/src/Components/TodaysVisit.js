@@ -1,212 +1,185 @@
-import React, { useState, useEffect } from 'react';
-import './Styles/TodayVisit.css';
-// Modal Component
-const ProcedureModal = ({ visit, procedures, onClose, onSubmit }) => {
-    const [selectedProcedure, setSelectedProcedure] = useState([]);
-    const [status, setStatus] = useState('COMPLETED');
+// src/Components/TodaysVisit.js
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import "./Styles/TodayVisit.css";
 
-    const handleSubmit = async () => {
-        if (!selectedProcedure.length) {
-            alert('Please select at least one procedure');
-            return;
-        }
+/* ───────────────── VisitModal (inline) ───────────────── */
+const VisitModal = ({
+  visit,
+  procedures,
+  consumables,
+  onClose,
+  onSubmit,
+}) => {
+  const [selectedProcedures, setSelectedProcedures] = useState([]);
+  const [status, setStatus] = useState("COMPLETED");
+  const [consAdj, setConsAdj] = useState({}); // {id: delta}
 
-        try {
-            await onSubmit(visit.id, selectedProcedure, status);
-            onClose(); // Close modal after successful submit
-        } catch (err) {
-            alert('Failed to submit visit');
-        }
-    };
-
-    return (
-        <div className="modal">
-            <div className="modal-content">
-                <h3>Assign Procedure to Visit</h3>
-                <label>Status:</label>
-                <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                    <option value="COMPLETED">Completed</option>
-                    <option value="CANCELLED"> Cancelled</option>
-                </select>
-                <div>
-                    <label>Procedures:</label>
-                    <select
-                        multiple
-                        value={selectedProcedure}
-                        onChange={(e) => setSelectedProcedure(Array.from(e.target.selectedOptions, option => option.value))}
-                        className="custom-select"
-                    >
-                        {procedures.map((procedure) => (
-                            <option key={procedure.procedureId} value={procedure.procedureId}>
-                                {procedure.procedureName}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <button onClick={handleSubmit}>Submit</button>
-                <button onClick={onClose}>Close</button>
-            </div>
-        </div>
+  const toggleProc = (id, checked) =>
+    setSelectedProcedures((prev) =>
+      checked ? [...prev, id] : prev.filter((p) => p !== id)
     );
+
+  const handleSend = () => {
+    if (selectedProcedures.length === 0) {
+      alert("Select at least one procedure");
+      return;
+    }
+    const adjustments = Object.entries(consAdj)
+      .filter(([, d]) => d !== 0)
+      .map(([id, delta]) => ({ consumableId: Number(id), delta }));
+    onSubmit(visit.id, selectedProcedures, status, adjustments);
+  };
+
+  return (
+    <div className="modal">
+      <div className="modal-content">
+        <h3>Submit Visit</h3>
+
+        <label>Status:</label>
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+
+        <div className="procedure-list">
+          <strong>Procedures:</strong>
+          {procedures.map((p) => (
+            <div key={p.procedureId} className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={selectedProcedures.includes(p.procedureId)}
+                onChange={(e) => toggleProc(p.procedureId, e.target.checked)}
+              />
+              <label>{p.procedureName}</label>
+            </div>
+          ))}
+        </div>
+
+        <div className="consumable-list">
+          <strong>Consumables (– for given, + for returned)</strong>
+          {consumables.map((c) => (
+            <div key={c.id} className="consumable-row">
+              <label>{c.name} (stock {c.quantity})</label>
+              <input
+                type="number"
+                value={consAdj[c.id] ?? 0}
+                onChange={(e) =>
+                  setConsAdj({ ...consAdj, [c.id]: Number(e.target.value) })
+                }
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="modal-actions">
+          <button onClick={handleSend}>Submit</button>
+          <button className="secondary" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
+/* ───────────────── TodaysVisit main component ───────────────── */
 const TodaysVisit = () => {
-    const [assignedVisits, setAssignedVisits] = useState([]);
-    const [procedures, setProcedures] = useState([]);
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedVisit, setSelectedVisit] = useState(null);
+  const [visits, setVisits]           = useState([]);
+  const [procedures, setProcedures]   = useState([]);
+  const [consumables, setConsumables] = useState([]);
+  const [loading, setLoading]         = useState(false);
+  const [err, setErr]                 = useState("");
+  const [modalVisit, setModalVisit]   = useState(null);
 
-    // Fetch assigned visits
-    useEffect(() => {
-        fetchAssignedVisits();
-        fetchProcedures();
-    }, []);
+  const api = process.env.REACT_APP_API_URL;
+  const jwt = localStorage.getItem("jwtToken");
 
-    const apiUrl = process.env.REACT_APP_API_URL;
+  /* memoised headers so ESLint is happy */
+  const headers = useMemo(() => ({
+    Authorization: `Bearer ${jwt}`,
+  }), [jwt]);
 
-    const fetchAssignedVisits = async () => {
-        setLoading(true);
-        setError('');
-        const jwtToken = localStorage.getItem('jwtToken');
-        if (!jwtToken) {
-            setError('No JWT token found');
-            setLoading(false);
-            return;
-        }
+  /* memoised fetchAll */
+  const fetchAll = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [v, p, c] = await Promise.all([
+        fetch(`${api}volunteer/assigned-visits`, { headers }).then(r => r.json()),
+        fetch(`${api}volunteer/procedures`,      { headers }).then(r => r.json()),
+        fetch(`${api}admin/consumables`,         { headers }).then(r => r.json()),
+      ]);
+      setVisits(v);
+      setProcedures(p);
+      setConsumables(c);
+      setErr("");
+    } catch {
+      setErr("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  }, [api, headers]);
 
-        try {
-            const response = await fetch(`${apiUrl}volunteer/assigned-visits`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${jwtToken}`,
-                },
-            });
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch assigned visits');
-            }
+  const submitVisit = async (id, procedureIds, status, adjustments) => {
+    try {
+      await fetch(`${api}volunteer/submit-report`, {
+        method: "POST",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          visitId: id,
+          procedureIds,
+          status,
+          consumableAdjustments: adjustments,
+        }),
+      });
+      alert("Visit saved");
+      setModalVisit(null);
+      fetchAll();
+    } catch {
+      alert("Submit failed");
+    }
+  };
 
-            const data = await response.json();
-            setAssignedVisits(data); // Set the assigned visits data
-        } catch (err) {
-            setError(err.message || 'An error occurred');
-        } finally {
-            setLoading(false);
-        }
-    };
+  return (
+    <div className="todays-visit-container">
+      <h2>Today's Visits</h2>
 
-    const fetchProcedures = async () => {
-        const jwtToken = localStorage.getItem('jwtToken');
-        if (!jwtToken) {
-            setError('No JWT token found');
-            return;
-        }
+      {err && <p className="error">{err}</p>}
 
-        try {
-            const response = await fetch(`${apiUrl}volunteer/procedures`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${jwtToken}`,
-                },
-            });
+      {loading ? (
+        <p>Loading…</p>
+      ) : visits.length === 0 ? (
+        <p>No assigned visits today.</p>
+      ) : (
+        <ul className="visit-list">
+          {visits.map((v) => (
+            <li key={v.id} className="visit-card">
+              <p><strong>ID:</strong> {v.id}</p>
+              <p><strong>Patient:</strong> {v.patientName}</p>
+              <p><strong>Date:</strong> {v.visitDate}</p>
+              <p><strong>Status:</strong> {v.status}</p>
+              {v.status !== "COMPLETED" && (
+                <button onClick={() => setModalVisit(v)}>Submit</button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch procedures');
-            }
-
-            const data = await response.json();
-            setProcedures(data); // Set the procedures list
-        } catch (err) {
-            setError(err.message || 'An error occurred while fetching procedures');
-        }
-    };
-
-    const handleModalOpen = (visit) => {
-        setSelectedVisit(visit);
-        setIsModalOpen(true);
-    };
-
-    const handleModalClose = () => {
-        setSelectedVisit(null);
-        setIsModalOpen(false);
-    };
-
-    const handleProcedureSubmit = async (visitId, procedureIds, status) => {
-        const jwtToken = localStorage.getItem('jwtToken');
-        if (!jwtToken) {
-            setError('No JWT token found');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${apiUrl}volunteer/submit-report`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${jwtToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    visitId,
-                    procedureIds,
-                    status,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to submit visit');
-            }
-
-            alert('Visit submitted successfully');
-            fetchAssignedVisits(); // Refresh the list after successful submission
-        } catch (err) {
-            setError('Failed to submit visit');
-        }
-    };
-
-
-    return (
-        <div>
-            <h2>Today's Visits</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {loading ? (
-                <p>Loading...</p>
-            ) : (
-                <>
-                    {assignedVisits.length === 0 && <p>No assigned visits today.</p>}
-                    {assignedVisits.length > 0 && (
-                        <ul>
-                            {assignedVisits.map((visit) => (
-                                <li key={visit.id}>
-                                    <strong>Visit ID:</strong> {visit.id} <br />
-                                    <strong>Patient Name:</strong> {visit.patientName} <br />
-                                    <strong>Volunteer Name:</strong> {visit.volunteerName} <br />
-                                    <strong>Visit Date:</strong> {visit.visitDate} <br />
-                                    <strong>Status:</strong> {visit.status}<br />
-                                    {visit.status !== 'COMPLETED' && (
-                                        <button onClick={() => handleModalOpen(visit)}>
-                                            Submit
-                                        </button>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </>
-            )}
-
-            {isModalOpen && selectedVisit && (
-                <ProcedureModal
-                    visit={selectedVisit}
-                    procedures={procedures}
-                    onClose={handleModalClose}
-                    onSubmit={handleProcedureSubmit}
-                />
-            )}
-        </div>
-    );
+      {modalVisit && (
+        <VisitModal
+          visit={modalVisit}
+          procedures={procedures}
+          consumables={consumables}
+          onClose={() => setModalVisit(null)}
+          onSubmit={submitVisit}
+        />
+      )}
+    </div>
+  );
 };
 
 export default TodaysVisit;

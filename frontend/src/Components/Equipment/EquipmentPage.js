@@ -37,7 +37,7 @@ const EquipmentPage = () => {
 
     return (
         <div className="equipment-dashboard">
-            <p>Here you can manage equipment.</p>
+            <p> manage equipment.</p>
 
             <div className="button-group space-x-4 mb-4">
                 <button
