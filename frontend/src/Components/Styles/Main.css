@@ -21,7 +21,7 @@ body {
 .sidebar { 
   width: 240px; 
   background: #19337b; 
-  color: white; 
+  color: rgb(13, 172, 24); 
   position: fixed; 
   top: 0; 
   left: 0; 
@@ -41,7 +41,7 @@ body {
 
 .sidebar nav ul li a { 
   display: block; 
-  color: white; 
+  color: rgb(52, 194, 63); 
   font-weight: bold; 
   text-decoration: none; /* 🚫 removes underline */ 
   padding: 10px 15px; 
@@ -51,7 +51,7 @@ body {
 
 .sidebar nav ul li button { 
   background: none; 
-  color: white; 
+  color: rgb(20, 170, 147); 
   border: none; 
   text-align: left; 
   width: 100%; 
