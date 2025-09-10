@@ -47,7 +47,7 @@ public class VolunteerService {
     private ProcedureRepository procedureRepository;
 
     public List<ProcedureDoneDto> getAllProcedures() {
-        return procedureRepository.findAll()
+        return procedureRepository.findAllByStatus(Status.ACTIVE)
                 .stream()
                 .map(ConvertToDto::convertToProcedureDoneDto)
                 .collect(Collectors.toList());

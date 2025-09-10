@@ -1,5 +1,5 @@
 package com.erfan.cch.Enums;
 
 public enum Status {
-    COMPLETED,PENDING,CANCELLED,FAILED
+    COMPLETED,PENDING,CANCELLED,FAILED,ACTIVE,INACTIVE
 }

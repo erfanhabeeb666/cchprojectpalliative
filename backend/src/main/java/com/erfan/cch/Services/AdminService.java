@@ -1,9 +1,6 @@
 package com.erfan.cch.Services;
 
-import com.erfan.cch.Dto.EquipmentDto;
-import com.erfan.cch.Dto.PatientDto;
-import com.erfan.cch.Dto.ProcedureDoneDto;
-import com.erfan.cch.Dto.VolunteerDto;
+import com.erfan.cch.Dto.*;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Enums.UserType;
 import com.erfan.cch.Models.*;
@@ -15,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,19 +52,20 @@ public class AdminService {
     public void addProcedure(String name) {
         ProcedureDone procedureDone = new ProcedureDone();
         procedureDone.setName(name);
+        procedureDone.setStatus(Status.ACTIVE);
         procedureRepository.save(procedureDone);
     }
 
 
     public List<ProcedureDoneDto> getAllProcedures() {
-        return procedureRepository.findAll()
+        return procedureRepository.findAllByStatus(Status.ACTIVE)
                 .stream()
                 .map(ConvertToDto::convertToProcedureDoneDto)
                 .collect(Collectors.toList());
     }
 
     public List<VolunteerDto> getVolunteers() {
-        return volunteerRepository.findAll()
+        return volunteerRepository.findAllByStatus(Status.ACTIVE)
                 .stream()
                 .map(ConvertToDto::convertToVolunteerDto)
                 .collect(Collectors.toList());
@@ -107,11 +106,13 @@ public class AdminService {
     }
 
     public void addPatient(Patient patient) {
+        patient.setStatus(Status.ACTIVE);
         patientRepository.save(patient);
     }
 
     public void addVolunteer(Volunteer volunteer) {
         volunteer.setUserType(UserType.VOLUNTEER);
+        volunteer.setStatus(Status.ACTIVE);
         volunteer.setPassword(passwordEncoder.encode(volunteer.getPassword()));
         volunteer.setSpecialization(volunteer.getSpecialization());
         volunteerRepository.save(volunteer);
@@ -133,7 +134,7 @@ public class AdminService {
 
 
     public List<PatientDto> getAllPatients() {
-        return patientRepository.findAll()
+        return patientRepository.findByStatus(Status.ACTIVE)
                 .stream()
                 .map(ConvertToDto::convertToPatientDto)
                 .collect(Collectors.toList());
@@ -144,6 +145,40 @@ public class AdminService {
     }
 
     public void deletePatient(long id) {
-        patientRepository.deleteById(id);
+        Optional<Patient> patient = patientRepository.findById(id);
+        Patient actual = patient.get();
+        actual.setStatus(Status.INACTIVE);
+        patientRepository.save(actual);
+    }
+
+    public DashboardStatsDto dashboardStats() {
+        DashboardStatsDto dashboardStatsDto = new DashboardStatsDto();
+        dashboardStatsDto.setTotalPatients(patientRepository.count());
+        dashboardStatsDto.setActiveVolunteers(volunteerRepository.count());
+        dashboardStatsDto.setTotalVisitDone(reportRepository.countByStatus(Status.COMPLETED));
+        dashboardStatsDto.setPendingVisits(reportRepository.countByStatus(Status.PENDING));
+        dashboardStatsDto.setEquipmentsTotal(equipmentRepository.count());
+        return dashboardStatsDto;
+    }
+
+    public List<PatientVisitReportDto> getVisits(Status status) {
+        return reportRepository.findByStatus(status)
+                .stream()
+                .map(ConvertToDto::convertToPatientVisitReportDto)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteProcedure(Long id) {
+        Optional<ProcedureDone> procedureDone = procedureRepository.findById(id);
+        ProcedureDone actual = procedureDone.get();
+        actual.setStatus(Status.INACTIVE);
+        procedureRepository.save(actual);
+    }
+
+    public void deleteVolunteer(Long id) {
+        Optional<Volunteer> dbVol = volunteerRepository.findById(id);
+        Volunteer actual = dbVol.get();
+        actual.setStatus(Status.INACTIVE);
+        volunteerRepository.save(actual);
     }
 }

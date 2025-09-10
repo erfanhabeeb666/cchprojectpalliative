@@ -1,6 +1,7 @@
 package com.erfan.cch.Controllers;
 
 import com.erfan.cch.Dto.*;
+import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Services.AdminService;
 import org.springframework.http.ResponseEntity;
@@ -80,6 +81,11 @@ public class AdminController {
         adminService.addVolunteer(volunteer);
         return ResponseEntity.ok("Volunteer added successfully");
     }
+    @DeleteMapping("/delete-volunteer")
+    public ResponseEntity<String> deleteVolunteer(@RequestParam Long id){
+        adminService.deleteVolunteer(id);
+        return ResponseEntity.ok("Volunteer deleted successfully");
+    }
 
     @PostMapping("/add-equipment")
     public ResponseEntity<String> addEquipment(@RequestBody Equipment equipment) {
@@ -94,6 +100,23 @@ public class AdminController {
     @GetMapping("/view-equipments")
     public  List<EquipmentDto> viewEquipments() {
          return adminService.getAllEquipment();
+    }
+    @GetMapping("/dashboard-stats")
+    public DashboardStatsDto dashboardStats(){
+        return adminService.dashboardStats();
+    }
+    @GetMapping("/completed-visits")
+    public ResponseEntity<List<PatientVisitReportDto>> getCompletedVisits() {
+        return ResponseEntity.ok(adminService.getVisits(Status.COMPLETED));
+    }
+    @GetMapping("/pending-visits")
+    public ResponseEntity<List<PatientVisitReportDto>> getPendingVisits(){
+        return ResponseEntity.ok(adminService.getVisits(Status.PENDING));
+    }
+    @DeleteMapping("/delete-procedure")
+    public ResponseEntity<String> deleteProcedure(@RequestParam Long id){
+        adminService.deleteProcedure(id);
+        return ResponseEntity.ok("Procedure deleted Successfully");
     }
 }
 

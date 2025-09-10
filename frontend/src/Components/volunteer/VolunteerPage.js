@@ -1,54 +1,60 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import AddPatient from "./AddPatient";
+import AddVolunteer from "./AddVolunteer";
+import AssignVolunteer from "./AssignVolunteer"; // ✅ Import assign volunteer
 import axios from "axios";
 import "../Styles/Admin.css";
 import "../Styles/Main.css";
 import "../Styles/Sidebar.css";
 
-const PatientPage = () => {
-  const [patientList, setPatientList] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+const VolunteerPage = () => {
+  const [volunteerList, setVolunteerList] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showAssignForm, setShowAssignForm] = useState(false); // ✅ new state
 
-  const fetchPatients = async () => {
+  // Fetch volunteers
+  const fetchVolunteers = async () => {
     try {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
-      const response = await axios.get(`${apiUrl}admin/list-patients`, {
+      const response = await axios.get(`${apiUrl}admin/list-volunteers`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPatientList(response.data);
+      setVolunteerList(response.data);
     } catch (err) {
-      console.error("Failed to fetch patients", err);
+      console.error("Failed to fetch volunteers", err);
     }
   };
 
   useEffect(() => {
-    fetchPatients();
+    fetchVolunteers();
   }, []);
 
+  // Add success handler
   const handleAddSuccess = () => {
-    fetchPatients();
-    setShowModal(false);
+    fetchVolunteers();
+    setShowAddForm(false);
   };
 
+  // Delete volunteer
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to remove this patient?")) {
+    if (window.confirm("Are you sure you want to remove this volunteer?")) {
       try {
         const token = localStorage.getItem("jwtToken");
         const apiUrl = process.env.REACT_APP_API_URL;
 
-        await axios.delete(`${apiUrl}admin/delete-patient`, {
+        await axios.delete(`${apiUrl}admin/delete-volunteer`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { id }, // backend expects id as query param
+          params: { id },
         });
-        fetchPatients();
+        fetchVolunteers();
       } catch (err) {
-        console.error("Failed to delete patient", err);
+        console.error("Failed to delete volunteer", err);
       }
     }
   };
 
+  // Logout
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
@@ -77,67 +83,75 @@ const PatientPage = () => {
       {/* Main Content */}
       <main className="main-content">
         <header className="topbar">
-          <h1>Patient Management</h1>
+          <h1>Volunteer Management</h1>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </header>
 
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
-          <button onClick={() => setShowModal(true)}>+ Add Patient</button>
-          <button onClick={fetchPatients} style={{ marginLeft: "10px" }}>Refresh List</button>
+          <button onClick={() => setShowAddForm(true)}>+ Add Volunteer</button>
+          <button onClick={() => setShowAssignForm(true)} style={{ marginLeft: "10px" }}>+ Assign Volunteer</button>
+          <button onClick={fetchVolunteers} style={{ marginLeft: "10px" }}>Refresh List</button>
         </div>
 
-        {/* Modal for AddPatient */}
-        {showModal && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <AddPatient onSuccess={handleAddSuccess} />
-              <button
-                onClick={() => setShowModal(false)}
-                className="btn-cancel"
-                style={{ marginTop: "10px" }}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Add Volunteer Form */}
+       {showAddForm && (
+  <div className="modal-overlay">
+    <div className="form-container">
+      <AddVolunteer onSuccess={handleAddSuccess} />
+      <button onClick={() => setShowAddForm(false)} className="btn-cancel">Close</button>
+    </div>
+  </div>
+)}
 
-        {/* Patients Table */}
+{/* Assign Volunteer Form Modal */}
+{showAssignForm && (
+  <div className="modal-overlay">
+    <div className="form-container">
+      <AssignVolunteer />
+      <button onClick={() => setShowAssignForm(false)} className="btn-cancel">Close</button>
+    </div>
+  </div>
+)}
+
+        {/* Volunteer Table */}
         <div>
           <table className="main-table">
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Mobile</th>
-                <th>Age</th>
-                <th>Gender</th>
+                <th>Email</th>
+                <th>Phone</th>
                 <th>Address</th>
-                <th>Medical Condition</th>
-                <th>Emergency Contact</th>
+                <th>Specialization</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {patientList.length === 0 ? (
+              {volunteerList.length === 0 ? (
                 <tr>
-                  <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
-                    No patients available
+                  <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>
+                    No volunteers available
                   </td>
                 </tr>
               ) : (
-                patientList.map((patient) => (
-                  <tr key={patient.id}>
-                    <td>{patient.name}</td>
-                    <td>{patient.mobileNumber}</td>
-                    <td>{patient.age}</td>
-                    <td>{patient.gender}</td>
-                    <td>{patient.address}</td>
-                    <td>{patient.medicalCondition}</td>
-                    <td>{patient.emergencyContact}</td>
+                volunteerList.map((vol) => (
+                  <tr key={vol.id}>
+                    <td>{vol.name}</td>
+                    <td>{vol.email}</td>
+                    <td>{vol.phoneNumber}</td>
+                    <td>{vol.address}</td>
+                    <td>{vol.specialization}</td>
                     <td>
-                      <button 
-                        onClick={() => handleDelete(patient.id)} 
-                        style={{ backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}
+                      <button
+                        onClick={() => handleDelete(vol.id)}
+                        style={{
+                          backgroundColor: "red",
+                          color: "white",
+                          border: "none",
+                          padding: "5px 10px",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                        }}
                       >
                         Remove
                       </button>
@@ -153,4 +167,4 @@ const PatientPage = () => {
   );
 };
 
-export default PatientPage;
+export default VolunteerPage;

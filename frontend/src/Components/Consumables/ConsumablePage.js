@@ -1,50 +1,50 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import AddPatient from "./AddPatient";
+import AddConsumable from "./AddConsumable";
 import axios from "axios";
 import "../Styles/Admin.css";
 import "../Styles/Main.css";
 import "../Styles/Sidebar.css";
 
-const PatientPage = () => {
-  const [patientList, setPatientList] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+const ConsumablePage = () => {
+  const [consumableList, setConsumableList] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  const fetchPatients = async () => {
+  const fetchConsumables = async () => {
     try {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
-      const response = await axios.get(`${apiUrl}admin/list-patients`, {
+      const response = await axios.get(`${apiUrl}admin/list-consumables`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setPatientList(response.data);
+      setConsumableList(response.data);
     } catch (err) {
-      console.error("Failed to fetch patients", err);
+      console.error("Failed to fetch consumables", err);
     }
   };
 
   useEffect(() => {
-    fetchPatients();
+    fetchConsumables();
   }, []);
 
   const handleAddSuccess = () => {
-    fetchPatients();
-    setShowModal(false);
+    fetchConsumables();
+    setShowAddForm(false);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to remove this patient?")) {
+    if (window.confirm("Are you sure you want to remove this consumable?")) {
       try {
         const token = localStorage.getItem("jwtToken");
         const apiUrl = process.env.REACT_APP_API_URL;
 
-        await axios.delete(`${apiUrl}admin/delete-patient`, {
+        await axios.delete(`${apiUrl}admin/delete-consumable`, {
           headers: { Authorization: `Bearer ${token}` },
           params: { id }, // backend expects id as query param
         });
-        fetchPatients();
+        fetchConsumables();
       } catch (err) {
-        console.error("Failed to delete patient", err);
+        console.error("Failed to delete consumable", err);
       }
     }
   };
@@ -77,66 +77,48 @@ const PatientPage = () => {
       {/* Main Content */}
       <main className="main-content">
         <header className="topbar">
-          <h1>Patient Management</h1>
+          <h1>Consumables Management</h1>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </header>
 
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
-          <button onClick={() => setShowModal(true)}>+ Add Patient</button>
-          <button onClick={fetchPatients} style={{ marginLeft: "10px" }}>Refresh List</button>
+          <button onClick={() => setShowAddForm(true)}>+ Add Consumable</button>
+          <button onClick={fetchConsumables} style={{ marginLeft: "10px" }}>Refresh List</button>
         </div>
 
-        {/* Modal for AddPatient */}
-        {showModal && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <AddPatient onSuccess={handleAddSuccess} />
-              <button
-                onClick={() => setShowModal(false)}
-                className="btn-cancel"
-                style={{ marginTop: "10px" }}
-              >
-                Close
-              </button>
-            </div>
+        {showAddForm && (
+          <div className="form-container">
+            <AddConsumable onSuccess={handleAddSuccess} />
+            <button onClick={() => setShowAddForm(false)} className="btn-cancel">Close</button>
           </div>
         )}
 
-        {/* Patients Table */}
         <div>
           <table className="main-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Mobile</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Address</th>
-                <th>Medical Condition</th>
-                <th>Emergency Contact</th>
-                <th>Action</th>
+                <th>ID</th>
+                <th>Consumable Name</th>
+                <th>Quantity</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {patientList.length === 0 ? (
+              {consumableList.length === 0 ? (
                 <tr>
-                  <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
-                    No patients available
+                  <td colSpan="4" style={{ textAlign: "center", padding: "20px" }}>
+                    No consumables available
                   </td>
                 </tr>
               ) : (
-                patientList.map((patient) => (
-                  <tr key={patient.id}>
-                    <td>{patient.name}</td>
-                    <td>{patient.mobileNumber}</td>
-                    <td>{patient.age}</td>
-                    <td>{patient.gender}</td>
-                    <td>{patient.address}</td>
-                    <td>{patient.medicalCondition}</td>
-                    <td>{patient.emergencyContact}</td>
+                consumableList.map((consumable) => (
+                  <tr key={consumable.id}>
+                    <td>{consumable.id}</td>
+                    <td>{consumable.name}</td>
+                    <td>{consumable.quantity}</td>
                     <td>
                       <button 
-                        onClick={() => handleDelete(patient.id)} 
+                        onClick={() => handleDelete(consumable.id)} 
                         style={{ backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}
                       >
                         Remove
@@ -153,4 +135,4 @@ const PatientPage = () => {
   );
 };
 
-export default PatientPage;
+export default ConsumablePage;

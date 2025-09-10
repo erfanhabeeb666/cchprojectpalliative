@@ -1,102 +1,169 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import "./Styles/Admin.css";
+import "./Styles/Main.css";
+import "./Styles/Sidebar.css";
+
 const apiUrl = process.env.REACT_APP_API_URL;
+
 const decodeJwtToken = (token) => {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-            atob(base64)
-                .split('')
-                .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-        );
-        return JSON.parse(jsonPayload);
-    } catch (error) {
-        console.error('Failed to decode JWT token', error);
-        return null;
-    }
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Failed to decode JWT token", error);
+    return null;
+  }
 };
 
 const CompletedVisits = () => {
-    const [completedVisits, setCompletedVisits] = useState([]);
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+  const [completedVisits, setCompletedVisits] = useState([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        fetchCompletedVisits();
-    }, []);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("jwtToken");
+    navigate("/");
+  };
 
-    const fetchCompletedVisits = async () => {
-        setLoading(true); // Start loading
-        setError(''); // Clear any previous errors
+  useEffect(() => {
+    fetchCompletedVisits();
+  }, []);
 
-        const jwtToken = localStorage.getItem('jwtToken');
-        if (!jwtToken) {
-            setError('No JWT token found');
-            setLoading(false);
-            return;
+  const fetchCompletedVisits = async () => {
+    setLoading(true);
+    setError("");
+
+    const jwtToken = localStorage.getItem("jwtToken");
+    if (!jwtToken) {
+      setError("No JWT token found");
+      setLoading(false);
+      return;
+    }
+
+    const decodedToken = decodeJwtToken(jwtToken);
+    if (!decodedToken || !decodedToken.userId) {
+      setError("Invalid token or user ID not found");
+      setLoading(false);
+      return;
+    }
+
+    const volunteerId = decodedToken.userId;
+
+    try {
+      const response = await fetch(
+        `${apiUrl}volunteer/completed-visits?volunteerId=${volunteerId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
         }
+      );
 
-        // Decode the JWT token to get the volunteer ID (userId)
-        const decodedToken = decodeJwtToken(jwtToken);
-        if (!decodedToken || !decodedToken.userId) {
-            setError('Invalid token or user ID not found');
-            setLoading(false);
-            return;
-        }
+      if (!response.ok) {
+        throw new Error("Failed to fetch completed visits");
+      }
 
-        const volunteerId = decodedToken.userId;
+      const data = await response.json();
+      setCompletedVisits(data);
+    } catch (err) {
+      setError(err.message || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        try {
-            // Fetch completed visits for the volunteer
-            const response = await fetch(`${apiUrl}volunteer/completed-visits?volunteerId=${volunteerId}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${jwtToken}`,
-                },
-            });
+  return (
+    <div className="dashboard-container">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <center>
+          <h2>P A S S</h2>
+        </center>
+        <nav>
+          <ul className="sidebar-menu">
+            <li>
+              <NavLink to="/volunteer" className="sidebar-link">
+                <i className="fas fa-tachometer-alt"></i> Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/volunteer/todays-visits" className="sidebar-link">
+                <i className="fas fa-calendar-day"></i> Today's Visits
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/volunteer/completed-visits" className="sidebar-link">
+                <i className="fas fa-check"></i> Completed Visits
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/volunteer/profile" className="sidebar-link">
+                <i className="fas fa-user"></i> Profile
+              </NavLink>
+            </li>
+          </ul>
+        </nav>
+      </aside>
 
+      {/* Main Content */}
+      <main className="main-content">
+        <header className="topbar">
+          <h1>Completed Visits</h1>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </header>
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch completed visits');
-            }
-
-            const data = await response.json();
-            setCompletedVisits(data); // Set the completed visits data
-        } catch (err) {
-            setError(err.message || 'An error occurred');
-        } finally {
-            setLoading(false); // Stop loading
-        }
-    };
-
-    return (
-        <div>
-            <h2>Completed Visits</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {loading ? (
-                <p>Loading...</p>
-            ) : (
-                <>
-                    {completedVisits.length === 0 && <p>No completed visits found.</p>}
-                    {completedVisits.length > 0 && (
-                        <ul>
-                            {completedVisits.map((visit) => (
-                                <li key={visit.id}>
-                                    <strong>Visit ID:</strong> {visit.id} <br />
-                                    <strong>Patient Name:</strong> {visit.patientName} <br />
-                                    <strong>Volunteer Name:</strong> {visit.volunteerName} <br />
-                                    <strong>Visit Date:</strong> {visit.visitDate} <br />
-                                    <strong>Status:</strong> {visit.status} <br />
-                                    {/* Add other fields as required */}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </>
-            )}
-        </div>
-    );
+        <section className="content-section">
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          {loading ? (
+            <p>Loading...</p>
+          ) : completedVisits.length === 0 ? (
+            <p>No completed visits found.</p>
+          ) : (
+            <div>
+              <table className="main-table">
+                <thead>
+                  <tr>
+                    <th>Visit ID</th>
+                    <th>Patient Name</th>
+                    <th>Volunteer Name</th>
+                    <th>Visit Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {completedVisits.map((visit) => (
+                    <tr key={visit.id}>
+                      <td>{visit.id}</td>
+                      <td>{visit.patientName}</td>
+                      <td>{visit.volunteerName}</td>
+                      <td>
+                        {visit.visitDate
+                          ? new Date(visit.visitDate).toLocaleDateString()
+                          : "-"}
+                      </td>
+                      <td>{visit.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      </main>
+    </div>
+  );
 };
 
 export default CompletedVisits;

@@ -1,6 +1,7 @@
 package com.erfan.cch.Models;
 
 
+import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Enums.UserType;
 import jakarta.persistence.*;
 
@@ -26,6 +27,16 @@ public class User implements UserDetails {
     private String password;
     @Enumerated(EnumType.STRING)
     private UserType userType;
+
+    private Status status;
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
     public UserType getUserType() {
         return userType;

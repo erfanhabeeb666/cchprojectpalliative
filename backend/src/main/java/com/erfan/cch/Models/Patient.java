@@ -1,6 +1,7 @@
 package com.erfan.cch.Models;
 
 
+import com.erfan.cch.Enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class Patient {
     private String address;
     private String medicalCondition; // Example: "Cancer, Stage 4"
     private String emergencyContact;
+    private Status status;
 
     @OneToMany(mappedBy = "patient")
     private List<PatientVisitReport> visitReports;
@@ -105,6 +107,14 @@ public class Patient {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
 
