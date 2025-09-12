@@ -4,6 +4,7 @@ import com.erfan.cch.Dto.*;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Services.AdminService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +44,8 @@ public class AdminController {
     public  List<VolunteerDto> getVolunteers() {
          return adminService.getVolunteers();
     }
+
+    @Cacheable(value = "cache1", key = "methodName", unless = "#result == null", cacheManager = "cacheManagerWith10sTTL")
     @GetMapping("list-patients")
     public List<PatientDto> getPatients() {
         return adminService.getAllPatients();

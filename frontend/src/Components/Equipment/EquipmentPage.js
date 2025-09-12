@@ -151,6 +151,7 @@ const handleDelete = async (id) => {
             <button className="add-btn" onClick={() => setShowAddForm(true)}>
               + Add Equipment
             </button>
+                      <button onClick={fetchPatients} style={{ marginLeft: "10px" }}>Refresh List</button>
           </div>
 
           {error && <p className="text-red-600">{error}</p>}
@@ -189,7 +190,7 @@ const handleDelete = async (id) => {
                     <td>{item.id}</td>
                     <td>{item.name}</td>
                     <td>{item.allocated ? "Yes" : "No"}</td>
-                    <td>{item.allocatedTo ? item.allocatedTo.name : "-"}</td>
+                    <td>{item.patientName ? item.patientName : "-"}</td>
                     <td>
                       <button
                         onClick={() => handleDelete(item.id)}
