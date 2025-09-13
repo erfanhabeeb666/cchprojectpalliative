@@ -7,6 +7,8 @@ import com.erfan.cch.Models.*;
 import com.erfan.cch.Repo.*;
 import com.erfan.cch.Security.AuthenticationService;
 import com.erfan.cch.utils.ConvertToDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -133,12 +135,23 @@ public class AdminService {
     }
 
 
-    public List<PatientDto> getAllPatients() {
-        return patientRepository.findByStatus(Status.ACTIVE)
-                .stream()
-                .map(ConvertToDto::convertToPatientDto)
-                .collect(Collectors.toList());
+    public Page<PatientDto> getAllPatients(String search, Pageable pageable) {
+        Page<Patient> patients;
+
+        if (search == null || search.trim().isEmpty()) {
+            patients = patientRepository.findByStatus(Status.ACTIVE, pageable);
+        } else {
+            patients = patientRepository.findByStatusAndNameContainingIgnoreCaseOrStatusAndMobileNumberContaining(
+                    Status.ACTIVE, search,
+                    Status.ACTIVE, search,
+                    pageable
+            );
+        }
+
+        return patients.map(ConvertToDto::convertToPatientDto);
     }
+
+
 
     public void deleteEquipment(Long id) {
         equipmentRepository.deleteById(id);

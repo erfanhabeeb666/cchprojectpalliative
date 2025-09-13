@@ -9,10 +9,16 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-
+@Table(
+        name = "patient",
+        indexes = {
+                @Index(name = "idx_patient_name", columnList = "name"),
+                @Index(name = "idx_patient_status", columnList = "status")
+        }
+)
 public class Patient {
     private String name;
-    private Long mobileNumber;
+    private String mobileNumber;
     private int age;
     private String gender;
     private String address;
@@ -37,11 +43,11 @@ public class Patient {
         this.name = name;
     }
 
-    public Long getMobileNumber() {
+    public String getMobileNumber() {
         return mobileNumber;
     }
 
-    public void setMobileNumber(Long mobileNumber) {
+    public void setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
     }
 

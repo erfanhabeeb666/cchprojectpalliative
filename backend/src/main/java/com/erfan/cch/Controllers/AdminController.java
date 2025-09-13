@@ -5,6 +5,10 @@ import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Services.AdminService;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -45,9 +49,19 @@ public class AdminController {
          return adminService.getVolunteers();
     }
     @GetMapping("list-patients")
-    public List<PatientDto> getPatients() {
-        return adminService.getAllPatients();
+    public ResponseEntity<Page<PatientDto>> getPatients(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "") String search) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<PatientDto> patients = adminService.getAllPatients(search, pageable);
+        return ResponseEntity.ok(patients);
     }
+
+
+
 //    @GetMapping("/consumables-report")
 //    public ResponseEntity<List<PatientVisitReport>> getConsumablesReport(
 //            @RequestParam LocalDate startDate,

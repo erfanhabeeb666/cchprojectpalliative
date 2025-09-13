@@ -2,7 +2,7 @@ package com.erfan.cch.Dto;
 public class PatientDto {
     private Long id;
     private String name;
-    private Long mobileNumber;
+    private String mobileNumber;
     private int age;
     private String gender;
     private String address;
@@ -25,11 +25,11 @@ public class PatientDto {
         this.name = name;
     }
 
-    public Long getMobileNumber() {
+    public String getMobileNumber() {
         return mobileNumber;
     }
 
-    public void setMobileNumber(Long mobileNumber) {
+    public void setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
     }
 

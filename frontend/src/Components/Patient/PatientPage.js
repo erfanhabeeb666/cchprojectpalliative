@@ -7,17 +7,28 @@ import "../Styles/Main.css";
 import "../Styles/Sidebar.css";
 
 const PatientPage = () => {
-  const [patientList, setPatientList] = useState([]);
+  const [patients, setPatients] = useState([]);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(5);
+  const [direction, setDirection] = useState("asc");
+  const [search, setSearch] = useState("");
+  const [totalPages, setTotalPages] = useState(0);
+
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   const fetchPatients = async () => {
     try {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
+
       const response = await axios.get(`${apiUrl}admin/list-patients`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { page, size, direction, search },
       });
-      setPatientList(response.data);
+
+      setPatients(response.data.content); // Page content
+      setTotalPages(response.data.totalPages);
     } catch (err) {
       console.error("Failed to fetch patients", err);
     }
@@ -25,7 +36,7 @@ const PatientPage = () => {
 
   useEffect(() => {
     fetchPatients();
-  }, []);
+  }, [page, size, direction, search]); // re-fetch when params change
 
   const handleAddSuccess = () => {
     fetchPatients();
@@ -40,7 +51,7 @@ const PatientPage = () => {
 
         await axios.delete(`${apiUrl}admin/delete-patient`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { id }, // backend expects id as query param
+          params: { id },
         });
         fetchPatients();
       } catch (err) {
@@ -49,7 +60,6 @@ const PatientPage = () => {
     }
   };
 
-  const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
     navigate("/");
@@ -83,7 +93,17 @@ const PatientPage = () => {
 
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
           <button onClick={() => setShowModal(true)}>+ Add Patient</button>
-          <button onClick={fetchPatients} style={{ marginLeft: "10px" }}>Refresh List</button>
+          <input
+  type="text"
+  placeholder="Search by name or mobile..."
+  value={search}
+  onChange={(e) => {
+    setPage(0);
+    setSearch(e.target.value);
+  }}
+  className="search-input"
+/>
+
         </div>
 
         {/* Modal for AddPatient */}
@@ -118,14 +138,14 @@ const PatientPage = () => {
               </tr>
             </thead>
             <tbody>
-              {patientList.length === 0 ? (
+              {patients.length === 0 ? (
                 <tr>
                   <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
                     No patients available
                   </td>
                 </tr>
               ) : (
-                patientList.map((patient) => (
+                patients.map((patient) => (
                   <tr key={patient.id}>
                     <td>{patient.name}</td>
                     <td>{patient.mobileNumber}</td>
@@ -147,6 +167,23 @@ const PatientPage = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div style={{ marginTop: "15px", display: "flex", justifyContent: "center", gap: "10px" }}>
+          <button
+            disabled={page === 0}
+            onClick={() => setPage((prev) => prev - 1)}
+          >
+            Previous
+          </button>
+          <span>Page {page + 1} of {totalPages}</span>
+          <button
+            disabled={page + 1 >= totalPages}
+            onClick={() => setPage((prev) => prev + 1)}
+          >
+            Next
+          </button>
         </div>
       </main>
     </div>
