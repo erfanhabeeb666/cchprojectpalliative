@@ -9,7 +9,7 @@ import "../Styles/Sidebar.css";
 const PatientPage = () => {
   const [patients, setPatients] = useState([]);
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(5);
+  const [size, setSize] = useState(10);
   const [direction, setDirection] = useState("asc");
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(0);
@@ -90,7 +90,7 @@ const PatientPage = () => {
           <h1>Patient Management</h1>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </header>
-        <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
+        <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"30px"}}>
           <button onClick={() => setShowModal(true)}>+ Add Patient</button>
           <button onClick={fetchPatients} style={{ marginLeft: "10px" }}>Refresh List</button>
           <input type="text" placeholder="Search by name or mobile..." value={search} onChange={(e) => {
@@ -107,7 +107,12 @@ const PatientPage = () => {
             <div className="modal-content">
               <AddPatient onSuccess={handleAddSuccess} />
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                                setShowModal(false);
+                                fetchPatients();
+                              }
+                        }
+
                 className="btn-cancel"
                 style={{ marginTop: "10px" }}
               >
