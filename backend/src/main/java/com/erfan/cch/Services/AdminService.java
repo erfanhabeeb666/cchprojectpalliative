@@ -6,9 +6,13 @@ import com.erfan.cch.Enums.UserType;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Repo.*;
 import com.erfan.cch.Security.AuthenticationService;
+import com.erfan.cch.Specification.PatientVisitReportSpecifications;
 import com.erfan.cch.utils.ConvertToDto;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -171,13 +175,16 @@ public class AdminService {
         return dashboardStatsDto;
     }
 
-    public List<PatientVisitReportDto> getVisits(Status status) {
-        return reportRepository.findByStatus(status)
-                .stream()
-                .map(ConvertToDto::convertToPatientVisitReportDto)
-                .collect(Collectors.toList());
-    }
+    public Page<PatientVisitReportDto> getVisits(Status status, LocalDate startDate, LocalDate endDate, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("visitDate").descending());
 
+        Specification<PatientVisitReport> spec = Specification
+                .where(PatientVisitReportSpecifications.hasStatus(status))
+                .and(PatientVisitReportSpecifications.visitDateBetween(startDate, endDate));
+
+        return reportRepository.findAll(spec, pageable)
+                .map(ConvertToDto::convertToPatientVisitReportDto);
+    }
     public void deleteProcedure(Long id) {
         Optional<ProcedureDone> procedureDone = procedureRepository.findById(id);
         ProcedureDone actual = procedureDone.get();

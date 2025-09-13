@@ -8,10 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -123,14 +125,17 @@ public class AdminController {
     public DashboardStatsDto dashboardStats(){
         return adminService.dashboardStats();
     }
-    @GetMapping("/completed-visits")
-    public ResponseEntity<List<PatientVisitReportDto>> getCompletedVisits() {
-        return ResponseEntity.ok(adminService.getVisits(Status.COMPLETED));
+    @GetMapping("/visits")
+    public ResponseEntity<Page<PatientVisitReportDto>> getVisits(
+            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(adminService.getVisits(status, startDate, endDate, page, size));
     }
-    @GetMapping("/pending-visits")
-    public ResponseEntity<List<PatientVisitReportDto>> getPendingVisits(){
-        return ResponseEntity.ok(adminService.getVisits(Status.PENDING));
-    }
+
     @DeleteMapping("/delete-procedure")
     public ResponseEntity<String> deleteProcedure(@RequestParam Long id){
         adminService.deleteProcedure(id);

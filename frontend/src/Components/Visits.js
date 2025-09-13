@@ -1,48 +1,69 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Styles/Admin.css";
 import "./Styles/Main.css";
 import "./Styles/Sidebar.css";
+
 const Visits = () => {
   const [visits, setVisits] = useState([]);
-  const [activeTab, setActiveTab] = useState("completed");
+  const [activeTab, setActiveTab] = useState("completed"); // completed / pending / all
   const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+
   const navigate = useNavigate();
 
-  const fetchVisits = async (type) => {
+  const fetchVisits = async () => {
     try {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
-      const endpoint =
-        type === "completed" ? "admin/completed-visits" : "admin/pending-visits";
 
-      const response = await axios.get(`${apiUrl}${endpoint}`, {
+      let params = {
+        page,
+        size,
+      };
+
+      // Add status only if tab is not "all"
+      if (activeTab !== "all") {
+        params.status = activeTab.toUpperCase(); // backend expects COMPLETED / PENDING
+      }
+
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      const response = await axios.get(`${apiUrl}admin/visits`, {
         headers: { Authorization: `Bearer ${token}` },
+        params,
       });
 
-      setVisits(response.data);
+      setVisits(response.data.content || []);
+      setTotalPages(response.data.totalPages || 0);
     } catch (err) {
       console.error("Failed to fetch visits", err);
     }
   };
 
   useEffect(() => {
-    fetchVisits(activeTab);
-  }, [activeTab]);
+    fetchVisits();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, page, size, startDate, endDate]);
 
   // filter visits by patient name
   const filteredVisits = visits.filter((visit) =>
     visit.patientName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
   const handleLogout = () => {
     localStorage.removeItem("jwtToken");
     navigate("/");
   };
+
   return (
-    
     <div className="dashboard-container">
-       
       {/* Sidebar */}
       <aside className="sidebar">
         <center>
@@ -98,27 +119,45 @@ const Visits = () => {
       <main className="main-content">
         <header className="topbar">
           <h1>Visit Reports</h1>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
         </header>
 
         {/* Tabs */}
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
           <button
             className={activeTab === "completed" ? "active-tab" : ""}
-            onClick={() => setActiveTab("completed")}
+            onClick={() => {
+              setActiveTab("completed");
+              setPage(0);
+            }}
           >
             Completed Visits
           </button>
           <button
             className={activeTab === "pending" ? "active-tab" : ""}
-            onClick={() => setActiveTab("pending")}
+            onClick={() => {
+              setActiveTab("pending");
+              setPage(0);
+            }}
           >
             Pending Visits
           </button>
+          <button
+            className={activeTab === "all" ? "active-tab" : ""}
+            onClick={() => {
+              setActiveTab("all");
+              setPage(0);
+            }}
+          >
+            All Visits
+          </button>
         </div>
 
-        {/* Search */}
-        <div className="search-box" style={{ marginBottom: "20px" }}>
+        {/* Filters */}
+        <div className="filters" style={{ marginBottom: "20px" }}>
+          {/* Search */}
           <label htmlFor="search">Search Patient: </label>
           <input
             id="search"
@@ -126,7 +165,32 @@ const Visits = () => {
             placeholder="Enter patient name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ padding: "5px", marginLeft: "10px" }}
+            style={{ padding: "5px", marginLeft: "10px", marginRight: "20px" }}
+          />
+
+          {/* Date Range */}
+          <label htmlFor="startDate">From: </label>
+          <input
+            type="date"
+            id="startDate"
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              setPage(0);
+            }}
+            style={{ marginLeft: "10px", marginRight: "20px" }}
+          />
+
+          <label htmlFor="endDate">To: </label>
+          <input
+            type="date"
+            id="endDate"
+            value={endDate}
+            onChange={(e) => {
+              setEndDate(e.target.value);
+              setPage(0);
+            }}
+            style={{ marginLeft: "10px" }}
           />
         </div>
 
@@ -185,6 +249,27 @@ const Visits = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="pagination" style={{ marginTop: "20px", textAlign: "center" }}>
+          <button
+            disabled={page === 0}
+            onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+            style={{ marginRight: "10px" }}
+          >
+            Previous
+          </button>
+          <span>
+            Page {page + 1} of {totalPages}
+          </span>
+          <button
+            disabled={page + 1 >= totalPages}
+            onClick={() => setPage((prev) => prev + 1)}
+            style={{ marginLeft: "10px" }}
+          >
+            Next
+          </button>
         </div>
       </main>
     </div>
