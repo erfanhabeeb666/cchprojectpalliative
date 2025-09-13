@@ -90,20 +90,15 @@ const PatientPage = () => {
           <h1>Patient Management</h1>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </header>
-
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
           <button onClick={() => setShowModal(true)}>+ Add Patient</button>
-          <input
-  type="text"
-  placeholder="Search by name or mobile..."
-  value={search}
-  onChange={(e) => {
-    setPage(0);
-    setSearch(e.target.value);
-  }}
-  className="search-input"
-/>
-
+          <button onClick={fetchPatients} style={{ marginLeft: "10px" }}>Refresh List</button>
+          <input type="text" placeholder="Search by name or mobile..." value={search} onChange={(e) => {
+                                                                                        setPage(0);
+                                                                                        setSearch(e.target.value);
+                                                                                                        }
+                                                                                                }
+            className="search-input" />
         </div>
 
         {/* Modal for AddPatient */}
