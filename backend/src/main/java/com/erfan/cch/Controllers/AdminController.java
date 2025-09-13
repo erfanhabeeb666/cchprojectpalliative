@@ -44,8 +44,6 @@ public class AdminController {
     public  List<VolunteerDto> getVolunteers() {
          return adminService.getVolunteers();
     }
-
-    @Cacheable(value = "cache1", key = "methodName", unless = "#result == null", cacheManager = "cacheManagerWith10sTTL")
     @GetMapping("list-patients")
     public List<PatientDto> getPatients() {
         return adminService.getAllPatients();
