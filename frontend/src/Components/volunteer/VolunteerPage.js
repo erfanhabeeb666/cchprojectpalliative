@@ -75,17 +75,17 @@ const VolunteerPage = () => {
       <aside className="sidebar">
         <center><h2>P A S S</h2></center>
         <nav>
-          <ul className="sidebar-menu">
-            <li><NavLink to="/admin" className="sidebar-link">Dashboard</NavLink></li>
-            <li><NavLink to="/admin/patient" className="sidebar-link">Patients</NavLink></li>
-            <li><NavLink to="/admin/volunteers" className="sidebar-link">Volunteers</NavLink></li>
-            <li><NavLink to="/admin/procedures" className="sidebar-link">Procedures</NavLink></li>
-            <li><NavLink to="/admin/visits" className="sidebar-link">Visit Reports</NavLink></li>
-            <li><NavLink to="/admin/equipment" className="sidebar-link">Equipment</NavLink></li>
-            <li><NavLink to="/admin/consumables" className="sidebar-link">Consumables</NavLink></li>
-            <li><NavLink to="/admin/settings" className="sidebar-link">Settings</NavLink></li>
-          </ul>
-        </nav>
+                  <ul className="sidebar-menu">
+                    <li><NavLink to="/admin" className="sidebar-link"><i className="fas fa-tachometer-alt"></i> Dashboard</NavLink></li>
+                    <li><NavLink to="/admin/patient" className="sidebar-link"><i className="fas fa-user-injured"></i> Patients</NavLink></li>
+                    <li><NavLink to="/admin/volunteers" className="sidebar-link"><i className="fas fa-hands-helping"></i> Volunteers</NavLink></li>
+                    <li><NavLink to="/admin/procedures" className="sidebar-link"><i className="fas fa-stethoscope"></i> Procedures</NavLink></li>
+                    <li><NavLink to="/admin/visits" className="sidebar-link"><i className="fas fa-notes-medical"></i> Visit Reports</NavLink></li>
+                    <li><NavLink to="/admin/equipment" className="sidebar-link"><i className="fas fa-dolly-flatbed"></i> Equipment</NavLink></li>
+                    <li><NavLink to="/admin/consumables" className="sidebar-link"><i className="fas fa-medkit"></i> Consumables</NavLink></li>
+                    <li><NavLink to="/admin/settings" className="sidebar-link"><i className="fas fa-cogs"></i> Settings</NavLink></li>
+                  </ul>
+                </nav>
       </aside>
 
       <main className="main-content">

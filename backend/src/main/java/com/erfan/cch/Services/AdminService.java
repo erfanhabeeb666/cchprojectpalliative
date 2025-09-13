@@ -120,14 +120,20 @@ public class AdminService {
         equipmentRepository.save(equipment);
     }
 
-    public List<EquipmentDto> getAllEquipment() {
-        return equipmentRepository.findAll()
-                .stream()
-                .map(ConvertToDto::convertToEquipmentDto)
-                .collect(Collectors.toList());
+
+    public Page<EquipmentDto> getAllEquipment(String search, Pageable pageable) {
+
+        if (search == null || search.isEmpty()) {
+            return equipmentRepository.findAll(pageable)
+                    .map(ConvertToDto::convertToEquipmentDto);
+        }
+
+        // If search term exists, filter by equipment name or patient name
+        return equipmentRepository.findByNameContainingIgnoreCaseOrAllocatedTo_NameContainingIgnoreCase(
+                search, search, pageable
+        ).map(ConvertToDto::convertToEquipmentDto);
+
     }
-
-
     public Page<PatientDto> getAllPatients(String search, Pageable pageable) {
         Page<Patient> patients;
 

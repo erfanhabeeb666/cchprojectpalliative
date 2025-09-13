@@ -1,45 +1,73 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { NavLink,useNavigate } from "react-router-dom"; 
+import { NavLink, useNavigate } from "react-router-dom";
 import "../Styles/Admin.css";
 import "../Styles/Main.css";
-import "../Styles/Sidebar.css"; 
+import "../Styles/Sidebar.css";
 import AddEquipment from "./AddEquipment";
 
 const EquipmentPage = () => {
   const [equipmentList, setEquipmentList] = useState([]);
   const [error, setError] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
-
-  // allocate modal states
   const [showAllocateModal, setShowAllocateModal] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [patients, setPatients] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [direction, setDirection] = useState("asc");
   const [selectedPatient, setSelectedPatient] = useState("");
 
-  const fetchEquipment = async () => {
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const apiUrl = process.env.REACT_APP_API_URL;
+  const token = localStorage.getItem("jwtToken");
+  const handleDeallocate = async (equipmentId) => {
+  try {
+    await axios.post(
+      `${apiUrl}admin/deallocate-equipment/${equipmentId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    fetchEquipment(page, searchQuery);
+    alert("Equipment deallocated successfully!");
+  } catch (err) {
+    console.error("Deallocation failed", err);
+    alert("Failed to deallocate equipment");
+  }
+};
+
+
+  const fetchEquipment = async (pageNum = page, searchTerm = searchQuery) => {
     try {
-      const token = localStorage.getItem("jwtToken");
-      const apiUrl = process.env.REACT_APP_API_URL;
       const response = await axios.get(`${apiUrl}admin/view-equipments`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { page: pageNum, size, search: searchTerm },
       });
-      setEquipmentList(response.data);
+
+      setEquipmentList(response.data.content);
+      setPage(response.data.number);
+      setTotalPages(response.data.totalPages);
     } catch (err) {
       console.error(err);
       setError("Failed to fetch equipment");
     }
   };
 
-  const fetchPatients = async () => {
+ const fetchPatients = async () => {
     try {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
+
       const response = await axios.get(`${apiUrl}admin/list-patients`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { page, size, direction, searchQuery },
       });
-      setPatients(response.data);
+
+      setPatients(response.data.content); // Page content
     } catch (err) {
       console.error("Failed to fetch patients", err);
     }
@@ -50,7 +78,7 @@ const EquipmentPage = () => {
   }, []);
 
   const handleAddSuccess = () => {
-    fetchEquipment();
+    fetchEquipment(0, searchQuery);
     setShowAddForm(false);
   };
 
@@ -60,29 +88,19 @@ const EquipmentPage = () => {
     navigate("/");
   };
 
-  // === DELETE ===
-const handleDelete = async (id) => {
-  try {
-    const token = localStorage.getItem("jwtToken"); // ✅ Get token
-    const apiUrl = process.env.REACT_APP_API_URL;
-    await axios.delete(`${apiUrl}admin/delete-equipment`, {
-      params: { id: id }, // ✅ Pass as query param
-      headers: {
-        Authorization: `Bearer ${token}`, // ✅ Attach token
-      },
-    });
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${apiUrl}admin/delete-equipment`, {
+        params: { id },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchEquipment(page, searchQuery);
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Failed to delete equipment");
+    }
+  };
 
-    setEquipmentList(equipmentList.filter((item) => item.id !== id));
-    alert("Equipment deleted successfully!");
-  } catch (error) {
-    console.error("Delete error:", error.response || error.message);
-    alert("Failed to delete equipment. Check console for details.");
-  }
-};
-
-
-
-  // === ALLOCATE ===
   const handleAllocate = (equipment) => {
     setSelectedEquipment(equipment);
     fetchPatients();
@@ -95,14 +113,12 @@ const handleDelete = async (id) => {
       return;
     }
     try {
-      const token = localStorage.getItem("jwtToken");
-      const apiUrl = process.env.REACT_APP_API_URL;
       await axios.post(
         `${apiUrl}admin/allocate-equipment/${selectedEquipment.id}/to/${selectedPatient}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchEquipment();
+      fetchEquipment(page, searchQuery);
       setShowAllocateModal(false);
     } catch (err) {
       console.error("Allocation failed", err);
@@ -110,35 +126,28 @@ const handleDelete = async (id) => {
     }
   };
 
-  // filter patients by search
   const filteredPatients = patients.filter((p) =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar */}
       <aside className="sidebar">
         <center><h2>P A S S</h2></center>
         <nav>
-          <ul className="sidebar-menu">
-            <li><NavLink to="/admin" className="sidebar-link"><i className="fas fa-tachometer-alt"></i> Dashboard</NavLink></li>
-            <li><NavLink to="/admin/patient" className="sidebar-link"><i className="fas fa-user-injured"></i> Patients</NavLink></li>
-            <li><NavLink to="/admin/volunteers" className="sidebar-link"><i className="fas fa-hands-helping"></i> Volunteers</NavLink></li>
-             <li>
-                <NavLink to="/admin/procedures" className="sidebar-link">
-                  <i className="fas fa-stethoscope"></i> Procedures
-                </NavLink>
-             </li>
-            <li><NavLink to="/admin/visits" className="sidebar-link"><i className="fas fa-notes-medical"></i> Visit Reports</NavLink></li>
-            <li><NavLink to="/admin/equipment" className="sidebar-link"><i className="fas fa-dolly-flatbed"></i> Equipment</NavLink></li>
-            <li><NavLink to="/admin/consumables" className="sidebar-link"><i className="fas fa-medkit"></i> Consumables</NavLink></li>
-            <li><NavLink to="/admin/settings" className="sidebar-link"><i className="fas fa-cogs"></i> Settings</NavLink></li>
-          </ul>
-        </nav>
+                  <ul className="sidebar-menu">
+                    <li><NavLink to="/admin" className="sidebar-link"><i className="fas fa-tachometer-alt"></i> Dashboard</NavLink></li>
+                    <li><NavLink to="/admin/patient" className="sidebar-link"><i className="fas fa-user-injured"></i> Patients</NavLink></li>
+                    <li><NavLink to="/admin/volunteers" className="sidebar-link"><i className="fas fa-hands-helping"></i> Volunteers</NavLink></li>
+                    <li><NavLink to="/admin/procedures" className="sidebar-link"><i className="fas fa-stethoscope"></i> Procedures</NavLink></li>
+                    <li><NavLink to="/admin/visits" className="sidebar-link"><i className="fas fa-notes-medical"></i> Visit Reports</NavLink></li>
+                    <li><NavLink to="/admin/equipment" className="sidebar-link"><i className="fas fa-dolly-flatbed"></i> Equipment</NavLink></li>
+                    <li><NavLink to="/admin/consumables" className="sidebar-link"><i className="fas fa-medkit"></i> Consumables</NavLink></li>
+                    <li><NavLink to="/admin/settings" className="sidebar-link"><i className="fas fa-cogs"></i> Settings</NavLink></li>
+                  </ul>
+                </nav>
       </aside>
 
-      {/* Main Content */}
       <main className="main-content">
         <header className="topbar">
           <h1>Equipment Management</h1>
@@ -146,26 +155,30 @@ const handleDelete = async (id) => {
         </header>
 
         <section className="content-section">
-          <div className="section-header">
-            <h2 className="section-title">Equipment List</h2>
-            <button className="add-btn" onClick={() => setShowAddForm(true)}>
-              + Add Equipment
-            </button>
-                      <button onClick={fetchPatients} style={{ marginLeft: "10px" }}>Refresh List</button>
-          </div>
+          
+          <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"390px"}}>
+          <button onClick={() => setShowAddForm(true)}>+ Add Equipment</button>
+          
+          <button onClick={fetchEquipment} style={{ marginLeft: "10px" }}>Refresh List</button>
+          <input type="text" placeholder="Search by name or allocated patient name." value={searchQuery} onChange={(e) => {
+                                                                                        setPage(0);
+                                                                                        setSearchQuery(e.target.value);
+                                                                                                        }
+                                                                                                }
+            className="search-input" />
+          
+        </div>
 
           {error && <p className="text-red-600">{error}</p>}
 
-          {/* Add Equipment Form Modal */}
-{showAddForm && (
-  <div className="modal-overlay">
-    <div className="form-container">
-      <AddEquipment onSuccess={handleAddSuccess} />
-      <button onClick={() => setShowAddForm(false)} className="btn-cancel">Close</button>
-    </div>
-  </div>
-)}
-
+          {showAddForm && (
+            <div className="modal-overlay">
+              <div className="form-container">
+                <AddEquipment onSuccess={handleAddSuccess} />
+                <button onClick={() => setShowAddForm(false)} className="btn-cancel">Close</button>
+              </div>
+            </div>
+          )}
 
           <table className="main-table">
             <thead>
@@ -180,9 +193,7 @@ const handleDelete = async (id) => {
             <tbody>
               {equipmentList.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="text-center">
-                    No equipment available.
-                  </td>
+                  <td colSpan="5" className="text-center">No equipment available.</td>
                 </tr>
               ) : (
                 equipmentList.map((item) => (
@@ -190,77 +201,82 @@ const handleDelete = async (id) => {
                     <td>{item.id}</td>
                     <td>{item.name}</td>
                     <td>{item.allocated ? "Yes" : "No"}</td>
-                    <td>{item.patientName ? item.patientName : "-"}</td>
-                    <td>
+                    <td>{item.patientName || "-"}</td>
+                   <td>
                       <button
-                        onClick={() => handleDelete(item.id)}
-                        className="text-red-600 underline mr-2"
+                      onClick={() => handleDelete(item.id)}
+                      className="text-red-600 underline mr-2"
                       >
-                        Delete
+                      Delete
                       </button>
+
+                    {item.allocated ? (
                       <button
-                        onClick={() => handleAllocate(item)}
-                        className="text-blue-600 underline"
-                      >
-                        Allocate
-                      </button>
-                    </td>
+      onClick={() => handleDeallocate(item.id)}
+      className="text-yellow-600 underline"
+    >
+      Deallocate
+    </button>
+  ) : (
+    <button
+      onClick={() => handleAllocate(item)}
+      className="text-blue-600 underline"
+    >
+      Allocate
+    </button>
+  )}
+</td>
+
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+
+          {/* Pagination */}
+          <div style={{ marginTop: "15px" }}>
+            <button disabled={page === 0} onClick={() => fetchEquipment(page - 1, searchQuery)}>Prev</button>
+            <span style={{ margin: "0 10px" }}>Page {page + 1} of {totalPages}</span>
+            <button disabled={page + 1 >= totalPages} onClick={() => fetchEquipment(page + 1, searchQuery)}>Next</button>
+          </div>
         </section>
 
-        {/* Allocate Modal */}
-{showAllocateModal && (
-  <div className="modal-overlay">
-    <div className="form-container">
-      <h3 className="form-title">Allocate {selectedEquipment?.name}</h3>
+        {showAllocateModal && (
+          <div className="modal-overlay">
+            <div className="form-container">
+              <h3 className="form-title">Allocate {selectedEquipment?.name}</h3>
 
-      <input
-        type="text"
-        placeholder="Search patient..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="form-input mb-3"
-      />
+              <input
+                type="text"
+                placeholder="Search patient..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="form-input mb-3"
+              />
 
-      <div className="patient-list">
-        {filteredPatients.map((p) => (
-          <div key={p.id} className="patient-option">
-            <input
-              type="radio"
-              name="patient"
-              value={p.id}
-              checked={selectedPatient === String(p.id)}
-              onChange={(e) => setSelectedPatient(e.target.value)}
-            />
-            <span>{p.id} - {p.name}</span>
+              <div className="patient-list">
+                {filteredPatients.map((p) => (
+                  <div key={p.id} className="patient-option">
+                    <input
+                      type="radio"
+                      name="patient"
+                      value={p.id}
+                      checked={selectedPatient === String(p.id)}
+                      onChange={(e) => setSelectedPatient(e.target.value)}
+                    />
+                    <span>{p.id} - {p.name}</span>
+                  </div>
+                ))}
+                {filteredPatients.length === 0 && <p className="text-gray-500">No patients found</p>}
+              </div>
+
+              <div className="form-actions">
+                <button onClick={() => setShowAllocateModal(false)} className="btn-cancel">Cancel</button>
+                <button onClick={confirmAllocate} className="btn-submit">Confirm</button>
+              </div>
+            </div>
           </div>
-        ))}
-        {filteredPatients.length === 0 && (
-          <p className="text-gray-500">No patients found</p>
         )}
-      </div>
-
-      <div className="form-actions">
-        <button
-          onClick={() => setShowAllocateModal(false)}
-          className="btn-cancel"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={confirmAllocate}
-          className="btn-submit"
-        >
-          Confirm
-        </button>
-      </div>
-    </div>
-  </div>
-)}
 
       </main>
     </div>

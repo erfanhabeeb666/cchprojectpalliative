@@ -64,15 +64,16 @@ public class AdminController {
         Page<PatientDto> patients = adminService.getAllPatients(search, pageable);
         return ResponseEntity.ok(patients);
     }
-
-
-
-//    @GetMapping("/consumables-report")
-//    public ResponseEntity<List<PatientVisitReport>> getConsumablesReport(
-//            @RequestParam LocalDate startDate,
-//            @RequestParam LocalDate endDate) {
-//        return ResponseEntity.ok(adminService.getConsumablesUsageReport(startDate, endDate));
-//    }
+    @GetMapping("/view-equipments")
+    public  ResponseEntity<Page<EquipmentDto>> viewEquipments(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "") String search) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<EquipmentDto> equipments = adminService.getAllEquipment(search,pageable);
+        return ResponseEntity.ok(equipments);
+    }
 
     @PostMapping("/allocate-equipment/{equipmentId}/to/{patientId}")
     public ResponseEntity<String> allocateEquipment(@PathVariable Long equipmentId, @PathVariable Long patientId) {
@@ -117,10 +118,7 @@ public class AdminController {
         adminService.deleteEquipment(id);
         return ResponseEntity.ok("Equipment deleted successfully");
     }
-    @GetMapping("/view-equipments")
-    public  List<EquipmentDto> viewEquipments() {
-         return adminService.getAllEquipment();
-    }
+
     @GetMapping("/dashboard-stats")
     public DashboardStatsDto dashboardStats(){
         return adminService.dashboardStats();
