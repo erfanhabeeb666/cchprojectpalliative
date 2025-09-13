@@ -159,7 +159,7 @@ const EquipmentPage = () => {
           <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"390px"}}>
           <button onClick={() => setShowAddForm(true)}>+ Add Equipment</button>
           
-          <button onClick={fetchEquipment} style={{ marginLeft: "10px" }}>Refresh List</button>
+          <button  onClick={() => fetchEquipment(0, searchQuery)}  style={{ marginLeft: "10px" }}>Refresh List</button>
           <input type="text" placeholder="Search by name or allocated patient name." value={searchQuery} onChange={(e) => {
                                                                                         setPage(0);
                                                                                         setSearchQuery(e.target.value);
