@@ -66,13 +66,6 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    public List<VolunteerDto> getVolunteers() {
-        return volunteerRepository.findAllByStatus(Status.ACTIVE)
-                .stream()
-                .map(ConvertToDto::convertToVolunteerDto)
-                .collect(Collectors.toList());
-    }
-
     public void assignVolunteerToVisit(Long volunteerId, Long patientId, LocalDate visitDate) {
         Volunteer volunteer = volunteerRepository.findById(volunteerId)
                 .orElseThrow(() -> new RuntimeException("Volunteer not found"));
@@ -151,8 +144,6 @@ public class AdminService {
         return patients.map(ConvertToDto::convertToPatientDto);
     }
 
-
-
     public void deleteEquipment(Long id) {
         equipmentRepository.deleteById(id);
     }
@@ -194,4 +185,22 @@ public class AdminService {
         actual.setStatus(Status.INACTIVE);
         volunteerRepository.save(actual);
     }
+    public Page<VolunteerDto> getVolunteers(String search, Pageable pageable) {
+        Page<Volunteer> volunteers;
+
+        if (search == null || search.trim().isEmpty()) {
+            // ✅ No search → return all ACTIVE volunteers
+            volunteers = volunteerRepository.findByStatus(Status.ACTIVE, pageable);
+        } else {
+            // ✅ Search by name or mobile → only ACTIVE volunteers
+            volunteers = volunteerRepository.findByStatusAndNameContainingIgnoreCaseOrStatusAndMobileNumberContaining(
+                    Status.ACTIVE, search,
+                    Status.ACTIVE, search,
+                    pageable
+            );
+        }
+
+        return volunteers.map(ConvertToDto::convertToVolunteerDto);
+    }
+
 }

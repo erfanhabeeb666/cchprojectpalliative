@@ -4,7 +4,6 @@ import com.erfan.cch.Dto.*;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Services.AdminService;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,8 +44,14 @@ public class AdminController {
         return ResponseEntity.ok("Volunteer assigned successfully");
     }
     @GetMapping("list-volunteers")
-    public  List<VolunteerDto> getVolunteers() {
-         return adminService.getVolunteers();
+    public  ResponseEntity<Page<VolunteerDto>> getVolunteers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "") String search) {
+         Pageable pageable = PageRequest.of(page,size,Sort.by(sortBy));
+         Page<VolunteerDto> volunteers = adminService.getVolunteers(search,pageable);
+         return ResponseEntity.ok(volunteers);
     }
     @GetMapping("list-patients")
     public ResponseEntity<Page<PatientDto>> getPatients(
