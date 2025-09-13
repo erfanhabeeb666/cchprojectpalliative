@@ -1,10 +1,14 @@
 package com.erfan.cch.Services;
 
+import com.erfan.cch.Dto.ConsumableUsageDto;
 import com.erfan.cch.Dto.PatientVisitReportDto;
 import com.erfan.cch.Dto.ProcedureDoneDto;
 import com.erfan.cch.Enums.Status;
+import com.erfan.cch.Models.Consumable;
 import com.erfan.cch.Models.PatientVisitReport;
 import com.erfan.cch.Models.ProcedureDone;
+import com.erfan.cch.Models.VisitConsumableUsage;
+import com.erfan.cch.Repo.ConsumableRepository;
 import com.erfan.cch.Repo.PatientVisitReportRepository;
 import com.erfan.cch.Repo.ProcedureRepository;
 import com.erfan.cch.Repo.VolunteerRepository;
@@ -12,22 +16,22 @@ import com.erfan.cch.Security.JwtService;
 import com.erfan.cch.Security.JwtUtils;
 import com.erfan.cch.utils.ConvertToDto;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class VolunteerService {
-    private PatientVisitReportRepository reportRepository;
+    private final PatientVisitReportRepository reportRepository;
+    private ConsumableRepository consumableRepository;
 
+    private final JwtService jwtService;
 
-    private JwtService jwtService;
-
-   private  JwtUtils jwtUtils;
+   private final JwtUtils jwtUtils;
 
     private final HttpServletRequest request;
 
@@ -35,8 +39,9 @@ public class VolunteerService {
     @Autowired
     private PatientVisitReportRepository patientVisitReportRepository;
 
-    public VolunteerService(PatientVisitReportRepository reportRepository, JwtService jwtService, JwtUtils jwtUtils, HttpServletRequest request, VolunteerRepository volunteerRepository) {
+    public VolunteerService(PatientVisitReportRepository reportRepository, ConsumableRepository consumableRepository, JwtService jwtService, JwtUtils jwtUtils, HttpServletRequest request, VolunteerRepository volunteerRepository) {
         this.reportRepository = reportRepository;
+        this.consumableRepository = consumableRepository;
         this.jwtService = jwtService;
         this.jwtUtils = jwtUtils;
         this.request = request;
@@ -61,16 +66,49 @@ public class VolunteerService {
                     .map(ConvertToDto::convertToPatientVisitReportDto)
                     .collect(Collectors.toList());
     }
+    @Transactional
+    public void submitVisitReport(Long visitId, List<Long> procedureIds, List<ConsumableUsageDto> consumableUsage, Status status) {
+        PatientVisitReport report = reportRepository.findById(visitId)
+                .orElseThrow(() -> new RuntimeException("Visit not found"));
 
-    public void submitVisitReport(Long visitId, List<Long> procedureIds, Map<String, Integer> consumables,Status status) {
-        PatientVisitReport report = reportRepository.getById(visitId);
         report.setStatus(status);
         report.setCompletedDate(LocalDate.now());
+
+        // Set procedures
         List<ProcedureDone> procedureDones = procedureRepository.findAllById(procedureIds);
         report.setProceduresDone(procedureDones);
-        report.setConsumablesUsed(consumables);
+
+        // Clear old consumables and rebuild
+        report.getConsumablesUsed().clear();
+
+        for (ConsumableUsageDto usageDto : consumableUsage) {
+            Long consumableId = usageDto.getConsumableId();
+            Integer qtyUsed = usageDto.getQuantity();
+
+            Consumable consumable = consumableRepository.findById(consumableId)
+                    .orElseThrow(() -> new RuntimeException("Consumable not found"));
+
+            if (consumable.getStockQuantity() < qtyUsed) {
+                throw new RuntimeException("Not enough stock for consumable: " + consumable.getName());
+            }
+
+            // Subtract stock
+            consumable.setStockQuantity(consumable.getStockQuantity() - qtyUsed);
+            consumableRepository.save(consumable);
+
+            // Create usage record
+            VisitConsumableUsage usage = new VisitConsumableUsage();
+            usage.setVisitReport(report);
+            usage.setConsumable(consumable);
+            usage.setQuantityUsed(qtyUsed);
+
+            report.getConsumablesUsed().add(usage);
+        }
+
         reportRepository.save(report);
     }
+
+
 
     public List<PatientVisitReportDto> getCompletedVisits(Long volunteerId) {
         Long jwtUserId = Long.valueOf(jwtService.extractId(jwtUtils.getJwtFromRequest(request)));

@@ -26,12 +26,17 @@ public class VolunteerController {
     }
 
     @PostMapping("/submit-report")
-    public ResponseEntity<String> submitReport(
-             @RequestBody VisitReportRequest reportRequest) {
-        volunteerService.submitVisitReport(reportRequest.getVisitId(),reportRequest.getProcedureIds(), reportRequest.getConsumables(), reportRequest.getStatus());
+    public ResponseEntity<String> submitReport(@RequestBody VisitReportRequest reportRequest) {
+        volunteerService.submitVisitReport(
+                reportRequest.getVisitId(),
+                reportRequest.getProcedureIds(),
+                reportRequest.getConsumables(),
+                reportRequest.getStatus()
+        );
         return ResponseEntity.ok("Visit report submitted successfully");
     }
-    
+
+
     @GetMapping("/assigned-visits")
     public ResponseEntity<List<PatientVisitReportDto>> getTodaysAssignedVisits() {
         return ResponseEntity.ok(volunteerService.getTodaysAssignedVisits());

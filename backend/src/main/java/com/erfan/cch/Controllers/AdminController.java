@@ -141,5 +141,19 @@ public class AdminController {
         adminService.deleteProcedure(id);
         return ResponseEntity.ok("Procedure deleted Successfully");
     }
+    @PostMapping("/add")
+    public Consumable addConsumable(@RequestBody Consumable consumable) {
+        return adminService.addConsumable(consumable);
+    }
+
+    @GetMapping("/list")
+    public List<Consumable> listConsumables() {
+        return adminService.getAllConsumables();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteConsumable(@PathVariable Long id) {
+        adminService.deleteConsumable(id);
+    }
 }
 

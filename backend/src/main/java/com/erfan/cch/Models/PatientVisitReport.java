@@ -35,8 +35,9 @@ public class PatientVisitReport {
     private List<ProcedureDone> proceduresDone;
 
 
-    @ElementCollection
-    private Map<String, Integer> consumablesUsed; /// Example: {"Painkillers": 2, "Diapers": 1}
+    @OneToMany(mappedBy = "visitReport", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VisitConsumableUsage> consumablesUsed;
+
 
     private Status status;
 
@@ -92,11 +93,11 @@ public class PatientVisitReport {
         this.proceduresDone = proceduresDone;
     }
 
-    public Map<String, Integer> getConsumablesUsed() {
+    public List<VisitConsumableUsage> getConsumablesUsed() {
         return consumablesUsed;
     }
 
-    public void setConsumablesUsed(Map<String, Integer> consumablesUsed) {
+    public void setConsumablesUsed(List<VisitConsumableUsage> consumablesUsed) {
         this.consumablesUsed = consumablesUsed;
     }
 
@@ -108,7 +109,7 @@ public class PatientVisitReport {
         this.status = status;
     }
 
-    public PatientVisitReport(Long id, Volunteer volunteer, Patient patient, LocalDate visitDate, LocalDate completedDate, List<ProcedureDone> proceduresDone, Map<String, Integer> consumablesUsed, Status status) {
+    public PatientVisitReport(Long id, Volunteer volunteer, Patient patient, LocalDate visitDate, LocalDate completedDate, List<ProcedureDone> proceduresDone, List<VisitConsumableUsage> consumablesUsed, Status status) {
         this.id = id;
         this.volunteer = volunteer;
         this.patient = patient;

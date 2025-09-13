@@ -31,6 +31,7 @@ public class AdminService {
 
 
     private PatientVisitReportRepository reportRepository;
+    private ConsumableRepository consumableRepository;
 
 
     private EquipmentRepository equipmentRepository;
@@ -43,7 +44,7 @@ public class AdminService {
 
     private AuthenticationService authenticationService;
 
-    public AdminService(PatientRepository patientRepository, VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository, EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder, ProcedureRepository procedureRepository, UserRepository userRepository, AuthenticationService authenticationService) {
+    public AdminService(PatientRepository patientRepository, VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository, EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder, ProcedureRepository procedureRepository, UserRepository userRepository, AuthenticationService authenticationService,ConsumableRepository consumableRepository) {
         this.patientRepository = patientRepository;
         this.volunteerRepository = volunteerRepository;
         this.reportRepository = reportRepository;
@@ -52,6 +53,7 @@ public class AdminService {
         this.procedureRepository = procedureRepository;
         this.userRepository = userRepository;
         this.authenticationService = authenticationService;
+        this.consumableRepository = consumableRepository;
     }
 
 
@@ -214,6 +216,29 @@ public class AdminService {
         }
 
         return volunteers.map(ConvertToDto::convertToVolunteerDto);
+    }
+    public Consumable addConsumable(Consumable consumable) {
+        return consumableRepository.save(consumable);
+    }
+
+    public List<Consumable> getAllConsumables() {
+        return consumableRepository.findAll();
+    }
+
+    public void deleteConsumable(Long id) {
+        consumableRepository.deleteById(id);
+    }
+
+    public void reduceStock(Long consumableId, int quantityUsed) {
+        Consumable consumable = consumableRepository.findById(consumableId)
+                .orElseThrow(() -> new RuntimeException("Consumable not found"));
+
+        if (consumable.getStockQuantity() < quantityUsed) {
+            throw new RuntimeException("Not enough stock for " + consumable.getName());
+        }
+
+        consumable.setStockQuantity(consumable.getStockQuantity() - quantityUsed);
+        consumableRepository.save(consumable);
     }
 
 }
