@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,NavLink } from "react-router-dom";
 import "./Styles/Admin.css";
 import "./Styles/Main.css";
 import "./Styles/Sidebar.css";
@@ -70,49 +70,54 @@ const Visits = () => {
           <h2>P A S S</h2>
         </center>
         <nav>
-          <ul className="sidebar-menu">
-            <li>
-              <a href="/admin" className="sidebar-link">
-                <i className="fas fa-tachometer-alt"></i> Dashboard
-              </a>
-            </li>
-            <li>
-              <a href="/admin/patient" className="sidebar-link">
-                <i className="fas fa-user-injured"></i> Patients
-              </a>
-            </li>
-            <li>
-              <a href="/admin/volunteers" className="sidebar-link">
-                <i className="fas fa-hands-helping"></i> Volunteers
-              </a>
-            </li>
-            <li>
-              <a href="/admin/procedures" className="sidebar-link">
-                <i className="fas fa-stethoscope"></i> Procedures
-              </a>
-            </li>
-            <li>
-              <a href="/admin/visits" className="sidebar-link">
-                <i className="fas fa-notes-medical"></i> Visit Reports
-              </a>
-            </li>
-            <li>
-              <a href="/admin/equipment" className="sidebar-link">
-                <i className="fas fa-dolly-flatbed"></i> Equipment
-              </a>
-            </li>
-            <li>
-              <a href="/admin/consumables" className="sidebar-link">
-                <i className="fas fa-medkit"></i> Consumables
-              </a>
-            </li>
-            <li>
-              <a href="/admin/settings" className="sidebar-link">
-                <i className="fas fa-cogs"></i> Settings
-              </a>
-            </li>
-          </ul>
-        </nav>
+                 <ul className="sidebar-menu">
+                   <li>
+                     <NavLink to="/admin" className="sidebar-link">
+                       <i className="fas fa-tachometer-alt"></i> Dashboard
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/patient" className="sidebar-link">
+                       <i className="fas fa-user-injured"></i> Patients
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/volunteers" className="sidebar-link">
+                       <i className="fas fa-hands-helping"></i> Volunteers
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/procedures" className="sidebar-link">
+                       <i className="fas fa-stethoscope"></i> Procedures
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/visits" className="sidebar-link">
+                       <i className="fas fa-notes-medical"></i> Visit Reports
+                     </NavLink>
+                   </li>
+                   <li>
+                                 <NavLink to="/admin/createnewvisit" className="sidebar-link">
+                                   <i className="fas fa-stethoscope"></i> Create New Visit
+                                 </NavLink>
+                               </li>
+                   <li>
+                     <NavLink to="/admin/equipment" className="sidebar-link">
+                       <i className="fas fa-dolly-flatbed"></i> Equipment
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/consumables" className="sidebar-link">
+                       <i className="fas fa-medkit"></i> Consumables
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/settings" className="sidebar-link">
+                       <i className="fas fa-cogs"></i> Settings
+                     </NavLink>
+                   </li>
+                 </ul>
+               </nav>
       </aside>
 
       {/* Main Content */}
@@ -236,13 +241,13 @@ const Visits = () => {
                         : "None"}
                     </td>
                     <td>
-                      {visit.consumablesUsed &&
-                      Object.keys(visit.consumablesUsed).length > 0
-                        ? Object.entries(visit.consumablesUsed)
-                            .map(([item, qty]) => `${item} (${qty})`)
-                            .join(", ")
-                        : "None"}
-                    </td>
+  {visit.consumablesUsed && visit.consumablesUsed.length > 0
+    ? visit.consumablesUsed
+        .map((usage) => `${usage.consumable.name} (${usage.quantityUsed})`)
+        .join(", ")
+    : "None"}
+</td>
+
                     <td>{visit.status}</td>
                   </tr>
                 ))

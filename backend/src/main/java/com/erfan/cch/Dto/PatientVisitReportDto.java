@@ -1,5 +1,7 @@
 package com.erfan.cch.Dto;
 
+import com.erfan.cch.Models.VisitConsumableUsage;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,7 @@ public class PatientVisitReportDto {
     private LocalDate visitDate;
     private LocalDate completedDate;
     private List<String> proceduresDone;  // Just names of procedures
-    private Map<String, Integer> consumablesUsed;
+    private List<VisitConsumableUsage> consumablesUsed;
     private String status;
 
     public Long getId() {
@@ -80,11 +82,11 @@ public class PatientVisitReportDto {
         this.proceduresDone = proceduresDone;
     }
 
-    public Map<String, Integer> getConsumablesUsed() {
+    public List<VisitConsumableUsage> getConsumablesUsed() {
         return consumablesUsed;
     }
 
-    public void setConsumablesUsed(Map<String, Integer> consumablesUsed) {
+    public void setConsumablesUsed(List<VisitConsumableUsage> consumablesUsed) {
         this.consumablesUsed = consumablesUsed;
     }
 

@@ -4,14 +4,22 @@ import axios from "axios";
 const AddConsumable = ({ onSuccess }) => {
   const [consumable, setConsumable] = useState({
     name: "",
-    quantity: "",
+    stockQuantity: "",  // allow empty string for typing
   });
 
   const [successMessage, setSuccessMessage] = useState("");
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setConsumable({ ...consumable, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    setConsumable((prev) => ({
+      ...prev,
+      [name]:
+        name === "stockQuantity"
+          ? value === "" ? "" : Number(value) // ✅ convert only if not empty
+          : value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -20,16 +28,14 @@ const AddConsumable = ({ onSuccess }) => {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
 
-      await axios.post(
-        `${apiUrl}admin/add-consumable`,
-        consumable,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.post(`${apiUrl}admin/consumable/add`, consumable, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setSuccessMessage("Consumable added successfully!");
       setError("");
-      setConsumable({ name: "", quantity: "" });
-      onSuccess(); // refresh table in parent
+      setConsumable({ name: "", stockQuantity: "" });
+      onSuccess();
     } catch (err) {
       console.error(err);
       setError("Failed to add consumable");
@@ -56,8 +62,8 @@ const AddConsumable = ({ onSuccess }) => {
         />
         <input
           type="number"
-          name="quantity"
-          value={consumable.quantity}
+          name="stockQuantity"
+          value={consumable.stockQuantity}
           onChange={handleChange}
           placeholder="Quantity"
           required

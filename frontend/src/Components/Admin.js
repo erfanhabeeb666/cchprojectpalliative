@@ -84,6 +84,11 @@ const Admin = () => {
               </NavLink>
             </li>
             <li>
+                          <NavLink to="/admin/createnewvisit" className="sidebar-link">
+                            <i className="fas fa-stethoscope"></i> Create New Visit
+                          </NavLink>
+                        </li>
+            <li>
               <NavLink to="/admin/equipment" className="sidebar-link">
                 <i className="fas fa-dolly-flatbed"></i> Equipment
               </NavLink>

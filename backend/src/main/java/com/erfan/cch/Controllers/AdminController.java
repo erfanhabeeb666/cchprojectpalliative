@@ -42,9 +42,15 @@ public class AdminController {
 
     @PostMapping("/assign-volunteer")
     public ResponseEntity<String> assignVolunteer(@RequestBody VisitDateDto visitDateDto) {
-        adminService.assignVolunteerToVisit(visitDateDto.getVolunteerId(),visitDateDto.getPatientId() ,visitDateDto.getVisitDate());
-        return ResponseEntity.ok("Volunteer assigned successfully");
+        adminService.assignVolunteerToPatients(
+                visitDateDto.getVolunteerId(),
+                visitDateDto.getPatientIds(),  // ✅ list of patient IDs
+                visitDateDto.getVisitDate()
+        );
+        return ResponseEntity.ok("Volunteer assigned successfully to patients");
     }
+
+
     @GetMapping("list-volunteers")
     public  ResponseEntity<Page<VolunteerDto>> getVolunteers(
             @RequestParam(defaultValue = "0") int page,
@@ -141,17 +147,28 @@ public class AdminController {
         adminService.deleteProcedure(id);
         return ResponseEntity.ok("Procedure deleted Successfully");
     }
-    @PostMapping("/add")
+    @PostMapping("consumable/add")
     public Consumable addConsumable(@RequestBody Consumable consumable) {
         return adminService.addConsumable(consumable);
     }
+    // ✅ Add stock
+    @PutMapping("consumable/{id}/add-stock")
+    public Consumable addStock(@PathVariable Long id, @RequestParam int quantity) {
+        return adminService.updateStock(id, quantity, true);
+    }
 
-    @GetMapping("/list")
+    // ✅ Subtract stock
+    @PutMapping("consumable/{id}/subtract-stock")
+    public Consumable subtractStock(@PathVariable Long id, @RequestParam int quantity) {
+        return adminService.updateStock(id, quantity, false);
+    }
+
+    @GetMapping("/consumable/list")
     public List<Consumable> listConsumables() {
         return adminService.getAllConsumables();
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("consumable/delete/{id}")
     public void deleteConsumable(@PathVariable Long id) {
         adminService.deleteConsumable(id);
     }

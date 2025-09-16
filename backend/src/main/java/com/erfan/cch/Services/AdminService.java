@@ -8,6 +8,7 @@ import com.erfan.cch.Repo.*;
 import com.erfan.cch.Security.AuthenticationService;
 import com.erfan.cch.Specification.PatientVisitReportSpecifications;
 import com.erfan.cch.utils.ConvertToDto;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -218,15 +219,19 @@ public class AdminService {
         return volunteers.map(ConvertToDto::convertToVolunteerDto);
     }
     public Consumable addConsumable(Consumable consumable) {
+        consumable.setStatus(Status.ACTIVE);
         return consumableRepository.save(consumable);
     }
 
     public List<Consumable> getAllConsumables() {
-        return consumableRepository.findAll();
+        return consumableRepository.findAllByStatus(Status.ACTIVE);
     }
 
     public void deleteConsumable(Long id) {
-        consumableRepository.deleteById(id);
+        Optional<Consumable> dbConsumable = consumableRepository.findById(id);
+        Consumable actual = dbConsumable.get();
+        actual.setStatus(Status.INACTIVE);
+        consumableRepository.save(actual);
     }
 
     public void reduceStock(Long consumableId, int quantityUsed) {
@@ -239,6 +244,42 @@ public class AdminService {
 
         consumable.setStockQuantity(consumable.getStockQuantity() - quantityUsed);
         consumableRepository.save(consumable);
+    }
+    @Transactional
+    public Consumable updateStock(Long id, int quantity, boolean add) {
+        Consumable consumable = consumableRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Consumable not found"));
+
+        if (add) {
+            consumable.setStockQuantity(consumable.getStockQuantity() + quantity);
+        } else {
+            if (consumable.getStockQuantity() < quantity) {
+                throw new RuntimeException("Not enough stock to subtract!");
+            }
+            consumable.setStockQuantity(consumable.getStockQuantity() - quantity);
+        }
+
+        return consumableRepository.save(consumable);
+    }
+
+    @Transactional
+    public void assignVolunteerToPatients(Long volunteerId, List<Long> patientIds, LocalDate visitDate) {
+        Volunteer volunteer = volunteerRepository.findById(volunteerId)
+                .orElseThrow(() -> new RuntimeException("Volunteer not found"));
+
+        for (Long patientId : patientIds) {
+            Patient patient = patientRepository.findById(patientId)
+                    .orElseThrow(() -> new RuntimeException("Patient not found with ID: " + patientId));
+
+            // Create new visit report
+            PatientVisitReport visitReport = new PatientVisitReport();
+            visitReport.setVolunteer(volunteer);
+            visitReport.setPatient(patient);
+            visitReport.setVisitDate(visitDate);
+            visitReport.setStatus(Status.PENDING);
+
+            reportRepository.save(visitReport);
+        }
     }
 
 }

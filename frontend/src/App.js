@@ -11,6 +11,8 @@ import CompletedVisits from "./Components/CompletedVisits";
 import VolunteerPage from "./Components/volunteer/VolunteerPage";
 import ProcedurePage from "./Components/procedures/ProcedurePage";
 import Visits from "./Components/Visits";
+import ConsumablePage from "./Components/Consumables/ConsumablePage";
+import CreateNewVisit from "./Components/CreateNewVisit";
 
 const App = () => {
   return (
@@ -27,6 +29,8 @@ const App = () => {
         <Route path="/admin/assign-volunteer" element={<AssignVolunteer />} />
         <Route path="/volunteer/todays-visits" element={<TodaysVisit />} /> 
         <Route path="/volunteer/completed-visits" element={<CompletedVisits />} /> {/* match NavLink */}
+        <Route path="/admin/consumables" element={<ConsumablePage/>} />
+        <Route path="/admin/createnewvisit" element={<CreateNewVisit/>}/>
       </Routes>
     </Router>
   );

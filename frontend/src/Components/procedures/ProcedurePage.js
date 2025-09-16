@@ -71,6 +71,11 @@ const ProcedurePage = () => {
         </NavLink>
       </li>
             <li><NavLink to="/admin/visits" className="sidebar-link"><i className="fas fa-notes-medical"></i> Visit Reports</NavLink></li>
+            <li>
+                          <NavLink to="/admin/createnewvisit" className="sidebar-link">
+                            <i className="fas fa-stethoscope"></i> Create New Visit
+                          </NavLink>
+                        </li>
             <li><NavLink to="/admin/equipment" className="sidebar-link"><i className="fas fa-dolly-flatbed"></i> Equipment</NavLink></li>
             <li><NavLink to="/admin/consumables" className="sidebar-link"><i className="fas fa-medkit"></i> Consumables</NavLink></li>
             <li><NavLink to="/admin/settings" className="sidebar-link"><i className="fas fa-cogs"></i> Settings</NavLink></li>

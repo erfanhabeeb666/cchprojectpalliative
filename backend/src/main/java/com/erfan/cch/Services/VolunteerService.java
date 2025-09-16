@@ -82,9 +82,10 @@ public class VolunteerService {
         report.getConsumablesUsed().clear();
 
         for (ConsumableUsageDto usageDto : consumableUsage) {
+
             Long consumableId = usageDto.getConsumableId();
             Integer qtyUsed = usageDto.getQuantity();
-
+            System.out.println("ConsumableId: " + consumableId + " QtyUsed: " + qtyUsed);
             Consumable consumable = consumableRepository.findById(consumableId)
                     .orElseThrow(() -> new RuntimeException("Consumable not found"));
 
@@ -94,7 +95,9 @@ public class VolunteerService {
 
             // Subtract stock
             consumable.setStockQuantity(consumable.getStockQuantity() - qtyUsed);
-            consumableRepository.save(consumable);
+            consumableRepository.saveAndFlush(consumable);
+
+
 
             // Create usage record
             VisitConsumableUsage usage = new VisitConsumableUsage();
@@ -116,6 +119,10 @@ public class VolunteerService {
                     .stream()
                     .map(ConvertToDto::convertToPatientVisitReportDto)
                     .collect(Collectors.toList());
+    }
+
+    public List<Consumable> getAllConsumables() {
+        return consumableRepository.findAllByStatus(Status.ACTIVE);
     }
 }
 

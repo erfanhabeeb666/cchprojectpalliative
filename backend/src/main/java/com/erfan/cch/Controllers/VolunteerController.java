@@ -4,6 +4,7 @@ import com.erfan.cch.Dto.PatientVisitReportDto;
 import com.erfan.cch.Dto.ProcedureDoneDto;
 import com.erfan.cch.Dto.VisitReportRequest;
 import com.erfan.cch.Enums.Status;
+import com.erfan.cch.Models.Consumable;
 import com.erfan.cch.Models.PatientVisitReport;
 import com.erfan.cch.Services.VolunteerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,10 @@ public class VolunteerController {
         );
         return ResponseEntity.ok("Visit report submitted successfully");
     }
+    @GetMapping("/consumables")
+    public ResponseEntity<List<Consumable>> getAllConsumables(){
+        return ResponseEntity.ok(volunteerService.getAllConsumables());
+    }
 
 
     @GetMapping("/assigned-visits")
@@ -49,5 +54,6 @@ public class VolunteerController {
     public ResponseEntity<List<ProcedureDoneDto>> getAllProcedures() {
         return ResponseEntity.ok(volunteerService.getAllProcedures());
     }
+
 }
 

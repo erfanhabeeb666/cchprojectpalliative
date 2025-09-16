@@ -5,9 +5,32 @@ import "./Styles/Main.css";
 import "./Styles/Sidebar.css";
 
 // Modal Component
-const ProcedureModal = ({ visit, procedures, onClose, onSubmit }) => {
+
+
+const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) => {
   const [selectedProcedure, setSelectedProcedure] = useState([]);
+  const [selectedConsumables, setSelectedConsumables] = useState([]);
   const [status, setStatus] = useState("COMPLETED");
+
+  // Helper: get quantity from state for each consumable
+  const getConsumableQty = (id) => {
+    const item = selectedConsumables.find((c) => c.consumableId === id);
+    return item ? item.quantity : "";
+  };
+
+  // Handle consumable selection + quantity
+  const handleConsumableChange = (id, quantity) => {
+    setSelectedConsumables((prev) => {
+      const existing = prev.find((c) => c.consumableId === id);
+      if (existing) {
+        return prev.map((c) =>
+          c.consumableId === id ? { ...c, quantity: quantity } : c
+        );
+      } else {
+        return [...prev, { consumableId: id, quantity: quantity }];
+      }
+    });
+  };
 
   const handleSubmit = async () => {
     if (!selectedProcedure.length) {
@@ -16,8 +39,13 @@ const ProcedureModal = ({ visit, procedures, onClose, onSubmit }) => {
     }
 
     try {
-      await onSubmit(visit.id, selectedProcedure, status);
-      onClose(); // Close modal after successful submit
+      // clean zero/empty quantities
+      const consumablesToSend = selectedConsumables.filter(
+        (c) => c.quantity > 0
+      );
+
+      await onSubmit(visit.id, selectedProcedure, consumablesToSend, status);
+      onClose();
     } catch (err) {
       alert("Failed to submit visit");
     }
@@ -26,12 +54,16 @@ const ProcedureModal = ({ visit, procedures, onClose, onSubmit }) => {
   return (
     <div className="modal">
       <div className="modal-content">
-        <h3>Assign Procedure to Visit</h3>
+        <h3>Submit Visit Report</h3>
+
+        {/* Status */}
         <label>Status:</label>
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="COMPLETED">Completed</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
+
+        {/* Procedures */}
         <div>
           <label>Procedures:</label>
           <select
@@ -52,16 +84,45 @@ const ProcedureModal = ({ visit, procedures, onClose, onSubmit }) => {
           </select>
         </div>
 
-        <button onClick={handleSubmit}>Submit</button>
-        <button onClick={onClose}>Close</button>
+        {/* Consumables */}
+        <div>
+          <label>Consumables:</label>
+          {consumables.map((consumable) => (
+            <div key={consumable.id} className="flex items-center space-x-2 my-1">
+              <span>
+                {consumable.name} (Stock: {consumable.stockQuantity})
+              </span>
+              <input
+                type="number"
+                min="0"
+                value={getConsumableQty(consumable.id)} // ✅ bind value
+                placeholder="Qty"
+                onChange={(e) =>
+                  handleConsumableChange(
+                    consumable.id,
+                    parseInt(e.target.value, 10) || 0
+                  )
+                }
+                className="w-20 p-1 border rounded"
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex space-x-2 mt-4">
+          <button onClick={handleSubmit}>Submit</button>
+          <button onClick={onClose}>Close</button>
+        </div>
       </div>
     </div>
   );
 };
 
+
 const TodaysVisit = () => {
   const [assignedVisits, setAssignedVisits] = useState([]);
   const [procedures, setProcedures] = useState([]);
+  const [consumables, setConsumables] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,12 +136,13 @@ const TodaysVisit = () => {
     navigate("/");
   };
 
-  // Fetch assigned visits
   useEffect(() => {
     fetchAssignedVisits();
     fetchProcedures();
+    fetchConsumables();
   }, []);
 
+  // Fetch assigned visits
   const fetchAssignedVisits = async () => {
     setLoading(true);
     setError("");
@@ -94,17 +156,13 @@ const TodaysVisit = () => {
     try {
       const response = await fetch(`${apiUrl}volunteer/assigned-visits`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
+        headers: { Authorization: `Bearer ${jwtToken}` },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch assigned visits");
-      }
+      if (!response.ok) throw new Error("Failed to fetch assigned visits");
 
       const data = await response.json();
-      setAssignedVisits(data); // Set the assigned visits data
+      setAssignedVisits(data);
     } catch (err) {
       setError(err.message || "An error occurred");
     } finally {
@@ -112,6 +170,7 @@ const TodaysVisit = () => {
     }
   };
 
+  // Fetch procedures
   const fetchProcedures = async () => {
     const jwtToken = localStorage.getItem("jwtToken");
     if (!jwtToken) {
@@ -122,22 +181,42 @@ const TodaysVisit = () => {
     try {
       const response = await fetch(`${apiUrl}volunteer/procedures`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
+        headers: { Authorization: `Bearer ${jwtToken}` },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch procedures");
-      }
+      if (!response.ok) throw new Error("Failed to fetch procedures");
 
       const data = await response.json();
-      setProcedures(data); // Set the procedures list
+      setProcedures(data);
     } catch (err) {
-      setError(err.message || "An error occurred while fetching procedures");
+      setError(err.message || "Error fetching procedures");
     }
   };
 
+  // Fetch consumables
+  const fetchConsumables = async () => {
+    const jwtToken = localStorage.getItem("jwtToken");
+    if (!jwtToken) {
+      setError("No JWT token found");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}volunteer/consumables`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${jwtToken}` },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch consumables");
+
+      const data = await response.json();
+      setConsumables(data);
+    } catch (err) {
+      setError(err.message || "Error fetching consumables");
+    }
+  };
+
+  // Open/close modal
   const handleModalOpen = (visit) => {
     setSelectedVisit(visit);
     setIsModalOpen(true);
@@ -148,7 +227,8 @@ const TodaysVisit = () => {
     setIsModalOpen(false);
   };
 
-  const handleProcedureSubmit = async (visitId, procedureIds, status) => {
+  // Submit procedure + consumables
+  const handleProcedureSubmit = async (visitId, procedureIds, consumables, status) => {
     const jwtToken = localStorage.getItem("jwtToken");
     if (!jwtToken) {
       setError("No JWT token found");
@@ -165,16 +245,15 @@ const TodaysVisit = () => {
         body: JSON.stringify({
           visitId,
           procedureIds,
+          consumables, // [{ consumableId, quantityUsed }]
           status,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to submit visit");
-      }
+      if (!response.ok) throw new Error("Failed to submit visit");
 
       alert("Visit submitted successfully");
-      fetchAssignedVisits(); // Refresh the list after successful submission
+      fetchAssignedVisits();
     } catch (err) {
       setError("Failed to submit visit");
     }
@@ -274,6 +353,7 @@ const TodaysVisit = () => {
         <ProcedureModal
           visit={selectedVisit}
           procedures={procedures}
+          consumables={consumables}
           onClose={handleModalClose}
           onSubmit={handleProcedureSubmit}
         />

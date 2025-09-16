@@ -1,5 +1,6 @@
 package com.erfan.cch.Models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -9,6 +10,7 @@ public class VisitConsumableUsage {
     private Long id;
 
     @ManyToOne
+    @JsonIgnore
     private PatientVisitReport visitReport;
 
     @ManyToOne

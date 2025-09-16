@@ -9,12 +9,14 @@ import "../Styles/Sidebar.css";
 const ConsumablePage = () => {
   const [consumableList, setConsumableList] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [updateQuantity, setUpdateQuantity] = useState({}); // {id: qty}
+
+  const apiUrl = process.env.REACT_APP_API_URL;
+  const token = localStorage.getItem("jwtToken");
 
   const fetchConsumables = async () => {
     try {
-      const token = localStorage.getItem("jwtToken");
-      const apiUrl = process.env.REACT_APP_API_URL;
-      const response = await axios.get(`${apiUrl}admin/list-consumables`, {
+      const response = await axios.get(`${apiUrl}admin/consumable/list`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setConsumableList(response.data);
@@ -35,17 +37,37 @@ const ConsumablePage = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to remove this consumable?")) {
       try {
-        const token = localStorage.getItem("jwtToken");
-        const apiUrl = process.env.REACT_APP_API_URL;
-
-        await axios.delete(`${apiUrl}admin/delete-consumable`, {
+        await axios.delete(`${apiUrl}admin/consumable/delete/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { id }, // backend expects id as query param
         });
         fetchConsumables();
       } catch (err) {
         console.error("Failed to delete consumable", err);
       }
+    }
+  };
+
+  const handleStockUpdate = async (id, action) => {
+    const qty = updateQuantity[id] || 0;
+    if (qty <= 0) {
+      alert("Enter a valid quantity");
+      return;
+    }
+
+    try {
+      await axios.put(
+        `${apiUrl}admin/consumable/${id}/${action}-stock`,
+        {},
+        {
+          params: { quantity: qty },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      fetchConsumables();
+      setUpdateQuantity((prev) => ({ ...prev, [id]: "" }));
+    } catch (err) {
+      console.error(`Failed to ${action} stock`, err);
+      alert(`Failed to ${action} stock`);
     }
   };
 
@@ -59,19 +81,58 @@ const ConsumablePage = () => {
     <div className="dashboard-container">
       {/* Sidebar */}
       <aside className="sidebar">
-        <center><h2>P A S S</h2></center>
+        <center>
+          <h2>P A S S</h2>
+        </center>
         <nav>
-          <ul className="sidebar-menu">
-            <li><NavLink to="/admin" className="sidebar-link"><i className="fas fa-tachometer-alt"></i> Dashboard</NavLink></li>
-            <li><NavLink to="/admin/patient" className="sidebar-link"><i className="fas fa-user-injured"></i> Patients</NavLink></li>
-            <li><NavLink to="/admin/volunteers" className="sidebar-link"><i className="fas fa-hands-helping"></i> Volunteers</NavLink></li>
-            <li><NavLink to="/admin/procedures" className="sidebar-link"><i className="fas fa-stethoscope"></i> Procedures</NavLink></li>
-            <li><NavLink to="/admin/visits" className="sidebar-link"><i className="fas fa-notes-medical"></i> Visit Reports</NavLink></li>
-            <li><NavLink to="/admin/equipment" className="sidebar-link"><i className="fas fa-dolly-flatbed"></i> Equipment</NavLink></li>
-            <li><NavLink to="/admin/consumables" className="sidebar-link"><i className="fas fa-medkit"></i> Consumables</NavLink></li>
-            <li><NavLink to="/admin/settings" className="sidebar-link"><i className="fas fa-cogs"></i> Settings</NavLink></li>
-          </ul>
-        </nav>
+                 <ul className="sidebar-menu">
+                   <li>
+                     <NavLink to="/admin" className="sidebar-link">
+                       <i className="fas fa-tachometer-alt"></i> Dashboard
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/patient" className="sidebar-link">
+                       <i className="fas fa-user-injured"></i> Patients
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/volunteers" className="sidebar-link">
+                       <i className="fas fa-hands-helping"></i> Volunteers
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/procedures" className="sidebar-link">
+                       <i className="fas fa-stethoscope"></i> Procedures
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/visits" className="sidebar-link">
+                       <i className="fas fa-notes-medical"></i> Visit Reports
+                     </NavLink>
+                   </li>
+                   <li>
+                                 <NavLink to="/admin/createnewvisit" className="sidebar-link">
+                                   <i className="fas fa-stethoscope"></i> Create New Visit
+                                 </NavLink>
+                               </li>
+                   <li>
+                     <NavLink to="/admin/equipment" className="sidebar-link">
+                       <i className="fas fa-dolly-flatbed"></i> Equipment
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/consumables" className="sidebar-link">
+                       <i className="fas fa-medkit"></i> Consumables
+                     </NavLink>
+                   </li>
+                   <li>
+                     <NavLink to="/admin/settings" className="sidebar-link">
+                       <i className="fas fa-cogs"></i> Settings
+                     </NavLink>
+                   </li>
+                 </ul>
+               </nav>
       </aside>
 
       {/* Main Content */}
@@ -100,13 +161,14 @@ const ConsumablePage = () => {
                 <th>ID</th>
                 <th>Consumable Name</th>
                 <th>Quantity</th>
+                <th>Update Stock</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {consumableList.length === 0 ? (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: "center", padding: "20px" }}>
+                  <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
                     No consumables available
                   </td>
                 </tr>
@@ -115,11 +177,44 @@ const ConsumablePage = () => {
                   <tr key={consumable.id}>
                     <td>{consumable.id}</td>
                     <td>{consumable.name}</td>
-                    <td>{consumable.quantity}</td>
+                    <td>{consumable.stockQuantity}</td>
                     <td>
-                      <button 
-                        onClick={() => handleDelete(consumable.id)} 
-                        style={{ backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="Qty"
+                        value={updateQuantity[consumable.id] || ""}
+                        onChange={(e) =>
+                          setUpdateQuantity((prev) => ({
+                            ...prev,
+                            [consumable.id]: e.target.value,
+                          }))
+                        }
+                        style={{ width: "60px", marginRight: "5px" }}
+                      />
+                      <button
+                        onClick={() => handleStockUpdate(consumable.id, "add")}
+                        style={{ marginRight: "5px" }}
+                      >
+                        + Add
+                      </button>
+                      <button
+                        onClick={() => handleStockUpdate(consumable.id, "subtract")}
+                      >
+                        - Subtract
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => handleDelete(consumable.id)}
+                        style={{
+                          backgroundColor: "red",
+                          color: "white",
+                          border: "none",
+                          padding: "5px 10px",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                        }}
                       >
                         Remove
                       </button>

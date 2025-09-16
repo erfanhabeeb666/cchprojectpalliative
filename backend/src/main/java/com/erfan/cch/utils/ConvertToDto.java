@@ -60,7 +60,7 @@ public class ConvertToDto {
             dto.setVolunteerId(report.getVolunteer().getId());
             dto.setVolunteerName(report.getVolunteer().getName());
         }
-
+        dto.setConsumablesUsed(report.getConsumablesUsed());
         dto.setVisitDate(report.getVisitDate());
         dto.setCompletedDate(report.getCompletedDate());
 

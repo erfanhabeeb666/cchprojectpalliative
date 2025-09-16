@@ -15,5 +15,7 @@ public interface PatientVisitReportRepository extends JpaRepository<PatientVisit
     List<PatientVisitReport> findByVolunteerIdAndStatus(Long volunteerId, Status status);
     Long countByStatus(Status status);
     List<PatientVisitReport> findByStatus(Status status);
+
+    boolean existsByPatientIdAndVisitDate(Long patientId, LocalDate visitDate);
 }
 
