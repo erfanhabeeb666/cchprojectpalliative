@@ -95,9 +95,9 @@ const PatientPage = () => {
           <h1>Patient Management</h1>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </header>
-        <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"30px"}}>
+        <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"50px"}}>
           <button onClick={() => setShowModal(true)}>+ Add Patient</button>
-          <button onClick={fetchPatients} style={{ marginLeft: "10px" }}>Refresh List</button>
+          <button onClick={fetchPatients} style={{ marginLeft: "15px" }}>Refresh List</button>
           <input type="text" placeholder="Search by name or mobile..." value={search} onChange={(e) => {
                                                                                         setPage(0);
                                                                                         setSearch(e.target.value);
@@ -109,7 +109,7 @@ const PatientPage = () => {
         {/* Modal for AddPatient */}
         {showModal && (
           <div className="modal-overlay">
-            <div className="modal-content">
+            <div className="form-container">
               <AddPatient onSuccess={handleAddSuccess} />
               <button
                 onClick={() => {
@@ -119,7 +119,6 @@ const PatientPage = () => {
                         }
 
                 className="btn-cancel"
-                style={{ marginTop: "10px" }}
               >
                 Close
               </button>

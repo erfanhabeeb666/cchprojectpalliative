@@ -99,10 +99,9 @@ const VolunteerPage = () => {
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </header>
 
-        <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
+        <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"50px" }}>
           <button onClick={() => setShowAddForm(true)}>+ Add Volunteer</button>
-          <button onClick={() => setShowAssignForm(true)} style={{ marginLeft: "10px" }}>+ Assign Volunteer</button>
-          <button onClick={() => fetchVolunteers()} style={{ marginLeft: "10px" }}>Refresh List</button>
+          <button onClick={() => fetchVolunteers()} style={{ marginLeft: "15px" }}>Refresh List</button>
 
           <input
             type="text"
@@ -110,8 +109,7 @@ const VolunteerPage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && fetchVolunteers(0, e.target.value)}
-            style={{ marginLeft: "20px", padding: "5px" }}
-          />
+          className="search-input"/>
         </div>
 
         {/* Add Volunteer Modal */}
