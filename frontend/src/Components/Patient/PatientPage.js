@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { getDisplayName } from "../../utils/auth";
 import AddPatient from "./AddPatient";
 import axios from "axios";
 import "../Styles/Admin.css";
@@ -93,7 +94,10 @@ const PatientPage = () => {
       <main className="main-content">
         <header className="topbar">
           <h1>Patient Management</h1>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          <div className="topbar-actions">
+            <span className="greeting">Hello, {getDisplayName()}</span>
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          </div>
         </header>
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"50px"}}>
           <button onClick={() => setShowModal(true)}>+ Add Patient</button>

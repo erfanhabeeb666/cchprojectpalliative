@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { getDisplayName } from "../utils/auth";
 import "./Styles/Main.css";
 import "./Styles/Admin.css";
 import "./Styles/Sidebar.css"; // keep this LAST
@@ -84,10 +85,10 @@ const Admin = () => {
               </NavLink>
             </li>
             <li>
-                          <NavLink to="/admin/createnewvisit" className="sidebar-link">
-                            <i className="fas fa-stethoscope"></i> Create New Visit
-                          </NavLink>
-                        </li>
+              <NavLink to="/admin/createnewvisit" className="sidebar-link">
+                <i className="fas fa-stethoscope"></i> Create New Visit
+              </NavLink>
+            </li>
             <li>
               <NavLink to="/admin/equipment" className="sidebar-link">
                 <i className="fas fa-dolly-flatbed"></i> Equipment
@@ -111,7 +112,10 @@ const Admin = () => {
       <main className="main-content">
         <header className="topbar">
           <h1>Palliative Care Dashboard</h1>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          <div className="topbar-actions">
+            <span className="greeting">Hello, {getDisplayName()}</span>
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          </div>
         </header>
 
         <section className="grid">

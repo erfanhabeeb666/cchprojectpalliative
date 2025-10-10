@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { getDisplayName } from "../../utils/auth";
 import AddVolunteer from "./AddVolunteer";
 import AssignVolunteer from "./AssignVolunteer";
 import axios from "axios";
@@ -96,7 +97,10 @@ const VolunteerPage = () => {
       <main className="main-content">
         <header className="topbar">
           <h1>Volunteer Management</h1>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          <div className="topbar-actions">
+            <span className="greeting">Hello, {getDisplayName()}</span>
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          </div>
         </header>
 
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"50px" }}>

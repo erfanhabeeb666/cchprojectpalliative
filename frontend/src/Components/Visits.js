@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate,NavLink } from "react-router-dom";
+import { getDisplayName } from "../utils/auth";
 import "./Styles/Admin.css";
 import "./Styles/Main.css";
 import "./Styles/Sidebar.css";
@@ -124,9 +125,10 @@ const Visits = () => {
       <main className="main-content">
         <header className="topbar">
           <h1>Visit Reports</h1>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
+          <div className="topbar-actions">
+            <span className="greeting">Hello, {getDisplayName()}</span>
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          </div>
         </header>
 
         {/* Tabs */}

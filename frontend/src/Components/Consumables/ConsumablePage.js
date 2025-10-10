@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { getDisplayName } from "../../utils/auth";
 import AddConsumable from "./AddConsumable";
 import axios from "axios";
 import "../Styles/Admin.css";
@@ -10,7 +11,6 @@ const ConsumablePage = () => {
   const [consumableList, setConsumableList] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [updateQuantity, setUpdateQuantity] = useState({}); // {id: qty}
-
   const apiUrl = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem("jwtToken");
 
@@ -85,61 +85,64 @@ const ConsumablePage = () => {
           <h2>P A S S</h2>
         </center>
         <nav>
-                 <ul className="sidebar-menu">
-                   <li>
-                     <NavLink to="/admin" className="sidebar-link">
-                       <i className="fas fa-tachometer-alt"></i> Dashboard
-                     </NavLink>
-                   </li>
-                   <li>
-                     <NavLink to="/admin/patient" className="sidebar-link">
-                       <i className="fas fa-user-injured"></i> Patients
-                     </NavLink>
-                   </li>
-                   <li>
-                     <NavLink to="/admin/volunteers" className="sidebar-link">
-                       <i className="fas fa-hands-helping"></i> Volunteers
-                     </NavLink>
-                   </li>
-                   <li>
-                     <NavLink to="/admin/procedures" className="sidebar-link">
-                       <i className="fas fa-stethoscope"></i> Procedures
-                     </NavLink>
-                   </li>
-                   <li>
-                     <NavLink to="/admin/visits" className="sidebar-link">
-                       <i className="fas fa-notes-medical"></i> Visit Reports
-                     </NavLink>
-                   </li>
-                   <li>
-                                 <NavLink to="/admin/createnewvisit" className="sidebar-link">
-                                   <i className="fas fa-stethoscope"></i> Create New Visit
-                                 </NavLink>
-                               </li>
-                   <li>
-                     <NavLink to="/admin/equipment" className="sidebar-link">
-                       <i className="fas fa-dolly-flatbed"></i> Equipment
-                     </NavLink>
-                   </li>
-                   <li>
-                     <NavLink to="/admin/consumables" className="sidebar-link">
-                       <i className="fas fa-medkit"></i> Consumables
-                     </NavLink>
-                   </li>
-                   <li>
-                     <NavLink to="/admin/settings" className="sidebar-link">
-                       <i className="fas fa-cogs"></i> Settings
-                     </NavLink>
-                   </li>
-                 </ul>
-               </nav>
+          <ul className="sidebar-menu">
+            <li>
+              <NavLink to="/admin" className="sidebar-link">
+                <i className="fas fa-tachometer-alt"></i> Dashboard
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/patient" className="sidebar-link">
+                <i className="fas fa-user-injured"></i> Patients
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/volunteers" className="sidebar-link">
+                <i className="fas fa-hands-helping"></i> Volunteers
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/procedures" className="sidebar-link">
+                <i className="fas fa-stethoscope"></i> Procedures
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/visits" className="sidebar-link">
+                <i className="fas fa-notes-medical"></i> Visit Reports
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/createnewvisit" className="sidebar-link">
+                <i className="fas fa-stethoscope"></i> Create New Visit
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/equipment" className="sidebar-link">
+                <i className="fas fa-dolly-flatbed"></i> Equipment
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/consumables" className="sidebar-link">
+                <i className="fas fa-medkit"></i> Consumables
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/admin/settings" className="sidebar-link">
+                <i className="fas fa-cogs"></i> Settings
+              </NavLink>
+            </li>
+          </ul>
+        </nav>
       </aside>
 
       {/* Main Content */}
       <main className="main-content">
         <header className="topbar">
           <h1>Consumables Management</h1>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          <div className="topbar-actions">
+            <span className="greeting">Hello, {getDisplayName()}</span>
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          </div>
         </header>
 
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>

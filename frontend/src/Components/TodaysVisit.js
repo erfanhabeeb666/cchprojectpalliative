@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { getDisplayName } from "../utils/auth";
 import "./Styles/Admin.css";
 import "./Styles/Main.css";
 import "./Styles/Sidebar.css";
@@ -296,9 +297,10 @@ const TodaysVisit = () => {
       <main className="main-content">
         <header className="topbar">
           <h1>Today's Visits</h1>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
+          <div className="topbar-actions">
+            <span className="greeting">Hello, {getDisplayName()}</span>
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          </div>
         </header>
 
         <section className="content-section">

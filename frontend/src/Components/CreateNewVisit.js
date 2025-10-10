@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { getDisplayName } from "../utils/auth";
 import "./Styles/Main.css";
 import "./Styles/Admin.css";
 import "./Styles/Sidebar.css";
@@ -178,9 +179,10 @@ const CreateNewVisit = () => {
       <main className="main-content">
         <header className="topbar">
           <h1>Create New Visit</h1>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
+          <div className="topbar-actions">
+            <span className="greeting">Hello, {getDisplayName()}</span>
+            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          </div>
         </header>
 
         {/* Progress bar */}

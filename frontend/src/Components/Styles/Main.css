@@ -328,7 +328,6 @@ input[type="text"] {
   border-radius: 6px;
   background-color: #007bff;
   color: white;
-  font-size: 14px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
 }
@@ -345,4 +344,16 @@ input[type="text"] {
 .pagination-info {
   font-weight: 500;
   color: #444;
+}
+
+/* Topbar actions: greeting + logout */
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.greeting {
+  color: #ecf0f1; /* light text for dark topbar */
+  font-weight: 500;
 }
