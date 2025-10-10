@@ -214,7 +214,7 @@ public class AdminController {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=visits.csv");
 
-        List<PatientVisitReportDto> visits = adminService.getAllVisitsForExport(Status.ACTIVE, startDate, endDate);
+        List<PatientVisitReportDto> visits = adminService.getAllVisitsForExport(startDate, endDate);
         try (PrintWriter writer = response.getWriter()) {
             writer.println("VisitID,PatientName,VolunteerName,Date,ProceduresDone,Status");
 

@@ -24,4 +24,14 @@ public class PatientVisitReportSpecifications {
             return null;
         };
     }
+
+    public static Specification<PatientVisitReport> visitDateAfter(LocalDate startDate) {
+        return (root, query, cb) -> startDate == null ? null :
+                cb.greaterThanOrEqualTo(root.get("visitDate"), startDate);
+    }
+
+    public static Specification<PatientVisitReport> visitDateBefore(LocalDate endDate) {
+        return (root, query, cb) -> endDate == null ? null :
+                cb.lessThanOrEqualTo(root.get("visitDate"), endDate);
+    }
 }

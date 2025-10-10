@@ -295,22 +295,21 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    public List<PatientVisitReportDto> getAllVisitsForExport(Status status, LocalDate startDate, LocalDate endDate) {
-        Status finalStatus = status != null ? status : Status.ACTIVE;
-        List<PatientVisitReport> visits;
+    public List<PatientVisitReportDto> getAllVisitsForExport(LocalDate startDate, LocalDate endDate) {
+        Specification<PatientVisitReport> spec = Specification.where(null); // start with no filters
 
         if (startDate != null && endDate != null) {
-            visits = reportRepository.findByVisitDateBetween(startDate, endDate);
+            spec = spec.and(PatientVisitReportSpecifications.visitDateBetween(startDate, endDate));
         } else if (startDate != null) {
-            visits = reportRepository.findByVisitDateAfter(startDate);
+            spec = spec.and(PatientVisitReportSpecifications.visitDateAfter(startDate));
         } else if (endDate != null) {
-            visits = reportRepository.findByVisitDateBefore(endDate);
-        } else {
-            visits = reportRepository.findAll();
+            spec = spec.and(PatientVisitReportSpecifications.visitDateBefore(endDate));
         }
 
-        return visits.stream()
+        return reportRepository.findAll(spec)
+                .stream()
                 .map(ConvertToDto::convertToPatientVisitReportDto)
-                .collect(Collectors.toList());
+                .toList();
     }
+
 }

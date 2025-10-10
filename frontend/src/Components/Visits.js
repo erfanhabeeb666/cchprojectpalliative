@@ -62,13 +62,12 @@ const Visits = () => {
 
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
-      const params = {};
-      if (startDate) params.startDate = startDate;
-      if (endDate) params.endDate = endDate;
+      const qs = new URLSearchParams();
+      if (startDate) qs.append("startDate", startDate);
+      if (endDate) qs.append("endDate", endDate);
 
-      const response = await axios.get(`${apiUrl}admin/export/visits`, {
-        headers: { Authorization: `Bearer ${token}` },
-        params,
+      const response = await axios.get(`${apiUrl}admin/export/visits?${qs.toString()}`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: "text/csv" },
         responseType: "blob",
       });
 
