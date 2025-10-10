@@ -300,17 +300,22 @@ const EquipmentPage = () => {
           </table>
 
           {/* Pagination */}
-          <div style={{ marginTop: "15px" }}>
+          <div
+            className="pagination"
+            style={{ marginTop: "15px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", fontSize: "12px", whiteSpace: "nowrap" }}
+          >
             <button
+              style={{ padding: "4px 10px", fontSize: "12px", display: "inline-flex", alignItems: "center", lineHeight: 1, height: "28px" }}
               disabled={page === 0}
               onClick={() => fetchEquipment(page - 1, searchQuery)}
             >
               Prev
             </button>
-            <span style={{ margin: "0 10px" }}>
+            <span style={{ fontSize: "12px", lineHeight: 1, display: "inline-block" }}>
               Page {page + 1} of {totalPages}
             </span>
             <button
+              style={{ padding: "4px 10px", fontSize: "12px", display: "inline-flex", alignItems: "center", lineHeight: 1, height: "28px" }}
               disabled={page + 1 >= totalPages}
               onClick={() => fetchEquipment(page + 1, searchQuery)}
             >
@@ -344,16 +349,15 @@ const EquipmentPage = () => {
                     <div
                       key={p.id}
                       className="patient-option"
-                      style={{ display: "flex", alignItems: "center", gap: "12px", padding: "6px 0" }}
+                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0", fontSize: "14px" }}
                     >
                       
-                      <div style={{ flex: "1 1 60%" }}>
-                        {p.name}
-                      </div>
-                      <div style={{ flex: "0 0 180px", textAlign: "right", color: "#555" }}>
+                      <div style={{ flex: "1 1 60%" }}>{p.name}</div>
+                      <div style={{ flex: "0 0 140px", textAlign: "right", color: "#555", fontSize: "12px" }}>
                         {p.mobileNumber}
                       </div>
                       <input
+                        style={{ transform: "scale(0.9)" }}
                         type="checkbox"
                         name="patient"
                         value={p.id}
@@ -373,8 +377,12 @@ const EquipmentPage = () => {
               </div>
 
               {/* Pagination */}
-              <div className="pagination" style={{ marginTop: "10px" }}>
+              <div
+                className="pagination"
+                style={{ marginTop: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", fontSize: "12px", whiteSpace: "nowrap" }}
+              >
                 <button
+                  style={{ padding: "2px 8px", fontSize: "12px", display: "inline-flex", alignItems: "center", lineHeight: 1, height: "26px" }}
                   disabled={pagePatientsModal === 0}
                   onClick={() =>
                     setPagePatientsModal((prev) => Math.max(prev - 1, 0))
@@ -382,10 +390,11 @@ const EquipmentPage = () => {
                 >
                   Prev
                 </button>
-                <span style={{ margin: "0 10px" }}>
+                <span style={{ fontSize: "12px", lineHeight: 1, display: "inline-block" }}>
                   Page {pagePatientsModal + 1} of {totalPagesPatientsModal}
                 </span>
                 <button
+                  style={{ padding: "2px 8px", fontSize: "12px", display: "inline-flex", alignItems: "center", lineHeight: 1, height: "26px" }}
                   disabled={pagePatientsModal + 1 >= totalPagesPatientsModal}
                   onClick={() =>
                     setPagePatientsModal((prev) => prev + 1)
