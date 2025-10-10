@@ -341,17 +341,32 @@ const EquipmentPage = () => {
                   <p className="text-gray-500">No patients found</p>
                 ) : (
                   patientsModal.map((p) => (
-                    <div key={p.id} className="patient-option">
+                    <div
+                      key={p.id}
+                      className="patient-option"
+                      style={{ display: "flex", alignItems: "center", gap: "12px", padding: "6px 0" }}
+                    >
+                      
+                      <div style={{ flex: "1 1 60%" }}>
+                        {p.name}
+                      </div>
+                      <div style={{ flex: "0 0 180px", textAlign: "right", color: "#555" }}>
+                        {p.mobileNumber}
+                      </div>
                       <input
-                        type="radio"
+                        type="checkbox"
                         name="patient"
                         value={p.id}
                         checked={selectedPatient === String(p.id)}
-                        onChange={(e) => setSelectedPatient(e.target.value)}
+                        onChange={(e) => {
+                          const isChecked = e.target.checked;
+                          if (isChecked) {
+                            setSelectedPatient(String(p.id));
+                          } else if (selectedPatient === String(p.id)) {
+                            setSelectedPatient("");
+                          }
+                        }}
                       />
-                      <span>
-                        {p.id} - {p.name} ({p.mobileNumber})
-                      </span>
                     </div>
                   ))
                 )}

@@ -27,7 +27,15 @@ body {
   flex-direction: column; 
   align-items: flex-start; 
   margin-top: 105px;
+  overflow: visible; /* prevent accidental clipping */
 } 
+/* place near other utility-like classes */
+.mb-4.flex.space-x-4 {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* mimics space-x-4 */
+  flex-wrap: wrap; /* prevents clipping at small widths */
+}
 
 .topbar { 
   position: fixed; 
