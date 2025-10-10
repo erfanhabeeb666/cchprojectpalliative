@@ -300,13 +300,13 @@ public class AdminService {
         List<PatientVisitReport> visits;
 
         if (startDate != null && endDate != null) {
-            visits = reportRepository.findByStatusAndVisitDateBetween(finalStatus, startDate, endDate);
+            visits = reportRepository.findByVisitDateBetween(startDate, endDate);
         } else if (startDate != null) {
-            visits = reportRepository.findByStatusAndVisitDateAfter(finalStatus, startDate);
+            visits = reportRepository.findByVisitDateAfter(startDate);
         } else if (endDate != null) {
-            visits = reportRepository.findByStatusAndVisitDateBefore(finalStatus, endDate);
+            visits = reportRepository.findByVisitDateBefore(endDate);
         } else {
-            visits = reportRepository.findByStatus(finalStatus);
+            visits = reportRepository.findAll();
         }
 
         return visits.stream()

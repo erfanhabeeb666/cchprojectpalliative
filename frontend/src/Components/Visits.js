@@ -48,6 +48,43 @@ const Visits = () => {
     }
   };
 
+  const downloadVisitsCsv = async () => {
+    try {
+      if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+        alert("Invalid date range: 'From' is after 'To'.");
+        return;
+      }
+
+      if (filteredVisits.length === 0) {
+        alert("No visits found for the selected filters to export.");
+        return;
+      }
+
+      const token = localStorage.getItem("jwtToken");
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+
+      const response = await axios.get(`${apiUrl}admin/export/visits`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params,
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "visits.csv");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to export visits CSV", err);
+    }
+  };
+
   useEffect(() => {
     fetchVisits();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -199,6 +236,7 @@ const Visits = () => {
             }}
             style={{ marginLeft: "10px" }}
           />
+          <button onClick={downloadVisitsCsv} style={{ marginLeft: "20px" }}>Export CSV</button>
         </div>
 
         {/* Table */}

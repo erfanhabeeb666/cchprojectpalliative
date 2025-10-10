@@ -35,6 +35,32 @@ const PatientPage = () => {
     }
   };
 
+  const downloadPatientsCsv = async () => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const params = {};
+      if (search) params.search = search;
+
+      const response = await axios.get(`${apiUrl}admin/export/patients`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params,
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "patients.csv");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to export patients CSV", err);
+    }
+  };
+
   useEffect(() => {
     fetchPatients();
   }, [page, size, direction, search]); // re-fetch when params change
@@ -102,6 +128,7 @@ const PatientPage = () => {
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"50px"}}>
           <button onClick={() => setShowModal(true)}>+ Add Patient</button>
           <button onClick={fetchPatients} style={{ marginLeft: "15px" }}>Refresh List</button>
+          <button onClick={downloadPatientsCsv} style={{ marginLeft: "15px" }}>Export CSV</button>
           <input type="text" placeholder="Search by name or mobile..." value={search} onChange={(e) => {
                                                                                         setPage(0);
                                                                                         setSearch(e.target.value);

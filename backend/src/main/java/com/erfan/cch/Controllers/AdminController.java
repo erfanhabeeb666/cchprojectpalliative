@@ -216,14 +216,15 @@ public class AdminController {
 
         List<PatientVisitReportDto> visits = adminService.getAllVisitsForExport(Status.ACTIVE, startDate, endDate);
         try (PrintWriter writer = response.getWriter()) {
-            writer.println("VisitID,PatientName,VolunteerName,Date,Status");
+            writer.println("VisitID,PatientName,VolunteerName,Date,ProceduresDone,Status");
 
             for (PatientVisitReportDto v : visits) {
-                writer.printf("%d,%s,%s,%s,%s%n", // <-- added %n here too
+                writer.printf("%d,%s,%s,%s,%s,%s%n", // <-- added %n here too
                         v.getId(),
                         escapeCsv(v.getPatientName()),
                         escapeCsv(v.getVolunteerName()),
                         v.getVisitDate(),
+                        v.getProceduresDone(),
                         v.getStatus());
             }
         }
