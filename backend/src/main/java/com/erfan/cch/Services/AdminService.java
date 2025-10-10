@@ -283,4 +283,34 @@ public class AdminService {
         }
     }
 
+    public List<PatientDto> getAllPatientsForExport(String search) {
+        List<Patient> patients;
+        if (search != null && !search.isBlank()) {
+            patients = patientRepository.findByNameContainingIgnoreCaseAndStatus(search, Status.ACTIVE);
+        } else {
+            patients = patientRepository.findByStatus(Status.ACTIVE);
+        }
+        return patients.stream()
+                .map(ConvertToDto::convertToPatientDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<PatientVisitReportDto> getAllVisitsForExport(Status status, LocalDate startDate, LocalDate endDate) {
+        Status finalStatus = status != null ? status : Status.ACTIVE;
+        List<PatientVisitReport> visits;
+
+        if (startDate != null && endDate != null) {
+            visits = reportRepository.findByStatusAndVisitDateBetween(finalStatus, startDate, endDate);
+        } else if (startDate != null) {
+            visits = reportRepository.findByStatusAndVisitDateAfter(finalStatus, startDate);
+        } else if (endDate != null) {
+            visits = reportRepository.findByStatusAndVisitDateBefore(finalStatus, endDate);
+        } else {
+            visits = reportRepository.findByStatus(finalStatus);
+        }
+
+        return visits.stream()
+                .map(ConvertToDto::convertToPatientVisitReportDto)
+                .collect(Collectors.toList());
+    }
 }

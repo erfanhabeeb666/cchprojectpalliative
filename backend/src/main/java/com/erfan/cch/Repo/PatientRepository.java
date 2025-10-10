@@ -6,9 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface PatientRepository extends JpaRepository<Patient, Long> {
 
-
+    List<Patient> findByStatus(Status status);
+    List<Patient> findByNameContainingIgnoreCaseAndStatus(String name, Status status);
     Page<Patient> findByStatus(Status status, Pageable pageable);
 
     Page<Patient> findByNameContainingIgnoreCaseAndStatus(String search, Status status, Pageable pageable);

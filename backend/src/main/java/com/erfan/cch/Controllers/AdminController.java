@@ -4,6 +4,7 @@ import com.erfan.cch.Dto.*;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Services.AdminService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -81,6 +84,16 @@ public class AdminController {
         Page<PatientDto> patients = adminService.getAllPatients(search, pageable);
         return ResponseEntity.ok(patients);
     }
+    @GetMapping("/visits")
+    public ResponseEntity<Page<PatientVisitReportDto>> getVisits(
+            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(adminService.getVisits(status, startDate, endDate, page, size));
+    }
     @GetMapping("/view-equipments")
     public  ResponseEntity<Page<EquipmentDto>> viewEquipments(
             @RequestParam(defaultValue = "0") int page,
@@ -140,16 +153,7 @@ public class AdminController {
     public DashboardStatsDto dashboardStats(){
         return adminService.dashboardStats();
     }
-    @GetMapping("/visits")
-    public ResponseEntity<Page<PatientVisitReportDto>> getVisits(
-            @RequestParam(required = false) Status status,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        return ResponseEntity.ok(adminService.getVisits(status, startDate, endDate, page, size));
-    }
+
 
     @DeleteMapping("/delete-procedure")
     public ResponseEntity<String> deleteProcedure(@RequestParam Long id){
@@ -176,6 +180,57 @@ public class AdminController {
     @DeleteMapping("consumable/delete/{id}")
     public void deleteConsumable(@PathVariable Long id) {
         adminService.deleteConsumable(id);
+    }
+    @GetMapping("/export/patients")
+    public void exportPatientsAsCsv(
+            @RequestParam(defaultValue = "") String search,
+            HttpServletResponse response
+    ) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=patients.csv");
+
+        List<PatientDto> patients = adminService.getAllPatientsForExport(search); // fetch all, no paging
+        try (PrintWriter writer = response.getWriter()) {
+            writer.println("ID,Name,Phone,Address,Status"); // headers
+
+            for (PatientDto p : patients) {
+                writer.printf("%d,%s,%s,%s",
+                        p.getId(),
+                        escapeCsv(p.getName()),
+                        escapeCsv(p.getMobileNumber()),
+                        escapeCsv(p.getAddress()));
+            }
+        }
+    }
+
+    @GetMapping("/export/visits")
+    public void exportVisitsAsCsv(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            HttpServletResponse response
+    ) throws IOException {
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=visits.csv");
+
+        List<PatientVisitReportDto> visits = adminService.getAllVisitsForExport(Status.ACTIVE, startDate, endDate);
+
+        try (PrintWriter writer = response.getWriter()) {
+            writer.println("VisitID,PatientName,VolunteerName,Date,Status,Notes");
+
+            for (PatientVisitReportDto v : visits) {
+                writer.printf("%d,%s,%s,%s,%s",
+                        v.getId(),
+                        escapeCsv(v.getPatientName()),
+                        escapeCsv(v.getVolunteerName()),
+                        v.getVisitDate(),
+                        v.getStatus());
+            }
+        }
+    }
+
+    private String escapeCsv(String value) {
+        if (value == null) return "";
+        return value.replace(",", ";"); // prevent breaking columns
     }
 }
 
