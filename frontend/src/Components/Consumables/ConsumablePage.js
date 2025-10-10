@@ -13,13 +13,22 @@ const ConsumablePage = () => {
   const [updateQuantity, setUpdateQuantity] = useState({}); // {id: qty}
   const apiUrl = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem("jwtToken");
+  // Pagination & search
+  const [page, setPage] = useState(0);
+  const [size] = useState(6);
+  const [totalPages, setTotalPages] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const fetchConsumables = async () => {
+  const fetchConsumables = async (pageNum = page, searchTerm = searchQuery) => {
     try {
       const response = await axios.get(`${apiUrl}admin/consumable/list`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { page: pageNum, size, search: searchTerm },
       });
-      setConsumableList(response.data);
+      // Expecting a paginated response { content, number, totalPages }
+      setConsumableList(response.data.content || []);
+      if (typeof response.data.number === "number") setPage(response.data.number);
+      if (typeof response.data.totalPages === "number") setTotalPages(response.data.totalPages);
     } catch (err) {
       console.error("Failed to fetch consumables", err);
     }
@@ -29,8 +38,14 @@ const ConsumablePage = () => {
     fetchConsumables();
   }, []);
 
+  // Refetch when search query changes (reset to first page)
+  useEffect(() => {
+    fetchConsumables(0, searchQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
   const handleAddSuccess = () => {
-    fetchConsumables();
+    fetchConsumables(0, searchQuery);
     setShowAddForm(false);
   };
 
@@ -40,7 +55,7 @@ const ConsumablePage = () => {
         await axios.delete(`${apiUrl}admin/consumable/delete/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        fetchConsumables();
+        fetchConsumables(page, searchQuery);
       } catch (err) {
         console.error("Failed to delete consumable", err);
       }
@@ -63,7 +78,7 @@ const ConsumablePage = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      fetchConsumables();
+      fetchConsumables(page, searchQuery);
       setUpdateQuantity((prev) => ({ ...prev, [id]: "" }));
     } catch (err) {
       console.error(`Failed to ${action} stock`, err);
@@ -147,7 +162,7 @@ const ConsumablePage = () => {
 
         <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
           <button onClick={() => setShowAddForm(true)}>+ Add Consumable</button>
-          <button onClick={fetchConsumables} style={{ marginLeft: "10px" }}>Refresh List</button>
+          <button onClick={() => fetchConsumables(0, searchQuery)} style={{ marginLeft: "10px" }}>Refresh List</button>
         </div>
 
         {showAddForm && (
@@ -227,6 +242,24 @@ const ConsumablePage = () => {
               )}
             </tbody>
           </table>
+        </div>
+        {/* Pagination */}
+        <div style={{ marginTop: "15px" }}>
+          <button
+            disabled={page === 0}
+            onClick={() => fetchConsumables(page - 1, searchQuery)}
+          >
+            Prev
+          </button>
+          <span style={{ margin: "0 10px" }}>
+            Page {page + 1} of {totalPages}
+          </span>
+          <button
+            disabled={page + 1 >= totalPages}
+            onClick={() => fetchConsumables(page + 1, searchQuery)}
+          >
+            Next
+          </button>
         </div>
       </main>
     </div>

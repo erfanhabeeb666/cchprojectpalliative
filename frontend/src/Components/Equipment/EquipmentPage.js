@@ -17,7 +17,7 @@ const EquipmentPage = () => {
 
   // Pagination for equipment
   const [page, setPage] = useState(0);
-  const [size] = useState(10);
+  const [size] = useState(5);
   const [totalPages, setTotalPages] = useState(0);
 
   // Pagination for patients modal
@@ -207,7 +207,7 @@ const EquipmentPage = () => {
 
         <section className="content-section">
           {/* Add & Search */}
-          <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px", marginTop: "370px" }}>
+          <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px", marginTop: "20px" }}>
             <button onClick={() => setShowAddForm(true)}>+ Add Equipment</button>
             <button
               onClick={() => fetchEquipment(0, searchQuery)}

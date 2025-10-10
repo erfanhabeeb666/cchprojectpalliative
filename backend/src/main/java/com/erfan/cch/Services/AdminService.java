@@ -141,6 +141,10 @@ public class AdminService {
         ).map(ConvertToDto::convertToEquipmentDto);
 
     }
+    public Page<Consumable> getAllConsumables(String search,Pageable pageable) {
+            return consumableRepository.findAllByStatus(Status.ACTIVE,pageable);
+    }
+
     public Page<PatientDto> getAllPatients(String search, Pageable pageable) {
         Page<Patient> patients;
 
@@ -223,9 +227,6 @@ public class AdminService {
         return consumableRepository.save(consumable);
     }
 
-    public List<Consumable> getAllConsumables() {
-        return consumableRepository.findAllByStatus(Status.ACTIVE);
-    }
 
     public void deleteConsumable(Long id) {
         Optional<Consumable> dbConsumable = consumableRepository.findById(id);

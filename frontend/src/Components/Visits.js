@@ -13,7 +13,7 @@ const Visits = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(8);
   const [totalPages, setTotalPages] = useState(0);
 
   const navigate = useNavigate();

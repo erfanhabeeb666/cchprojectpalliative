@@ -54,17 +54,26 @@ public class AdminController {
     @GetMapping("list-volunteers")
     public  ResponseEntity<Page<VolunteerDto>> getVolunteers(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "") String search) {
          Pageable pageable = PageRequest.of(page,size,Sort.by(sortBy));
          Page<VolunteerDto> volunteers = adminService.getVolunteers(search,pageable);
          return ResponseEntity.ok(volunteers);
     }
+
+    @GetMapping("/consumable/list")
+    public Page<Consumable> listConsumables(@RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "6") int size,
+                                            @RequestParam(defaultValue = "id") String sortBy,
+                                            @RequestParam(defaultValue = "") String search) {
+        Pageable pageable = PageRequest.of(page,size,Sort.by(sortBy));
+        return adminService.getAllConsumables(search,pageable);
+    }
     @GetMapping("list-patients")
     public ResponseEntity<Page<PatientDto>> getPatients(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "") String search) {
 
@@ -75,7 +84,7 @@ public class AdminController {
     @GetMapping("/view-equipments")
     public  ResponseEntity<Page<EquipmentDto>> viewEquipments(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "") String search) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
@@ -163,10 +172,6 @@ public class AdminController {
         return adminService.updateStock(id, quantity, false);
     }
 
-    @GetMapping("/consumable/list")
-    public List<Consumable> listConsumables() {
-        return adminService.getAllConsumables();
-    }
 
     @DeleteMapping("consumable/delete/{id}")
     public void deleteConsumable(@PathVariable Long id) {

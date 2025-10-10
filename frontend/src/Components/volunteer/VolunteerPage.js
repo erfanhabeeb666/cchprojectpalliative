@@ -13,7 +13,7 @@ const VolunteerPage = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAssignForm, setShowAssignForm] = useState(false);
   const [page, setPage] = useState(0);
-  const [size] = useState(10);
+  const [size] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState("");
 

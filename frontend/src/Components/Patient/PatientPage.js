@@ -10,7 +10,7 @@ import "../Styles/Sidebar.css";
 const PatientPage = () => {
   const [patients, setPatients] = useState([]);
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(6);
   const [direction, setDirection] = useState("asc");
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(0);
