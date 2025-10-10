@@ -404,14 +404,22 @@ const EquipmentPage = () => {
                 </button>
               </div>
 
-              <div className="form-actions">
+              <div
+                className="form-actions"
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginTop: "12px", whiteSpace: "nowrap" }}
+              >
                 <button
                   onClick={() => setShowAllocateModal(false)}
                   className="btn-cancel"
+                  style={{ padding: "4px 12px", height: "28px", lineHeight: 1, display: "inline-flex", alignItems: "center" }}
                 >
                   Cancel
                 </button>
-                <button onClick={confirmAllocate} className="btn-submit">
+                <button
+                  onClick={confirmAllocate}
+                  className="btn-submit"
+                  style={{ padding: "4px 12px", height: "28px", lineHeight: 1, display: "inline-flex", alignItems: "center" }}
+                >
                   Confirm
                 </button>
               </div>
