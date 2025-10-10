@@ -191,10 +191,10 @@ public class AdminController {
 
         List<PatientDto> patients = adminService.getAllPatientsForExport(search); // fetch all, no paging
         try (PrintWriter writer = response.getWriter()) {
-            writer.println("ID,Name,Phone,Address,Status"); // headers
+            writer.println("ID,Name,Phone,Address"); // header row
 
             for (PatientDto p : patients) {
-                writer.printf("%d,%s,%s,%s",
+                writer.printf("%d,%s,%s,%s%n", // <-- added %n for newline
                         p.getId(),
                         escapeCsv(p.getName()),
                         escapeCsv(p.getMobileNumber()),
@@ -205,20 +205,21 @@ public class AdminController {
 
     @GetMapping("/export/visits")
     public void exportVisitsAsCsv(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             HttpServletResponse response
     ) throws IOException {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=visits.csv");
 
         List<PatientVisitReportDto> visits = adminService.getAllVisitsForExport(Status.ACTIVE, startDate, endDate);
-
         try (PrintWriter writer = response.getWriter()) {
-            writer.println("VisitID,PatientName,VolunteerName,Date,Status,Notes");
+            writer.println("VisitID,PatientName,VolunteerName,Date,Status");
 
             for (PatientVisitReportDto v : visits) {
-                writer.printf("%d,%s,%s,%s,%s",
+                writer.printf("%d,%s,%s,%s,%s%n", // <-- added %n here too
                         v.getId(),
                         escapeCsv(v.getPatientName()),
                         escapeCsv(v.getVolunteerName()),
@@ -230,7 +231,8 @@ public class AdminController {
 
     private String escapeCsv(String value) {
         if (value == null) return "";
-        return value.replace(",", ";"); // prevent breaking columns
+        return value.replace(",", ";").replace("\n", " ").replace("\r", " ");
     }
+
 }
 
