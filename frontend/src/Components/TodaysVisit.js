@@ -457,12 +457,16 @@ const TodaysVisit = () => {
                               Submit
                             </button>
                           )}
-                          <button onClick={() => openLocation(visit)}>
-                            View Location
-                          </button>
-                          <button onClick={() => openInGoogleMaps(visit)}>
-                            Open in Maps
-                          </button>
+                          {((visit.latitude ?? visit.patientLatitude) != null) && ((visit.longitude ?? visit.patientLongitude) != null) && (
+                            <>
+                              <button onClick={() => openLocation(visit)}>
+                                View Location
+                              </button>
+                              <button onClick={() => openInGoogleMaps(visit)}>
+                                Open in Maps
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

@@ -3,6 +3,7 @@ package com.erfan.cch.Controllers;
 import com.erfan.cch.Dto.PatientVisitReportDto;
 import com.erfan.cch.Dto.ProcedureDoneDto;
 import com.erfan.cch.Dto.VisitReportRequest;
+import com.erfan.cch.Dto.VolunteerDashboardStatsDto;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.Consumable;
 import com.erfan.cch.Models.PatientVisitReport;
@@ -53,6 +54,11 @@ public class VolunteerController {
     @GetMapping("/procedures")
     public ResponseEntity<List<ProcedureDoneDto>> getAllProcedures() {
         return ResponseEntity.ok(volunteerService.getAllProcedures());
+    }
+    @GetMapping("/dashboard")
+    public ResponseEntity<VolunteerDashboardStatsDto> getDashboardStats() {
+        return ResponseEntity.ok(volunteerService
+                .getDashboardStats());
     }
 
 }

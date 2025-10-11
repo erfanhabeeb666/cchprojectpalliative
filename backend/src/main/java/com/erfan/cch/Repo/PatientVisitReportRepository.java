@@ -4,6 +4,7 @@ import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.PatientVisitReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -22,5 +23,10 @@ public interface PatientVisitReportRepository extends JpaRepository<PatientVisit
     List<PatientVisitReport> findByVisitDateBetween(LocalDate startDate, LocalDate endDate);
 
     List<PatientVisitReport> findByVisitDateAfter(LocalDate startDate);
+    @Query("SELECT COUNT(v) FROM PatientVisitReport v WHERE v.volunteer.id = :volunteerId AND v.visitDate = :today")
+    long countTodayVisits(Long volunteerId, LocalDate today);
+
+    @Query("SELECT COUNT(v) FROM PatientVisitReport v WHERE v.volunteer.id = :volunteerId AND v.status = :status")
+    long countByVolunteerAndStatus(Long volunteerId, Status status);
 }
 

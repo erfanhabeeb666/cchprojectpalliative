@@ -3,6 +3,7 @@ package com.erfan.cch.Services;
 import com.erfan.cch.Dto.ConsumableUsageDto;
 import com.erfan.cch.Dto.PatientVisitReportDto;
 import com.erfan.cch.Dto.ProcedureDoneDto;
+import com.erfan.cch.Dto.VolunteerDashboardStatsDto;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.Consumable;
 import com.erfan.cch.Models.PatientVisitReport;
@@ -124,6 +125,12 @@ public class VolunteerService {
 
     public List<Consumable> getAllConsumables() {
         return consumableRepository.findAllByStatus(Status.ACTIVE);
+    }
+    public VolunteerDashboardStatsDto getDashboardStats() {
+        Long volunteerId = Long.valueOf(jwtService.extractId(jwtUtils.getJwtFromRequest(request)));
+        long todayVisits = reportRepository.countTodayVisits(volunteerId, LocalDate.now());
+        long completedVisits = reportRepository.countByVolunteerAndStatus(volunteerId, Status.COMPLETED);
+        return new VolunteerDashboardStatsDto(todayVisits, completedVisits);
     }
 }
 
