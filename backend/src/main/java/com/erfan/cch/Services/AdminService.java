@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -108,8 +109,20 @@ public class AdminService {
     }
 
     public void addPatient(Patient patient) {
+        String mobile = patient.getMobileNumber() != null ? patient.getMobileNumber().trim() : null;
+        if (mobile == null || mobile.isEmpty()) {
+            throw new RuntimeException("Mobile number is required");
+        }
+        if (patientRepository.existsByMobileNumber(mobile)) {
+            throw new RuntimeException("Patient with this mobile number already exists");
+        }
+        patient.setMobileNumber(mobile);
         patient.setStatus(Status.ACTIVE);
-        patientRepository.save(patient);
+        try {
+            patientRepository.save(patient);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Patient with this mobile number already exists");
+        }
     }
 
     public void addVolunteer(Volunteer volunteer) {

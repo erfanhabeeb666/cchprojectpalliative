@@ -19,4 +19,5 @@ public interface PatientRepository extends JpaRepository<Patient, Long> {
     Page<Patient> findAllByStatus(Status status, Pageable pageable);
 
     Page<Patient> findByStatusAndNameContainingIgnoreCaseOrStatusAndMobileNumberContaining(Status status, String search, Status status1, String search1, Pageable pageable);
+    boolean existsByMobileNumber(String mobileNumber);
 }

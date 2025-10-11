@@ -23,6 +23,7 @@ public class User implements UserDetails {
     private Long id;
 
     private String name;
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
     private String password;
     @Enumerated(EnumType.STRING)

@@ -18,6 +18,7 @@ import java.util.List;
 )
 public class Patient {
     private String name;
+    @Column(name = "mobile_number", unique = true, nullable = false)
     private String mobileNumber;
     private int age;
     private String gender;
