@@ -14,20 +14,52 @@ const AddVolunteer = ({ onSuccess }) => {
 
   const [successMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    setVolunteer({ ...volunteer, [e.target.name]: e.target.value });
+    const { name } = e.target;
+    let { value } = e.target;
+    if (name === 'phoneNumber') {
+      value = value.replace(/\D/g, '');
+    }
+    setVolunteer({ ...volunteer, [name]: value });
+    if (errors[name]) setErrors({ ...errors, [name]: undefined });
+  };
+
+  const validate = () => {
+    const errs = {};
+    if (!volunteer.name.trim()) errs.name = 'Name is required';
+    if (!volunteer.email.trim()) errs.email = 'Email is required';
+    else if (!/^\S+@\S+\.[\w-]+$/.test(volunteer.email.trim())) errs.email = 'Enter a valid email';
+    if (!volunteer.password) errs.password = 'Password is required';
+    else if (volunteer.password.length < 6) errs.password = 'Password must be at least 6 characters';
+    if (!volunteer.phoneNumber.trim()) errs.phoneNumber = 'Phone number is required';
+    else if (!/^\d{10}$/.test(volunteer.phoneNumber.trim())) errs.phoneNumber = 'Enter a valid 10-digit phone number';
+    if (!volunteer.address.trim()) errs.address = 'Address is required';
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validate()) return;
     try {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
 
+      const payload = {
+        name: volunteer.name.trim(),
+        email: volunteer.email.trim().toLowerCase(),
+        password: volunteer.password,
+        userType: volunteer.userType,
+        phoneNumber: volunteer.phoneNumber.trim(),
+        address: volunteer.address.trim(),
+        specialization: volunteer.specialization.trim(),
+      };
+
       await axios.post(
         `${apiUrl}admin/add-volunteer`,
-        volunteer,
+        payload,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -44,11 +76,13 @@ const AddVolunteer = ({ onSuccess }) => {
         address: '',
         specialization: ''
       });
+      setErrors({});
 
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
-      setError("Failed to add volunteer");
+      const serverMsg = err?.response?.data || 'Failed to add volunteer';
+      setError(typeof serverMsg === 'string' ? serverMsg : 'Failed to add volunteer');
       setSuccessMessage('');
     }
   };
@@ -60,7 +94,7 @@ const AddVolunteer = ({ onSuccess }) => {
       {successMessage && <p className="text-green-600">{successMessage}</p>}
       {error && <p className="text-red-600">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="space-y-4">
         <input
           type="text"
           name="name"
@@ -70,6 +104,7 @@ const AddVolunteer = ({ onSuccess }) => {
           required
           className="w-full p-2 border rounded"
         />
+        {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
         <input
           type="email"
           name="email"
@@ -79,6 +114,7 @@ const AddVolunteer = ({ onSuccess }) => {
           required
           className="w-full p-2 border rounded"
         />
+        {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
         <input
           type="password"
           name="password"
@@ -88,16 +124,22 @@ const AddVolunteer = ({ onSuccess }) => {
           required
           className="w-full p-2 border rounded"
         />
+        {errors.password && <p className="text-red-600 text-sm">{errors.password}</p>}
          
         <input
-          type="text"
+          type="tel"
           name="phoneNumber"
           value={volunteer.phoneNumber}
           onChange={handleChange}
           placeholder="Phone Number"
           required
+          inputMode="numeric"
+          maxLength={10}
+          onInvalid={(e) => e.target.setCustomValidity('')}
+          onInput={(e) => e.currentTarget.setCustomValidity('')}
           className="w-full p-2 border rounded"
         />
+        {errors.phoneNumber && <p className="text-red-600 text-sm">{errors.phoneNumber}</p>}
         <textarea
           name="address"
           value={volunteer.address}
@@ -106,6 +148,7 @@ const AddVolunteer = ({ onSuccess }) => {
           required
           className="w-full p-2 border rounded"
         />
+        {errors.address && <p className="text-red-600 text-sm">{errors.address}</p>}
         <input
           type="text"
           name="specialization"
