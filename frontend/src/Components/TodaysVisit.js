@@ -4,6 +4,10 @@ import { getDisplayName } from "../utils/auth";
 import "./Styles/Admin.css";
 import "./Styles/Main.css";
 import "./Styles/Sidebar.css";
+import { GoogleMap, Marker } from "@react-google-maps/api";
+import { useMaps } from "./common/MapsProvider";
+import axios from "axios";
+import PatientLocationPicker from "./Patient/PatientLocationPicker";
 
 // Modal Component
 
@@ -18,6 +22,7 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
     const item = selectedConsumables.find((c) => c.consumableId === id);
     return item ? item.quantity : "";
   };
+
 
   // Handle consumable selection + quantity
   const handleConsumableChange = (id, quantity) => {
@@ -120,6 +125,42 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
 };
 
 
+const LocationModal = ({ coords, onClose }) => {
+  const { isLoaded } = useMaps();
+
+  if (!coords) return null;
+
+  return (
+    <div className="modal">
+      <div className="modal-content" style={{ width: 700, maxWidth: '95vw' }}>
+        <h3>Patient Location</h3>
+        {!navigator.onLine && (
+          <p className="text-yellow-700" style={{ marginBottom: 8 }}>
+            You are offline — map cannot be loaded now.
+          </p>
+        )}
+        {isLoaded && navigator.onLine ? (
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: 400 }}
+            center={{ lat: coords.lat, lng: coords.lng }}
+            zoom={14}
+          >
+            <Marker position={{ lat: coords.lat, lng: coords.lng }} />
+          </GoogleMap>
+        ) : (
+          <div className="p-3 border rounded" style={{ background: '#fafafa' }}>
+            Latitude: {coords.lat}, Longitude: {coords.lng}
+          </div>
+        )}
+        <div className="flex space-x-2 mt-3">
+          <button onClick={onClose}>Close</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 const TodaysVisit = () => {
   const [assignedVisits, setAssignedVisits] = useState([]);
   const [procedures, setProcedures] = useState([]);
@@ -128,6 +169,11 @@ const TodaysVisit = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState(null);
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [locationCoords, setLocationCoords] = useState(null);
+  const [isUpdateLocationOpen, setIsUpdateLocationOpen] = useState(false);
+  const [updateVisit, setUpdateVisit] = useState(null);
+  const [updateSelection, setUpdateSelection] = useState(null);
 
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
@@ -226,6 +272,76 @@ const TodaysVisit = () => {
   const handleModalClose = () => {
     setSelectedVisit(null);
     setIsModalOpen(false);
+  };
+
+  const openLocation = (visit) => {
+    // support both visit.latitude/longitude and visit.patientLatitude/patientLongitude
+    const lat = visit?.latitude ?? visit?.patientLatitude;
+    const lng = visit?.longitude ?? visit?.patientLongitude;
+    if (lat == null || lng == null) {
+      alert("No location available for this patient");
+      return;
+    }
+    if (!navigator.onLine) {
+      alert("You are offline — map cannot be loaded now.");
+      return;
+    }
+    setLocationCoords({ lat: Number(lat), lng: Number(lng) });
+    setIsLocationOpen(true);
+  };
+
+  const openInGoogleMaps = (visit) => {
+    const lat = visit?.latitude ?? visit?.patientLatitude;
+    const lng = visit?.longitude ?? visit?.patientLongitude;
+    if (lat == null || lng == null) {
+      alert("No location available for this patient");
+      return;
+    }
+    const url = `https://www.google.com/maps?q=${lat},${lng}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const openUpdateLocation = (visit) => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      alert("You are offline — location update is unavailable.");
+      return;
+    }
+    const lat = visit?.latitude ?? visit?.patientLatitude ?? null;
+    const lng = visit?.longitude ?? visit?.patientLongitude ?? null;
+    setUpdateSelection(lat != null && lng != null ? { lat: Number(lat), lng: Number(lng) } : null);
+    setUpdateVisit(visit);
+    setIsUpdateLocationOpen(true);
+  };
+
+  const submitUpdateLocation = async () => {
+    if (!updateVisit) return;
+    const patientId = updateVisit.patientId ?? updateVisit.patient?.id;
+    if (!patientId) {
+      alert("Patient ID not available for this visit");
+      return;
+    }
+    if (!updateSelection) {
+      alert("Please select a location before updating");
+      return;
+    }
+    try {
+      const token = localStorage.getItem("jwtToken");
+      await axios.put(
+        `${apiUrl}volunteer/patients/${patientId}/location`,
+        {
+          latitude: updateSelection.lat,
+          longitude: updateSelection.lng,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert("Location updated successfully");
+      setIsUpdateLocationOpen(false);
+      setUpdateVisit(null);
+      setUpdateSelection(null);
+      fetchAssignedVisits();
+    } catch (e) {
+      alert("Failed to update location");
+    }
   };
 
   // Submit procedure + consumables
@@ -335,11 +451,19 @@ const TodaysVisit = () => {
                       </td>
                       <td>{visit.status}</td>
                       <td>
-                        {visit.status !== "COMPLETED" && (
-                          <button onClick={() => handleModalOpen(visit)}>
-                            Submit
+                        <div className="flex" style={{ gap: 8, flexWrap: 'wrap' }}>
+                          {visit.status !== "COMPLETED" && (
+                            <button onClick={() => handleModalOpen(visit)}>
+                              Submit
+                            </button>
+                          )}
+                          <button onClick={() => openLocation(visit)}>
+                            View Location
                           </button>
-                        )}
+                          <button onClick={() => openInGoogleMaps(visit)}>
+                            Open in Maps
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -360,6 +484,13 @@ const TodaysVisit = () => {
           onSubmit={handleProcedureSubmit}
         />
       )}
+      {isLocationOpen && locationCoords && (
+        <LocationModal
+          coords={locationCoords}
+          onClose={() => setIsLocationOpen(false)}
+        />
+      )}
+    
     </div>
   );
 };
