@@ -15,10 +15,12 @@ import ConsumablePage from "./Components/Consumables/ConsumablePage";
 import CreateNewVisit from "./Components/CreateNewVisit";
 import SettingsPage from "./Components/Settings/SettingsPage";
 import VolunteerProfile from "./Components/VolunteerProfile";
+import { MapsProvider } from "./Components/common/MapsProvider";
 
 const App = () => {
   return (
     <Router>
+      <MapsProvider>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
@@ -36,6 +38,7 @@ const App = () => {
         <Route path="/admin/createnewvisit" element={<CreateNewVisit/>}/>
         <Route path="/admin/settings" element={<SettingsPage/>} />
       </Routes>
+      </MapsProvider>
     </Router>
   );
 };

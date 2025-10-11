@@ -1,5 +1,6 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import React, { useState, useCallback, useMemo, useRef } from "react";
+import { GoogleMap, Marker, Autocomplete } from "@react-google-maps/api";
+import { useMaps } from "../common/MapsProvider";
 
 const containerStyle = {
   width: "100%",
@@ -11,10 +12,8 @@ const defaultCenter = { lat: 10.8505, lng: 76.2711 }; // Kerala
 export default function PatientLocationPicker({ value, onChange }) {
   const [selected, setSelected] = useState(value || null);
   const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
-
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "",
-  });
+  const { isLoaded } = useMaps();
+  const autocompleteRef = useRef(null);
 
   const onMapClick = useCallback((event) => {
     const next = { lat: event.latLng.lat(), lng: event.latLng.lng() };
@@ -36,6 +35,26 @@ export default function PatientLocationPicker({ value, onChange }) {
 
   return (
     <div>
+      <div className="mb-2">
+        <Autocomplete
+          onLoad={(ac) => (autocompleteRef.current = ac)}
+          onPlaceChanged={() => {
+            const place = autocompleteRef.current?.getPlace?.();
+            if (!place || !place.geometry || !place.geometry.location) return;
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            const next = { lat, lng };
+            setSelected(next);
+            if (onChange) onChange(next);
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Search places..."
+            className="w-full p-2 border rounded"
+          />
+        </Autocomplete>
+      </div>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={mapCenter}
