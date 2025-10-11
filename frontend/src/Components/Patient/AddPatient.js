@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import PatientLocationPicker from './PatientLocationPicker';
 
 const AddPatient = ({ onSuccess }) => {
     const [patient, setPatient] = useState({
@@ -15,6 +16,7 @@ const AddPatient = ({ onSuccess }) => {
     const [successMessage, setSuccessMessage] = useState('');
     const [error, setError] = useState('');
     const [errors, setErrors] = useState({});
+    const [selectedLocation, setSelectedLocation] = useState(null);
 
     const handleChange = (e) => {
         const { name } = e.target;
@@ -60,7 +62,9 @@ const AddPatient = ({ onSuccess }) => {
                 gender: patient.gender,
                 address: patient.address.trim(),
                 medicalCondition: patient.medicalCondition.trim(),
-                emergencyContact: patient.emergencyContact ? patient.emergencyContact.trim() : ''
+                emergencyContact: patient.emergencyContact ? patient.emergencyContact.trim() : '',
+                latitude: selectedLocation ? selectedLocation.lat : undefined,
+                longitude: selectedLocation ? selectedLocation.lng : undefined,
             };
 
             await axios.post(
@@ -84,6 +88,7 @@ const AddPatient = ({ onSuccess }) => {
             });
             setErrors({});
             if (onSuccess) onSuccess();
+            setSelectedLocation(null);
         } catch (err) {
             console.error(err);
             setError("Failed to add patient");
@@ -157,6 +162,13 @@ const AddPatient = ({ onSuccess }) => {
                     className="w-full p-2 border rounded"
                 />
                 {errors.address && <p className="text-red-600 text-sm">{errors.address}</p>}
+                <div>
+                    <label className="block font-medium mb-1">Patient Location (optional)</label>
+                    <PatientLocationPicker
+                        value={selectedLocation}
+                        onChange={setSelectedLocation}
+                    />
+                </div>
                 <input
                     type="text"
                     name="medicalCondition"
