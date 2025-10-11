@@ -13,6 +13,8 @@ import ProcedurePage from "./Components/procedures/ProcedurePage";
 import Visits from "./Components/Visits";
 import ConsumablePage from "./Components/Consumables/ConsumablePage";
 import CreateNewVisit from "./Components/CreateNewVisit";
+import SettingsPage from "./Components/Settings/SettingsPage";
+import VolunteerProfile from "./Components/VolunteerProfile";
 
 const App = () => {
   return (
@@ -29,8 +31,10 @@ const App = () => {
         <Route path="/admin/assign-volunteer" element={<AssignVolunteer />} />
         <Route path="/volunteer/todays-visits" element={<TodaysVisit />} /> 
         <Route path="/volunteer/completed-visits" element={<CompletedVisits />} /> {/* match NavLink */}
+        <Route path="/volunteer/profile" element={<VolunteerProfile />} />
         <Route path="/admin/consumables" element={<ConsumablePage/>} />
         <Route path="/admin/createnewvisit" element={<CreateNewVisit/>}/>
+        <Route path="/admin/settings" element={<SettingsPage/>} />
       </Routes>
     </Router>
   );

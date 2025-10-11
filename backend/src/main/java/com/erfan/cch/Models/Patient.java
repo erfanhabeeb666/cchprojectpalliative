@@ -21,6 +21,10 @@ public class Patient {
     @Column(name = "mobile_number", unique = true, nullable = false)
     private String mobileNumber;
     private int age;
+    // Store coordinates
+    private Double latitude;
+    private Double longitude;
+
     private String gender;
     private String address;
     private String medicalCondition; // Example: "Cancer, Stage 4"
