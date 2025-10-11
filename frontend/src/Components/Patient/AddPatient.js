@@ -17,6 +17,8 @@ const AddPatient = ({ onSuccess }) => {
     const [error, setError] = useState('');
     const [errors, setErrors] = useState({});
     const [selectedLocation, setSelectedLocation] = useState(null);
+    const [showLocationModal, setShowLocationModal] = useState(false);
+    const [modalLocation, setModalLocation] = useState(null);
 
     const handleChange = (e) => {
         const { name } = e.target;
@@ -164,10 +166,25 @@ const AddPatient = ({ onSuccess }) => {
                 {errors.address && <p className="text-red-600 text-sm">{errors.address}</p>}
                 <div>
                     <label className="block font-medium mb-1">Patient Location (optional)</label>
-                    <PatientLocationPicker
-                        value={selectedLocation}
-                        onChange={setSelectedLocation}
-                    />
+                    {selectedLocation ? (
+                        <p className="text-sm text-gray-700 mb-2">Selected: {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}</p>
+                    ) : (
+                        <p className="text-sm text-gray-500 mb-2">No location selected</p>
+                    )}
+                    <button
+                        type="button"
+                        className="bg-gray-700 text-white px-3 py-2 rounded hover:bg-gray-800"
+                        onClick={() => {
+                            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                                alert('You are offline — location selection is optional.');
+                                return;
+                            }
+                            setModalLocation(selectedLocation);
+                            setShowLocationModal(true);
+                        }}
+                    >
+                        {selectedLocation ? 'Change Location' : 'Select Location'}
+                    </button>
                 </div>
                 <input
                     type="text"
@@ -192,6 +209,36 @@ const AddPatient = ({ onSuccess }) => {
                     className="w-full p-2 border rounded"
                 />
                 {errors.emergencyContact && <p className="text-red-600 text-sm">{errors.emergencyContact}</p>}
+                {showLocationModal && (
+                    <div className="modal-overlay">
+                        <div className="form-container" style={{ maxWidth: 800 }}>
+                            <h3 className="text-xl font-semibold mb-2">Select Patient Location</h3>
+                            <PatientLocationPicker
+                                value={modalLocation}
+                                onChange={setModalLocation}
+                            />
+                            <div className="mt-3 flex gap-2">
+                                <button
+                                    type="button"
+                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                    onClick={() => {
+                                        setSelectedLocation(modalLocation || null);
+                                        setShowLocationModal(false);
+                                    }}
+                                >
+                                    Use This Location
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn-cancel"
+                                    onClick={() => setShowLocationModal(false)}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <button
                     type="submit"
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"

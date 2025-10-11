@@ -233,7 +233,7 @@ const CreateNewVisit = () => {
                       />
                     </td>
                     <td>{p.name}</td>
-                    <td>{p.mobile}</td>
+                    <td>{p.mobileNumber}</td>
                     <td>{p.age}</td>
                   </tr>
                 ))}

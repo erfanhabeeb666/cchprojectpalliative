@@ -56,7 +56,8 @@ public class ConvertToDto {
         if (report.getPatient() != null) {
             dto.setPatientId(report.getPatient().getId());
             dto.setPatientName(report.getPatient().getName());
-            dto.set
+            dto.setLatitude(report.getPatient().getLatitude());
+            dto.setLongitude(report.getPatient().getLongitude());
         }
 
         if (report.getVolunteer() != null) {
