@@ -7,7 +7,7 @@ const containerStyle = {
   height: "350px",
 };
 
-const defaultCenter = { lat: 10.8505, lng: 76.2711 }; // Kerala
+const defaultCenter = { lat: 10.113955, lng: 76.329854}; // Kadungalloor
 
 export default function PatientLocationPicker({ value, onChange }) {
   const [selected, setSelected] = useState(value || null);
