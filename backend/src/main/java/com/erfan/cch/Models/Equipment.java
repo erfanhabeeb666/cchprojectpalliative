@@ -12,6 +12,9 @@ public class Equipment {
 
     private String name;
     private boolean allocated;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "equipment_type_id")
+    private EquipmentType equipmentType;
 
     @ManyToOne
     private Patient allocatedTo;
@@ -46,6 +49,14 @@ public class Equipment {
 
     public void setAllocated(boolean allocated) {
         this.allocated = allocated;
+    }
+
+    public EquipmentType getEquipmentType() {
+        return equipmentType;
+    }
+
+    public void setEquipmentType(EquipmentType equipmentType) {
+        this.equipmentType = equipmentType;
     }
 }
 

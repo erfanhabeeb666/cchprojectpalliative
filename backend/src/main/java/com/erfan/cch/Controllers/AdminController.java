@@ -104,6 +104,15 @@ public class AdminController {
         Page<EquipmentDto> equipments = adminService.getAllEquipment(search,pageable);
         return ResponseEntity.ok(equipments);
     }
+    @PostMapping
+    public EquipmentType createEquipmentType(@RequestBody EquipmentType type) {
+        return adminService.createType(type.getName(), type.getDescription());
+    }
+
+    @GetMapping
+    public List<EquipmentType> getAllEquipmentTypes() {
+        return adminService.getAllTypes();
+    }
 
     @PostMapping("/allocate-equipment/{equipmentId}/to/{patientId}")
     public ResponseEntity<String> allocateEquipment(@PathVariable Long equipmentId, @PathVariable Long patientId) {

@@ -47,6 +47,7 @@ public class ConvertToDto {
             dto.setPatientId(equipment.getAllocatedTo().getId());
             dto.setPatientName(equipment.getAllocatedTo().getName());
         }
+        dto.setEquipmentTypeName(equipment.getEquipmentType().getName());
         return dto;
     }
     public static PatientVisitReportDto convertToPatientVisitReportDto(PatientVisitReport report) {

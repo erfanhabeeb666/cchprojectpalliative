@@ -17,6 +17,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 public class AdminService {
 
     private PatientRepository patientRepository;
+    private final EquipmentTypeRepository equipmentTypeRepository;
 
 
     private VolunteerRepository volunteerRepository;
@@ -46,8 +50,9 @@ public class AdminService {
 
     private AuthenticationService authenticationService;
 
-    public AdminService(PatientRepository patientRepository, VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository, EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder, ProcedureRepository procedureRepository, UserRepository userRepository, AuthenticationService authenticationService,ConsumableRepository consumableRepository) {
+    public AdminService(PatientRepository patientRepository, EquipmentTypeRepository equipmentTypeRepository, VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository, EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder, ProcedureRepository procedureRepository, UserRepository userRepository, AuthenticationService authenticationService, ConsumableRepository consumableRepository) {
         this.patientRepository = patientRepository;
+        this.equipmentTypeRepository = equipmentTypeRepository;
         this.volunteerRepository = volunteerRepository;
         this.reportRepository = reportRepository;
         this.equipmentRepository = equipmentRepository;
@@ -323,6 +328,16 @@ public class AdminService {
                 .stream()
                 .map(ConvertToDto::convertToPatientVisitReportDto)
                 .toList();
+    }
+    public EquipmentType createType(String name, String description) {
+        if (equipmentTypeRepository.existsByName(name)) {
+            throw new IllegalArgumentException("Equipment type already exists: " + name);
+        }
+        return equipmentTypeRepository.save(new EquipmentType(name, description));
+    }
+
+    public List<EquipmentType> getAllTypes() {
+        return equipmentTypeRepository.findAll();
     }
 
 }
