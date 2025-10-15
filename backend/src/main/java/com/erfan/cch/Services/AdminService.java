@@ -139,9 +139,24 @@ public class AdminService {
 
     }
 
-    public void addEquipment(Equipment equipment) {
+    public void addEquipment(NewEquipmentRequestDto dto) {
+        // Validate and parse type ID
+        Long typeId;
+        try {
+            typeId = Long.parseLong(dto.getEquipmentTypeId());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid equipment type ID format");
+        }
+
+        EquipmentType type = equipmentTypeRepository.findById(typeId)
+                .orElseThrow(() -> new RuntimeException("Equipment type not found with ID: " + typeId));
+
+        // Create and save Equipment
+        Equipment equipment = new Equipment();
+        equipment.setName(dto.getName());
+        equipment.setEquipmentType(type);
         equipment.setAllocated(false);
-        equipment.setAllocatedTo(null);
+
         equipmentRepository.save(equipment);
     }
 
