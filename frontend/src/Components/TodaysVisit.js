@@ -39,18 +39,18 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
   };
 
   const handleSubmit = async () => {
-    if (!selectedProcedure.length) {
+    if (status !== "CANCELLED" && !selectedProcedure.length) {
       alert("Please select at least one procedure");
       return;
     }
 
     try {
-      // clean zero/empty quantities
-      const consumablesToSend = selectedConsumables.filter(
-        (c) => c.quantity > 0
-      );
+      const procsToSend = status === "CANCELLED" ? [] : selectedProcedure;
+      const consumablesToSend = status === "CANCELLED"
+        ? []
+        : selectedConsumables.filter((c) => c.quantity > 0);
 
-      await onSubmit(visit.id, selectedProcedure, consumablesToSend, status);
+      await onSubmit(visit.id, procsToSend, consumablesToSend, status);
       onClose();
     } catch (err) {
       alert("Failed to submit visit");
@@ -64,56 +64,67 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
 
         {/* Status */}
         <label>Status:</label>
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+        <select value={status} onChange={(e) => {
+          const val = e.target.value;
+          setStatus(val);
+          if (val === "CANCELLED") {
+            setSelectedProcedure([]);
+            setSelectedConsumables([]);
+          }
+        }}>
           <option value="COMPLETED">Completed</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
 
         {/* Procedures */}
-        <div>
-          <label>Procedures:</label>
-          <select
-            multiple
-            value={selectedProcedure}
-            onChange={(e) =>
-              setSelectedProcedure(
-                Array.from(e.target.selectedOptions, (option) => option.value)
-              )
-            }
-            className="custom-select"
-          >
-            {procedures.map((procedure) => (
-              <option key={procedure.procedureId} value={procedure.procedureId}>
-                {procedure.procedureName}
-              </option>
-            ))}
-          </select>
-        </div>
+        {status !== "CANCELLED" && (
+          <div>
+            <label>Procedures:</label>
+            <select
+              multiple
+              value={selectedProcedure}
+              onChange={(e) =>
+                setSelectedProcedure(
+                  Array.from(e.target.selectedOptions, (option) => option.value)
+                )
+              }
+              className="custom-select"
+            >
+              {procedures.map((procedure) => (
+                <option key={procedure.procedureId} value={procedure.procedureId}>
+                  {procedure.procedureName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Consumables */}
-        <div>
-          <label>Consumables:</label>
-          {consumables.map((consumable) => (
-            <div key={consumable.id} className="flex items-center space-x-2 my-1">
-              <span>
-                {consumable.name} (Stock: {consumable.stockQuantity})
-              </span>
-              <input
-                type="number"
-                min="0"
-                value={getConsumableQty(consumable.id)} // ✅ bind value
-                placeholder="Qty"
-                onChange={(e) =>
-                  handleConsumableChange(
-                    consumable.id,
-                    parseInt(e.target.value, 10) || 0
-                  )
-                }
-                className="w-20 p-1 border rounded"
-              />
-            </div>
-          ))}
-        </div>
+        {status !== "CANCELLED" && (
+          <div>
+            <label>Consumables:</label>
+            {consumables.map((consumable) => (
+              <div key={consumable.id} className="flex items-center space-x-2 my-1">
+                <span>
+                  {consumable.name} (Stock: {consumable.stockQuantity})
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  value={getConsumableQty(consumable.id)} // ✅ bind value
+                  placeholder="Qty"
+                  onChange={(e) =>
+                    handleConsumableChange(
+                      consumable.id,
+                      parseInt(e.target.value, 10) || 0
+                    )
+                  }
+                  className="w-20 p-1 border rounded"
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="flex space-x-2 mt-4">
           <button onClick={handleSubmit}>Submit</button>
