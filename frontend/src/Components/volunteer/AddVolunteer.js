@@ -81,9 +81,32 @@ const AddVolunteer = ({ onSuccess }) => {
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
-      const serverMsg = err?.response?.data || 'Failed to add volunteer';
-      setError(typeof serverMsg === 'string' ? serverMsg : 'Failed to add volunteer');
+      const status = err && err.response ? err.response.status : undefined;
+      const data = err && err.response ? err.response.data : undefined;
+      const serverMessage =
+        (typeof data === 'string' ? data : (data && (data.message || data.error || data.detail))) ||
+        (err && err.message) ||
+        'Failed to add volunteer';
+
+      // Global error
+      setError(serverMessage);
       setSuccessMessage('');
+
+      // Field-level hints for duplicates (409 or message hints)
+      const duplicateHints = ['duplicate', 'already exists', 'already registered', 'exists'];
+      const msgLower = typeof serverMessage === 'string' ? serverMessage.toLowerCase() : '';
+      const isDuplicate = status === 409 || duplicateHints.some((h) => msgLower.includes(h));
+
+      if (isDuplicate) {
+        const fieldUpdates = { ...errors };
+        if (msgLower.includes('phone') || msgLower.includes('mobile')) {
+          fieldUpdates.phoneNumber = serverMessage;
+        }
+        if (msgLower.includes('email')) {
+          fieldUpdates.email = serverMessage;
+        }
+        setErrors(fieldUpdates);
+      }
     }
   };
 

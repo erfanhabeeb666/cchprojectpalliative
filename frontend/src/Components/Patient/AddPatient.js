@@ -93,8 +93,32 @@ const AddPatient = ({ onSuccess }) => {
             setSelectedLocation(null);
         } catch (err) {
             console.error(err);
-            setError("Failed to add patient");
+            const status = err && err.response ? err.response.status : undefined;
+            const data = err && err.response ? err.response.data : undefined;
+            const serverMessage =
+                (typeof data === 'string' ? data : (data && (data.message || data.error || data.detail))) ||
+                (err && err.message) ||
+                "Failed to add patient";
+
+            // Show a clear global error
+            setError(serverMessage);
             setSuccessMessage('');
+
+            // If duplicate mobile is indicated (often 409 Conflict or explicit message), mark the field
+            const duplicateHints = [
+                'duplicate',
+                'already exists',
+                'already registered',
+                'exists',
+            ];
+            const isDuplicatePhone =
+                status === 409 ||
+                (typeof serverMessage === 'string' &&
+                    duplicateHints.some((h) => serverMessage.toLowerCase().includes(h)));
+
+            if (isDuplicatePhone) {
+                setErrors({ ...errors, mobileNumber: serverMessage });
+            }
         }
     };
 

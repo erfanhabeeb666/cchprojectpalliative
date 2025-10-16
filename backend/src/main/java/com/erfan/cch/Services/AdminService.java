@@ -16,6 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -116,17 +118,17 @@ public class AdminService {
     public void addPatient(Patient patient) {
         String mobile = patient.getMobileNumber() != null ? patient.getMobileNumber().trim() : null;
         if (mobile == null || mobile.isEmpty()) {
-            throw new RuntimeException("Mobile number is required");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mobile number is required");
         }
         if (patientRepository.existsByMobileNumber(mobile)) {
-            throw new RuntimeException("Patient with this mobile number already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Patient with this mobile number already exists");
         }
         patient.setMobileNumber(mobile);
         patient.setStatus(Status.ACTIVE);
         try {
             patientRepository.save(patient);
         } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Patient with this mobile number already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Patient with this mobile number already exists");
         }
     }
 
