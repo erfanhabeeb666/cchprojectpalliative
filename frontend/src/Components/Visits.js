@@ -243,6 +243,7 @@ const Visits = () => {
           <table className="main-table">
             <thead>
               <tr>
+                <th>Visit Id</th>
                 <th>Patient</th>
                 <th>Volunteer</th>
                 <th>Visit Date</th>
@@ -262,6 +263,7 @@ const Visits = () => {
               ) : (
                 filteredVisits.map((visit) => (
                   <tr key={visit.id}>
+                    <td>{visit.id}</td>
                     <td>{visit.patientName}</td>
                     <td>{visit.volunteerName}</td>
                     <td>
