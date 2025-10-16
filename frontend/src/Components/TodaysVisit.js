@@ -109,19 +109,24 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
                 <span>
                   {consumable.name} (Stock: {consumable.stockQuantity})
                 </span>
-                <input
-                  type="number"
-                  min="0"
-                  value={getConsumableQty(consumable.id)} // ✅ bind value
-                  placeholder="Qty"
-                  onChange={(e) =>
-                    handleConsumableChange(
-                      consumable.id,
-                      parseInt(e.target.value, 10) || 0
-                    )
-                  }
-                  className="w-20 p-1 border rounded"
-                />
+                {consumable.stockQuantity > 0 ? (
+                  <input
+                    type="number"
+                    min="0"
+                    max={consumable.stockQuantity}
+                    value={getConsumableQty(consumable.id)} // ✅ bind value
+                    placeholder="Qty"
+                    onChange={(e) =>
+                      handleConsumableChange(
+                        consumable.id,
+                        parseInt(e.target.value, 10) || 0
+                      )
+                    }
+                    className="w-20 p-1 border rounded"
+                  />
+                ) : (
+                  <span style={{ marginLeft: 8, color: '#888' }}>Out of stock</span>
+                )}
               </div>
             ))}
           </div>
