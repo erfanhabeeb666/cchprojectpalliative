@@ -40,6 +40,7 @@ public class AdminService {
 
     private PatientVisitReportRepository reportRepository;
     private ConsumableRepository consumableRepository;
+    private VisitConsumableUsageRepository visitConsumableUsageRepository;
 
 
     private EquipmentRepository equipmentRepository;
@@ -52,7 +53,7 @@ public class AdminService {
 
     private AuthenticationService authenticationService;
 
-    public AdminService(PatientRepository patientRepository, EquipmentTypeRepository equipmentTypeRepository, VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository, EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder, ProcedureRepository procedureRepository, UserRepository userRepository, AuthenticationService authenticationService, ConsumableRepository consumableRepository) {
+    public AdminService(PatientRepository patientRepository, EquipmentTypeRepository equipmentTypeRepository, VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository, EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder, ProcedureRepository procedureRepository, UserRepository userRepository, AuthenticationService authenticationService, ConsumableRepository consumableRepository, VisitConsumableUsageRepository visitConsumableUsageRepository) {
         this.patientRepository = patientRepository;
         this.equipmentTypeRepository = equipmentTypeRepository;
         this.volunteerRepository = volunteerRepository;
@@ -63,6 +64,7 @@ public class AdminService {
         this.userRepository = userRepository;
         this.authenticationService = authenticationService;
         this.consumableRepository = consumableRepository;
+        this.visitConsumableUsageRepository = visitConsumableUsageRepository;
     }
 
 
@@ -189,6 +191,7 @@ public class AdminService {
         Optional<Patient> patient = patientRepository.findById(id);
         Patient actual = patient.get();
         actual.setStatus(Status.INACTIVE);
+        actual.setMobileNumber(null);
         patientRepository.save(actual);
     }
 
@@ -223,6 +226,7 @@ public class AdminService {
         Optional<Volunteer> dbVol = volunteerRepository.findById(id);
         Volunteer actual = dbVol.get();
         actual.setStatus(Status.INACTIVE);
+        actual.setEmail(null);
         volunteerRepository.save(actual);
     }
     public Page<VolunteerDto> getVolunteers(String search, Pageable pageable) {
@@ -330,6 +334,16 @@ public class AdminService {
                 .stream()
                 .map(ConvertToDto::convertToPatientVisitReportDto)
                 .toList();
+    }
+    public List<ConsumableUsageSummaryDto> getConsumableUsageSummary(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> rows = visitConsumableUsageRepository.findUsageSummary(startDate, endDate);
+        return rows.stream()
+                .map(r -> new ConsumableUsageSummaryDto(
+                        (Long) r[0],
+                        (String) r[1],
+                        (Long) r[2]
+                ))
+                .collect(Collectors.toList());
     }
     public EquipmentType createType(String name, String description) {
         if (equipmentTypeRepository.existsByName(name)) {

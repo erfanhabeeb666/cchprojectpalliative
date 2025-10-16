@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
             if(lower.contains("email"))
             return new ResponseEntity<>(body(status, "Already exists with mobile number or email"), status);
         }
-        return new ResponseEntity<>(body(status, "Data integrity violation"), status);
+        return new ResponseEntity<>(body(status, "Already exists with mobile number or email"), status);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

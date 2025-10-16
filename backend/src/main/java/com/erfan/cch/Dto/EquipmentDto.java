@@ -5,15 +5,7 @@ public class EquipmentDto {
     private boolean allocated;
     private Long patientId;
     private String patientName;
-    private String EquipmentTypeName;
 
-    public String getEquipmentTypeName() {
-        return EquipmentTypeName;
-    }
-
-    public void setEquipmentTypeName(String equipmentTypeName) {
-        EquipmentTypeName = equipmentTypeName;
-    }
 
     public Long getId() {
         return id;

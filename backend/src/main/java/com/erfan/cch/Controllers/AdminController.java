@@ -239,6 +239,16 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/consumable/usage-summary")
+    public ResponseEntity<List<ConsumableUsageSummaryDto>> getConsumableUsageSummary(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return ResponseEntity.ok(adminService.getConsumableUsageSummary(startDate, endDate));
+    }
+
     private String escapeCsv(String value) {
         if (value == null) return "";
         return value.replace(",", ";").replace("\n", " ").replace("\r", " ");
