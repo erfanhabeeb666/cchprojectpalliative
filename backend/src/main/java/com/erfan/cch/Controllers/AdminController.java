@@ -237,7 +237,7 @@ public class AdminController {
                         v.getVisitDate(),
                         v.getProceduresDone(),
                         v.getStatus(),
-                        v.getNotes());
+                        escapeCsv(v.getNotes()));
             }
         }
     }
