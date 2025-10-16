@@ -463,7 +463,7 @@ const TodaysVisit = () => {
                       <td>{visit.status}</td>
                       <td>
                         <div className="flex" style={{ gap: 8, flexWrap: 'wrap' }}>
-                          {visit.status !== "COMPLETED" && (
+                          {visit.status === "PENDING" && (
                             <button onClick={() => handleModalOpen(visit)}>
                               Submit
                             </button>
