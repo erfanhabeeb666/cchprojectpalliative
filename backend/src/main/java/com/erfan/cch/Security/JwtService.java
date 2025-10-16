@@ -64,7 +64,7 @@ public class JwtService {
                         .setId(userService.getIdfromUsername(userDetails.getUsername()))
                         .setSubject(userDetails.getUsername())
                         .setIssuedAt(new Date(System.currentTimeMillis()))
-                        .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                        .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 12))
 //                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*24*360)) for testing todo
                         .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                         .compact();

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./Components/Login";
 import Admin from "./Components/Admin";
@@ -16,8 +16,12 @@ import CreateNewVisit from "./Components/CreateNewVisit";
 import SettingsPage from "./Components/Settings/SettingsPage";
 import VolunteerProfile from "./Components/VolunteerProfile";
 import { MapsProvider } from "./Components/common/MapsProvider";
+import { initAuthAutoLogout } from "./utils/auth";
 
 const App = () => {
+  useEffect(() => {
+    initAuthAutoLogout();
+  }, []);
   return (
     <Router>
       <MapsProvider>
