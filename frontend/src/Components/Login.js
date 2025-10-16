@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { scheduleAutoLogout } from "../utils/auth";
 import './Styles/Login.css';
 import './Styles/Main.css'
 
@@ -24,6 +25,7 @@ const Login = () => {
 
             const token = response.data.token;
             localStorage.setItem("jwtToken", token);
+            scheduleAutoLogout();
 
             const decodedToken = jwtDecode(token);
             const role = decodedToken.userType;

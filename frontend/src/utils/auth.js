@@ -60,3 +60,43 @@ export function getDisplayName() {
   }
   return name;
 }
+
+let __logoutTimerId = null;
+
+export function logout() {
+  try {
+    localStorage.removeItem("jwtToken");
+  } finally {
+    window.location.href = "/";
+  }
+}
+
+export function scheduleAutoLogout() {
+  if (__logoutTimerId) {
+    clearTimeout(__logoutTimerId);
+    __logoutTimerId = null;
+  }
+  const decoded = decodeJwt();
+  if (!decoded || !decoded.exp) {
+    return;
+  }
+  const msUntilExpiry = decoded.exp * 1000 - Date.now();
+  if (msUntilExpiry <= 0) {
+    logout();
+    return;
+  }
+  __logoutTimerId = setTimeout(() => {
+    logout();
+  }, msUntilExpiry);
+}
+
+export function clearAutoLogout() {
+  if (__logoutTimerId) {
+    clearTimeout(__logoutTimerId);
+    __logoutTimerId = null;
+  }
+}
+
+export function initAuthAutoLogout() {
+  scheduleAutoLogout();
+}
