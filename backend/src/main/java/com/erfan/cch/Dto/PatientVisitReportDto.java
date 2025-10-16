@@ -19,6 +19,15 @@ public class PatientVisitReportDto {
     private String status;
     private Double latitude;
     private Double longitude;
+    private String visitCode;
+
+    public String getVisitCode() {
+        return visitCode;
+    }
+
+    public void setVisitCode(String visitCode) {
+        this.visitCode = visitCode;
+    }
 
     public Double getLatitude() {
         return latitude;

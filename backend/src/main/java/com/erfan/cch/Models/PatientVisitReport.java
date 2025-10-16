@@ -1,18 +1,19 @@
 package com.erfan.cch.Models;
 
 import com.erfan.cch.Enums.Status;
-
-
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 public class PatientVisitReport {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, updatable = false)
+    private String visitCode;
 
     @ManyToOne
     @JoinColumn(name = "volunteer_id")
@@ -23,7 +24,6 @@ public class PatientVisitReport {
     private Patient patient;
 
     private LocalDate visitDate;
-
     private LocalDate completedDate;
 
     @ManyToMany
@@ -34,91 +34,57 @@ public class PatientVisitReport {
     )
     private List<ProcedureDone> proceduresDone;
 
-
     @OneToMany(mappedBy = "visitReport", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VisitConsumableUsage> consumablesUsed;
-
 
     private Status status;
 
     public PatientVisitReport() {
-
     }
 
-    public Long getId() {
-        return id;
+    @PrePersist
+    public void generateVisitCode() {
+        if (this.visitCode == null) {
+            String prefix = "VIS";
+            String datePart = LocalDate.now().toString().replace("-", ""); // YYYYMMDD
+            String randomPart = String.format("%05d", (int) (Math.random() * 100000));
+            this.visitCode = prefix + "-" + datePart + "-" + randomPart;
+        }
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    // Getters and Setters
+    public Long getId() { return id; }
 
-    public Volunteer getVolunteer() {
-        return volunteer;
-    }
+    public String getVisitCode() { return visitCode; }
 
-    public void setVolunteer(Volunteer volunteer) {
-        this.volunteer = volunteer;
-    }
+    public void setVisitCode(String visitCode) { this.visitCode = visitCode; }
 
-    public Patient getPatient() {
-        return patient;
-    }
+    public Volunteer getVolunteer() { return volunteer; }
 
-    public void setPatient(Patient patient) {
-        this.patient = patient;
-    }
+    public void setVolunteer(Volunteer volunteer) { this.volunteer = volunteer; }
 
-    public LocalDate getVisitDate() {
-        return visitDate;
-    }
+    public Patient getPatient() { return patient; }
 
-    public void setVisitDate(LocalDate visitDate) {
-        this.visitDate = visitDate;
-    }
+    public void setPatient(Patient patient) { this.patient = patient; }
 
-    public LocalDate getCompletedDate() {
-        return completedDate;
-    }
+    public LocalDate getVisitDate() { return visitDate; }
 
-    public void setCompletedDate(LocalDate completedDate) {
-        this.completedDate = completedDate;
-    }
+    public void setVisitDate(LocalDate visitDate) { this.visitDate = visitDate; }
 
-    public List<ProcedureDone> getProceduresDone() {
-        return proceduresDone;
-    }
+    public LocalDate getCompletedDate() { return completedDate; }
 
-    public void setProceduresDone(List<ProcedureDone> proceduresDone) {
-        this.proceduresDone = proceduresDone;
-    }
+    public void setCompletedDate(LocalDate completedDate) { this.completedDate = completedDate; }
 
-    public List<VisitConsumableUsage> getConsumablesUsed() {
-        return consumablesUsed;
-    }
+    public List<ProcedureDone> getProceduresDone() { return proceduresDone; }
 
-    public void setConsumablesUsed(List<VisitConsumableUsage> consumablesUsed) {
-        this.consumablesUsed = consumablesUsed;
-    }
+    public void setProceduresDone(List<ProcedureDone> proceduresDone) { this.proceduresDone = proceduresDone; }
 
-    public Status getStatus() {
-        return status;
-    }
+    public List<VisitConsumableUsage> getConsumablesUsed() { return consumablesUsed; }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
+    public void setConsumablesUsed(List<VisitConsumableUsage> consumablesUsed) { this.consumablesUsed = consumablesUsed; }
 
-    public PatientVisitReport(Long id, Volunteer volunteer, Patient patient, LocalDate visitDate, LocalDate completedDate, List<ProcedureDone> proceduresDone, List<VisitConsumableUsage> consumablesUsed, Status status) {
-        this.id = id;
-        this.volunteer = volunteer;
-        this.patient = patient;
-        this.visitDate = visitDate;
-        this.completedDate = completedDate;
-        this.proceduresDone = proceduresDone;
-        this.consumablesUsed = consumablesUsed;
-        this.status = status;
-    }
+    public Status getStatus() { return status; }
+
+    public void setStatus(Status status) { this.status = status; }
 
 }
-

@@ -147,7 +147,7 @@ const CompletedVisits = () => {
                 <tbody>
                   {completedVisits.map((visit) => (
                     <tr key={visit.id}>
-                      <td>{visit.id}</td>
+                      <td>{visit.visitCode}</td>
                       <td>{visit.patientName}</td>
                       <td>{visit.volunteerName}</td>
                       <td>

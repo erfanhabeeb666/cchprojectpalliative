@@ -230,8 +230,8 @@ public class AdminController {
             writer.println("VisitID,PatientName,VolunteerName,Date,ProceduresDone,Status");
 
             for (PatientVisitReportDto v : visits) {
-                writer.printf("%d,%s,%s,%s,%s,%s%n", // <-- added %n here too
-                        v.getId(),
+                writer.printf("%s,%s,%s,%s,%s,%s%n", // <-- added %n here too
+                        v.getVisitCode(),
                         escapeCsv(v.getPatientName()),
                         escapeCsv(v.getVolunteerName()),
                         v.getVisitDate(),

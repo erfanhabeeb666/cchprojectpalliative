@@ -67,7 +67,7 @@ public class ConvertToDto {
         dto.setConsumablesUsed(report.getConsumablesUsed());
         dto.setVisitDate(report.getVisitDate());
         dto.setCompletedDate(report.getCompletedDate());
-
+        dto.setVisitCode(report.getVisitCode());
         // Convert procedure entities to names
         if (report.getProceduresDone() != null) {
             List<String> procedureNames = report.getProceduresDone().stream()
