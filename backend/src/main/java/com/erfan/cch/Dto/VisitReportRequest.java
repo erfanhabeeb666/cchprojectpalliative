@@ -9,7 +9,17 @@ public class VisitReportRequest {
     private Long visitId;
     private List<Long> procedureIds;
     private List<ConsumableUsageDto> consumables;
-    private Status status; // Assuming Status is an enum
+    private Status status;
+    private String notes;
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
     public  Long getVisitId() {
         return visitId;
     }

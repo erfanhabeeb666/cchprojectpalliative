@@ -72,13 +72,13 @@ public class VolunteerService {
                     .collect(Collectors.toList());
     }
     @Transactional
-    public void submitVisitReport(Long visitId, List<Long> procedureIds, List<ConsumableUsageDto> consumableUsage, Status status) {
+    public void submitVisitReport(Long visitId, List<Long> procedureIds, List<ConsumableUsageDto> consumableUsage, Status status,String notes) {
         PatientVisitReport report = reportRepository.findById(visitId)
                 .orElseThrow(() -> new RuntimeException("Visit not found"));
 
         report.setStatus(status);
         report.setCompletedDate(LocalDate.now());
-
+        report.setNotes(notes);
         // Set procedures
         List<ProcedureDone> procedureDones = procedureRepository.findAllById(procedureIds);
         report.setProceduresDone(procedureDones);

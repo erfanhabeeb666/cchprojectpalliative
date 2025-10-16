@@ -52,6 +52,7 @@ public class ConvertToDto {
     public static PatientVisitReportDto convertToPatientVisitReportDto(PatientVisitReport report) {
         PatientVisitReportDto dto = new PatientVisitReportDto();
         dto.setId(report.getId());
+        dto.setNotes(report.getNotes());
 
         if (report.getPatient() != null) {
             dto.setPatientId(report.getPatient().getId());

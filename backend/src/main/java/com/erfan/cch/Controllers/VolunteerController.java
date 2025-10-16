@@ -33,7 +33,8 @@ public class VolunteerController {
                 reportRequest.getVisitId(),
                 reportRequest.getProcedureIds(),
                 reportRequest.getConsumables(),
-                reportRequest.getStatus()
+                reportRequest.getStatus(),
+                reportRequest.getNotes()
         );
         return ResponseEntity.ok("Visit report submitted successfully");
     }

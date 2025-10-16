@@ -16,6 +16,7 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
   const [selectedProcedure, setSelectedProcedure] = useState([]);
   const [selectedConsumables, setSelectedConsumables] = useState([]);
   const [status, setStatus] = useState("COMPLETED");
+  const [notes, setNotes] = useState("");
 
   // Helper: get quantity from state for each consumable
   const getConsumableQty = (id) => {
@@ -50,7 +51,7 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
         ? []
         : selectedConsumables.filter((c) => c.quantity > 0);
 
-      await onSubmit(visit.id, procsToSend, consumablesToSend, status);
+      await onSubmit(visit.id, procsToSend, consumablesToSend, status, notes);
       onClose();
     } catch (err) {
       alert("Failed to submit visit");
@@ -125,6 +126,19 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
             ))}
           </div>
         )}
+
+        {/* Notes */}
+        <div style={{ marginTop: 12 }}>
+          <label htmlFor="visit-notes">Notes:</label>
+          <textarea
+            id="visit-notes"
+            rows={4}
+            placeholder="Add any notes about the visit..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            style={{ width: '100%', padding: 8, boxSizing: 'border-box' }}
+          />
+        </div>
 
         <div className="flex space-x-2 mt-4">
           <button onClick={handleSubmit}>Submit</button>
@@ -356,7 +370,7 @@ const TodaysVisit = () => {
   };
 
   // Submit procedure + consumables
-  const handleProcedureSubmit = async (visitId, procedureIds, consumables, status) => {
+  const handleProcedureSubmit = async (visitId, procedureIds, consumables, status, notes) => {
     const jwtToken = localStorage.getItem("jwtToken");
     if (!jwtToken) {
       setError("No JWT token found");
@@ -375,6 +389,7 @@ const TodaysVisit = () => {
           procedureIds,
           consumables, // [{ consumableId, quantityUsed }]
           status,
+          notes,
         }),
       });
 

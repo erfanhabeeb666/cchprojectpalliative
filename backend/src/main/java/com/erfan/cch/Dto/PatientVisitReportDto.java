@@ -20,6 +20,15 @@ public class PatientVisitReportDto {
     private Double latitude;
     private Double longitude;
     private String visitCode;
+    private String notes;
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 
     public String getVisitCode() {
         return visitCode;

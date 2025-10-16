@@ -250,13 +250,14 @@ const Visits = () => {
                 <th>Completed Date</th>
                 <th>Procedures Done</th>
                 <th>Consumables Used</th>
+                <th>Notes</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {filteredVisits.length === 0 ? (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center", padding: "20px" }}>
+                  <td colSpan="9" style={{ textAlign: "center", padding: "20px" }}>
                     No {activeTab} visits found
                   </td>
                 </tr>
@@ -288,6 +289,8 @@ const Visits = () => {
         .join(", ")
     : "None"}
 </td>
+
+                    <td>{visit.notes || '-'}</td>
 
                     <td>{visit.status}</td>
                   </tr>
