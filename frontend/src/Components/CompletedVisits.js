@@ -28,6 +28,9 @@ const CompletedVisits = () => {
   const [completedVisits, setCompletedVisits] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [size] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
 
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -37,7 +40,8 @@ const CompletedVisits = () => {
 
   useEffect(() => {
     fetchCompletedVisits();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const fetchCompletedVisits = async () => {
     setLoading(true);
@@ -57,25 +61,22 @@ const CompletedVisits = () => {
       return;
     }
 
-    const volunteerId = decodedToken.userId;
-
     try {
-      const response = await fetch(
-        `${apiUrl}volunteer/completed-visits?volunteerId=${volunteerId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        }
-      );
+      const url = new URL(`${apiUrl}volunteer/completed-visits`);
+      url.searchParams.set("page", page);
+      url.searchParams.set("size", size);
+      const response = await fetch(url.toString(), {
+        method: "GET",
+        headers: { Authorization: `Bearer ${jwtToken}` },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch completed visits");
       }
 
       const data = await response.json();
-      setCompletedVisits(data);
+      setCompletedVisits(data.content || []);
+      setTotalPages(data.totalPages || 0);
     } catch (err) {
       setError(err.message || "An error occurred");
     } finally {
@@ -141,6 +142,7 @@ const CompletedVisits = () => {
                     <th>Patient Name</th>
                     <th>Volunteer Name</th>
                     <th>Visit Date</th>
+                    <th>Completed Date</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -155,11 +157,21 @@ const CompletedVisits = () => {
                           ? new Date(visit.visitDate).toLocaleDateString()
                           : "-"}
                       </td>
+                      <td>
+                        {visit.completedDate
+                          ? new Date(visit.completedDate).toLocaleDateString()
+                          : "-"}
+                      </td>
                       <td>{visit.status}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              <div style={{ marginTop: 12 }}>
+                <button disabled={page === 0} onClick={() => setPage((p) => Math.max(p - 1, 0))}>Prev</button>
+                <span style={{ margin: "0 8px" }}>Page {page + 1} of {totalPages}</span>
+                <button disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>Next</button>
+              </div>
             </div>
           )}
         </section>

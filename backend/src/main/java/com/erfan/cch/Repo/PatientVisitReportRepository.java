@@ -5,6 +5,8 @@ import com.erfan.cch.Models.PatientVisitReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -28,5 +30,7 @@ public interface PatientVisitReportRepository extends JpaRepository<PatientVisit
 
     @Query("SELECT COUNT(v) FROM PatientVisitReport v WHERE v.volunteer.id = :volunteerId AND v.status = :status")
     long countByVolunteerAndStatus(Long volunteerId, Status status);
+
+    Page<PatientVisitReport> findByVolunteerIdAndStatusIn(Long volunteerId, Collection<Status> statuses, Pageable pageable);
 }
 

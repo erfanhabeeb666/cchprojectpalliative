@@ -21,6 +21,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -115,12 +118,12 @@ public class VolunteerService {
 
 
 
-    public List<PatientVisitReportDto> getCompletedVisits(Long volunteerId) {
+    public Page<PatientVisitReportDto> getCompletedAndCancelledVisits(int page, int size) {
         Long jwtUserId = Long.valueOf(jwtService.extractId(jwtUtils.getJwtFromRequest(request)));
-        return patientVisitReportRepository.findByVolunteerIdAndStatus(jwtUserId,Status.COMPLETED)
-                    .stream()
-                    .map(ConvertToDto::convertToPatientVisitReportDto)
-                    .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("visitDate").descending());
+        return patientVisitReportRepository
+                .findByVolunteerIdAndStatusIn(jwtUserId, List.of(Status.COMPLETED, Status.CANCELLED), pageable)
+                .map(ConvertToDto::convertToPatientVisitReportDto);
     }
 
     public List<Consumable> getAllConsumables() {

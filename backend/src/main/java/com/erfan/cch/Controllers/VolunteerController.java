@@ -48,8 +48,12 @@ public class VolunteerController {
         return ResponseEntity.ok(volunteerService.getTodaysAssignedVisits());
     }
     @GetMapping("/completed-visits")
-    public ResponseEntity<List<PatientVisitReportDto>> getCompletedVisits(@RequestParam Long volunteerId) {
-        return ResponseEntity.ok(volunteerService.getCompletedVisits(volunteerId));
+    public ResponseEntity<org.springframework.data.domain.Page<PatientVisitReportDto>> getCompletedVisits(
+            @RequestParam(required = false) Long volunteerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(volunteerService.getCompletedAndCancelledVisits(page, size));
     }
     @GetMapping("/procedures")
     public ResponseEntity<List<ProcedureDoneDto>> getAllProcedures() {
