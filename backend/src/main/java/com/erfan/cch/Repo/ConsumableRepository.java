@@ -1,8 +1,14 @@
 package com.erfan.cch.Repo;
 
+import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.Consumable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ConsumableRepository extends JpaRepository<Consumable, Long> {
-}
+import java.util.List;
 
+public interface ConsumableRepository extends JpaRepository<Consumable, Long> {
+    Page<Consumable> findAllByStatus(Status status, Pageable pageable);
+    List<Consumable> findAllByStatus(Status status);
+}

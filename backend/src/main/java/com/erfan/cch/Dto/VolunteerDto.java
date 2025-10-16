@@ -4,7 +4,7 @@ public class VolunteerDto {
     private Long id;
     private String name;
     private String email;
-    private String phoneNumber;
+    private String mobileNumber;
     private String address;
     private String specialization;
     public Long getId() {
@@ -30,11 +30,11 @@ public class VolunteerDto {
     }
 
     public String getPhoneNumber() {
-        return phoneNumber;
+        return mobileNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        this.mobileNumber = phoneNumber;
     }
 
     public String getAddress() {

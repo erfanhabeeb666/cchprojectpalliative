@@ -1,6 +1,7 @@
 package com.erfan.cch.Models;
 
 
+import com.erfan.cch.Enums.Status;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -15,6 +16,16 @@ public class ProcedureDone {
 
     @ManyToMany(mappedBy = "proceduresDone")
     private List<PatientVisitReport> visits;
+
+    private Status status;
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
     public Long getId() {
         return id;

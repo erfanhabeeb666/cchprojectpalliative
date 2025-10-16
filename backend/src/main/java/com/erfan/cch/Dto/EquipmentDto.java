@@ -6,6 +6,7 @@ public class EquipmentDto {
     private Long patientId;
     private String patientName;
 
+
     public Long getId() {
         return id;
     }

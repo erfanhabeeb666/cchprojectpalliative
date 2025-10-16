@@ -1,6 +1,7 @@
 package com.erfan.cch.Models;
 
 
+import com.erfan.cch.Enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,15 +9,27 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-
+@Table(
+        name = "patient",
+        indexes = {
+                @Index(name = "idx_patient_name", columnList = "name"),
+                @Index(name = "idx_patient_status", columnList = "status")
+        }
+)
 public class Patient {
     private String name;
-    private Long mobileNumber;
+    @Column(name = "mobile_number", unique = true, nullable = false)
+    private String mobileNumber;
     private int age;
+    // Store coordinates
+    private Double latitude;
+    private Double longitude;
+
     private String gender;
     private String address;
     private String medicalCondition; // Example: "Cancer, Stage 4"
     private String emergencyContact;
+    private Status status;
 
     @OneToMany(mappedBy = "patient")
     private List<PatientVisitReport> visitReports;
@@ -35,11 +48,11 @@ public class Patient {
         this.name = name;
     }
 
-    public Long getMobileNumber() {
+    public String getMobileNumber() {
         return mobileNumber;
     }
 
-    public void setMobileNumber(Long mobileNumber) {
+    public void setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
     }
 
@@ -105,6 +118,30 @@ public class Patient {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }
 

@@ -2,12 +2,30 @@ package com.erfan.cch.Dto;
 public class PatientDto {
     private Long id;
     private String name;
-    private Long mobileNumber;
+    private String mobileNumber;
     private int age;
     private String gender;
     private String address;
     private String medicalCondition;
     private String emergencyContact;
+    private Double latitude;
+    private Double longitude;
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 
     public Long getId() {
         return id;
@@ -25,11 +43,11 @@ public class PatientDto {
         this.name = name;
     }
 
-    public Long getMobileNumber() {
+    public String getMobileNumber() {
         return mobileNumber;
     }
 
-    public void setMobileNumber(Long mobileNumber) {
+    public void setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
     }
 

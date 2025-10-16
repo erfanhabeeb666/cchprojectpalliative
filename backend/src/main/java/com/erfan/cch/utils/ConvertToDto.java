@@ -34,6 +34,8 @@ public class ConvertToDto {
         dto.setAddress(patient.getAddress());
         dto.setMedicalCondition(patient.getMedicalCondition());
         dto.setEmergencyContact(patient.getEmergencyContact());
+        dto.setLatitude(patient.getLatitude());
+        dto.setLongitude(patient.getLongitude());
         return dto;
     }
     public static EquipmentDto convertToEquipmentDto(Equipment equipment) {
@@ -54,13 +56,15 @@ public class ConvertToDto {
         if (report.getPatient() != null) {
             dto.setPatientId(report.getPatient().getId());
             dto.setPatientName(report.getPatient().getName());
+            dto.setLatitude(report.getPatient().getLatitude());
+            dto.setLongitude(report.getPatient().getLongitude());
         }
 
         if (report.getVolunteer() != null) {
             dto.setVolunteerId(report.getVolunteer().getId());
             dto.setVolunteerName(report.getVolunteer().getName());
         }
-
+        dto.setConsumablesUsed(report.getConsumablesUsed());
         dto.setVisitDate(report.getVisitDate());
         dto.setCompletedDate(report.getCompletedDate());
 

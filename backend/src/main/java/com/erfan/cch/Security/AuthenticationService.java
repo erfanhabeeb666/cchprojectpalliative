@@ -35,8 +35,15 @@ public class AuthenticationService {
 
     public User registerUser(User registrationDto) {
         try {
+            String normalizedEmail = registrationDto.getEmail() != null ? registrationDto.getEmail().trim().toLowerCase() : null;
+            if (normalizedEmail == null || normalizedEmail.isEmpty()) {
+                throw new RuntimeException("Email is required");
+            }
+            if (userRepository.existsByEmail(normalizedEmail)) {
+                throw new RuntimeException("Email already exists: " + normalizedEmail);
+            }
             User user = new User();
-            user.setEmail(registrationDto.getEmail());
+            user.setEmail(normalizedEmail);
             user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
             user.setUserType(registrationDto.getUserType());
             user.setName(registrationDto.getName());

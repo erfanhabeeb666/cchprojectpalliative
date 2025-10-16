@@ -10,7 +10,7 @@ import lombok.Setter;
 @Entity
 @DiscriminatorValue("VOLUNTEER")
 public class Volunteer extends User {
-    private String phoneNumber;
+    private String mobileNumber;
     private String address;
     private String specialization; // Example: "Nurse", "Physiotherapist"
 
@@ -21,11 +21,11 @@ public class Volunteer extends User {
 
 
     public String getPhoneNumber() {
-        return phoneNumber;
+        return mobileNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+        this.mobileNumber = phoneNumber;
     }
 
     public String getAddress() {
@@ -46,7 +46,7 @@ public class Volunteer extends User {
 
     public Volunteer(Long id, String name, String email, String password, String phoneNumber, String address, String specialization) {
         super(id, name, email, password);
-        this.phoneNumber = phoneNumber;
+        this.mobileNumber = phoneNumber;
         this.address = address;
         this.specialization = specialization;
     }

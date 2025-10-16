@@ -12,6 +12,7 @@ public class Equipment {
 
     private String name;
     private boolean allocated;
+    
 
     @ManyToOne
     private Patient allocatedTo;

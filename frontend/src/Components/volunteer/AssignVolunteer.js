@@ -19,7 +19,7 @@ const AssignVolunteer = () => {
                     },
                 });
                 const data = await response.json();
-                setPatients(data); // Assuming data is an array of patients
+                setPatients(data.content || data); // Assuming data is an array of patients
             } catch (err) {
                 setError('Failed to fetch patients');
             }
@@ -34,7 +34,7 @@ const AssignVolunteer = () => {
                     },
                 });
                 const data = await response.json();
-                setVolunteers(data); // Assuming data is an array of volunteers
+                setVolunteers(data.content || data);
             } catch (err) {
                 setError('Failed to fetch volunteers');
             }

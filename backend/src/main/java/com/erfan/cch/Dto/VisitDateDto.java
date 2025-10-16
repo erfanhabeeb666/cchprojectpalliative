@@ -3,10 +3,11 @@ package com.erfan.cch.Dto;
 
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class VisitDateDto {
     LocalDate visitDate;
-    Long patientId;
+    List<Long> patientIds;
     Long volunteerId;
 
     public LocalDate getVisitDate() {
@@ -16,11 +17,11 @@ public class VisitDateDto {
     public void setVisitDate(LocalDate visitDate) {
         this.visitDate = visitDate;
     }
-    public Long getPatientId() {
-        return patientId;
+    public List<Long> getPatientIds() {
+        return patientIds;
     }
-    public void setPatientId(Long patientId) {
-        this.patientId = patientId;
+    public void setPatientIds(List<Long> patientId) {
+        this.patientIds = patientId;
     }
     public Long getVolunteerId() {
         return volunteerId;

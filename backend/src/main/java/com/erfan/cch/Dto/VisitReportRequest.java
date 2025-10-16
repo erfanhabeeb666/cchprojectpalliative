@@ -8,7 +8,7 @@ import java.util.Map;
 public class VisitReportRequest {
     private Long visitId;
     private List<Long> procedureIds;
-    private Map<String, Integer> consumables;
+    private List<ConsumableUsageDto> consumables;
     private Status status; // Assuming Status is an enum
     public  Long getVisitId() {
         return visitId;
@@ -25,11 +25,11 @@ public class VisitReportRequest {
         this.procedureIds = procedureIds;
     }
 
-    public Map<String, Integer> getConsumables() {
+    public List<ConsumableUsageDto> getConsumables() {
         return consumables;
     }
 
-    public void setConsumables(Map<String, Integer> consumables) {
+    public void setConsumables(List<ConsumableUsageDto> consumables) {
         this.consumables = consumables;
     }
 
