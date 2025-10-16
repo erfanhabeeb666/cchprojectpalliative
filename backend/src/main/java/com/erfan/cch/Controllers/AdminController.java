@@ -4,7 +4,6 @@ import com.erfan.cch.Dto.*;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Services.AdminService;
-import com.erfan.cch.Services.ConsumableService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,11 +25,9 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
-    private final ConsumableService consumableService;
 
-    public AdminController(AdminService adminService, ConsumableService consumableService) {
+    public AdminController(AdminService adminService) {
         this.adminService = adminService;
-        this.consumableService = consumableService;
     }
 
     // ───── Procedure ─────
