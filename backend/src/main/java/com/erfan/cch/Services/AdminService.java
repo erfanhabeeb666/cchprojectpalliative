@@ -355,5 +355,49 @@ public class AdminService {
     public List<EquipmentType> getAllTypes() {
         return equipmentTypeRepository.findAll();
     }
+    @Transactional
+    public void submitVisitReport(Long visitId, List<Long> procedureIds, List<ConsumableUsageDto> consumableUsage, Status status,String notes) {
+        PatientVisitReport report = reportRepository.findById(visitId)
+                .orElseThrow(() -> new RuntimeException("Visit not found"));
+
+        report.setStatus(status);
+        report.setCompletedDate(LocalDate.now());
+        report.setNotes(notes);
+        // Set procedures
+        List<ProcedureDone> procedureDones = procedureRepository.findAllById(procedureIds);
+        report.setProceduresDone(procedureDones);
+
+        // Clear old consumables and rebuild
+        report.getConsumablesUsed().clear();
+
+        for (ConsumableUsageDto usageDto : consumableUsage) {
+
+            Long consumableId = usageDto.getConsumableId();
+            Integer qtyUsed = usageDto.getQuantity();
+            System.out.println("ConsumableId: " + consumableId + " QtyUsed: " + qtyUsed);
+            Consumable consumable = consumableRepository.findById(consumableId)
+                    .orElseThrow(() -> new RuntimeException("Consumable not found"));
+
+            if (consumable.getStockQuantity() < qtyUsed) {
+                throw new RuntimeException("Not enough stock for consumable: " + consumable.getName());
+            }
+
+            // Subtract stock
+            consumable.setStockQuantity(consumable.getStockQuantity() - qtyUsed);
+            consumableRepository.saveAndFlush(consumable);
+
+
+
+            // Create usage record
+            VisitConsumableUsage usage = new VisitConsumableUsage();
+            usage.setVisitReport(report);
+            usage.setConsumable(consumable);
+            usage.setQuantityUsed(qtyUsed);
+
+            report.getConsumablesUsed().add(usage);
+        }
+
+        reportRepository.save(report);
+    }
 
 }

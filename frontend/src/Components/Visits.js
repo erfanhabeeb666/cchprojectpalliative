@@ -1,10 +1,179 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate,NavLink } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import { getDisplayName } from "../utils/auth";
 import "./Styles/Admin.css";
 import "./Styles/Main.css";
 import "./Styles/Sidebar.css";
+
+// Modal Component for Visit Submission
+const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) => {
+  const [selectedProcedures, setSelectedProcedures] = useState([]);
+  const [selectedConsumables, setSelectedConsumables] = useState([]);
+  const [status, setStatus] = useState("COMPLETED");
+  const [notes, setNotes] = useState("");
+
+  const getConsumableQty = (id) => {
+    const item = selectedConsumables.find((c) => c.consumableId === id);
+    return item ? item.quantity : "";
+  };
+
+  const handleConsumableChange = (id, quantity) => {
+    setSelectedConsumables((prev) => {
+      const existing = prev.find((c) => c.consumableId === id);
+      if (existing) {
+        return prev.map((c) =>
+          c.consumableId === id ? { ...c, quantity: quantity } : c
+        );
+      } else {
+        return [...prev, { consumableId: id, quantity: quantity }];
+      }
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (status !== "CANCELLED" && !selectedProcedures.length) {
+      alert("Please select at least one procedure");
+      return;
+    }
+
+    try {
+      const procsToSend = status === "CANCELLED" ? [] : selectedProcedures;
+      const consumablesToSend = status === "CANCELLED"
+        ? []
+        : selectedConsumables.filter((c) => c.quantity > 0);
+
+      await onSubmit(visit.id, procsToSend, consumablesToSend, status, notes);
+      onClose();
+    } catch (err) {
+      alert("Failed to submit visit");
+    }
+  };
+
+  return (
+    <div className="modal">
+      <div className="modal-content">
+        <h3>Submit Visit Report</h3>
+
+        <label>Status:</label>
+        <select 
+          value={status} 
+          onChange={(e) => {
+            const val = e.target.value;
+            setStatus(val);
+            if (val === "CANCELLED") {
+              setSelectedProcedures([]);
+              setSelectedConsumables([]);
+            }
+          }}
+        >
+          <option value="COMPLETED">Completed</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+
+        {status !== "CANCELLED" && (
+          <div>
+            <label>Procedures:</label>
+            <select
+              multiple
+              value={selectedProcedures}
+              onChange={(e) =>
+                setSelectedProcedures(
+                  Array.from(e.target.selectedOptions, (option) => option.value)
+                )
+              }
+              className="custom-select"
+            >
+              {procedures.map((procedure) => (
+                <option key={procedure.procedureId} value={procedure.procedureId}>
+                  {procedure.procedureName}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {status !== "CANCELLED" && (
+          <div>
+            <label>Consumables:</label>
+            {consumables.map((consumable) => (
+              <div key={consumable.id} className="flex items-center space-x-2 my-1">
+                <span>
+                  {consumable.name} (Stock: {consumable.stockQuantity})
+                </span>
+                {consumable.stockQuantity > 0 ? (
+                  <input
+                    type="number"
+                    min="0"
+                    max={consumable.stockQuantity}
+                    value={getConsumableQty(consumable.id)}
+                    placeholder="Qty"
+                    onChange={(e) =>
+                      handleConsumableChange(
+                        consumable.id,
+                        parseInt(e.target.value, 10) || 0
+                      )
+                    }
+                    className="w-20 p-1 border rounded"
+                  />
+                ) : (
+                  <span style={{ marginLeft: 8, color: '#888' }}>Out of stock</span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div style={{ marginTop: 12 }}>
+          <label htmlFor="visit-notes">Notes:</label>
+          <textarea
+            id="visit-notes"
+            rows={4}
+            placeholder="Add any notes about the visit..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            style={{ width: '100%', padding: 8, boxSizing: 'border-box' }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          <button 
+            onClick={handleSubmit}
+            style={{
+              background: '#007bff',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#0056b3'}
+            onMouseOut={(e) => e.currentTarget.style.background = '#007bff'}
+          >
+            Submit
+          </button>
+          <button 
+            onClick={onClose}
+            style={{
+              background: '#6c757d',
+              color: 'white',
+              border: 'none',
+              padding: '8px 16px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#5a6268'}
+            onMouseOut={(e) => e.currentTarget.style.background = '#6c757d'}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Visits = () => {
   const [visits, setVisits] = useState([]);
@@ -15,6 +184,10 @@ const Visits = () => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(8);
   const [totalPages, setTotalPages] = useState(0);
+  const [procedures, setProcedures] = useState([]);
+  const [consumables, setConsumables] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedVisit, setSelectedVisit] = useState(null);
 
   const navigate = useNavigate();
 
@@ -86,8 +259,79 @@ const Visits = () => {
 
   useEffect(() => {
     fetchVisits();
+    if (activeTab === 'pending') {
+      fetchProcedures();
+      fetchConsumables();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, page, size, startDate, endDate]);
+
+  const fetchProcedures = async () => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const response = await axios.get(`${apiUrl}volunteer/procedures`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProcedures(response.data);
+    } catch (err) {
+      console.error("Failed to fetch procedures", err);
+    }
+  };
+
+  const fetchConsumables = async () => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const response = await axios.get(`${apiUrl}volunteer/consumables`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setConsumables(response.data);
+    } catch (err) {
+      console.error("Failed to fetch consumables", err);
+    }
+  };
+
+  const handleSubmitVisit = async (visitId, procedures, consumables, status, notes) => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      const apiUrl = process.env.REACT_APP_API_URL;
+      
+      // Prepare the request body according to the backend's expected format
+      const requestBody = {
+        visitId: visitId,
+        procedureIds: procedures,
+        consumables: consumables,
+        status: status,
+        notes: notes
+      };
+      
+      await axios.post(
+        `${apiUrl}admin/submit-report`,
+        requestBody,
+        { 
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          } 
+        }
+      );
+      
+      // Refresh visits after submission
+      fetchVisits();
+      alert('Visit report submitted successfully!');
+    } catch (err) {
+      console.error("Failed to submit visit", err);
+      // Show more detailed error message
+      if (err.response) {
+        const errorMsg = err.response.data || 'Failed to submit visit';
+        alert(`Error: ${typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : errorMsg}`);
+      } else {
+        alert('Failed to submit visit. Please check your connection and try again.');
+      }
+      throw err;
+    }
+  };
 
   // filter visits by patient name
   const filteredVisits = visits.filter((visit) =>
@@ -292,12 +536,80 @@ const Visits = () => {
 
                     <td>{visit.notes || '-'}</td>
 
-                    <td>{visit.status}</td>
+                    <td>
+                      {visit.status}
+                      {visit.status === 'PENDING' && (
+                        <div style={{ display: 'inline-block', marginLeft: '10px' }}>
+                          <button 
+                            onClick={() => {
+                              setSelectedVisit(visit);
+                              setIsModalOpen(true);
+                            }}
+                            style={{
+                              background: '#007bff',
+                              color: 'white',
+                              border: 'none',
+                              padding: '4px 12px',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Submit
+                          </button>
+                        </div>
+                      )}
+                    </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
+
+          {/* Submit Visit Modal */}
+          {isModalOpen && selectedVisit && (
+            <ProcedureModal
+              visit={selectedVisit}
+              procedures={procedures}
+              consumables={consumables}
+              onClose={() => {
+                setIsModalOpen(false);
+                setSelectedVisit(null);
+              }}
+              onSubmit={handleSubmitVisit}
+            />
+          )}
+
+          {/* Modal Styles */}
+          <style jsx>{`
+            .modal {
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: rgba(0, 0, 0, 0.5);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 1000;
+            }
+            .modal-content {
+              background: white;
+              padding: 20px;
+              border-radius: 8px;
+              max-width: 500px;
+              width: 100%;
+              max-height: 90vh;
+              overflow-y: auto;
+            }
+            .custom-select {
+              width: 100%;
+              min-height: 100px;
+              padding: 8px;
+              border: 1px solid #ddd;
+              border-radius: 4px;
+            }
+          `}</style>
         </div>
 
         {/* Pagination */}

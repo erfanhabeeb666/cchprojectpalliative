@@ -256,5 +256,16 @@ public class AdminController {
         if (value == null) return "";
         return value.replace(",", ";").replace("\n", " ").replace("\r", " ");
     }
+    @PostMapping("/submit-report")
+    public ResponseEntity<String> submitReport(@RequestBody VisitReportRequest reportRequest) {
+        adminService.submitVisitReport(
+                reportRequest.getVisitId(),
+                reportRequest.getProcedureIds(),
+                reportRequest.getConsumables(),
+                reportRequest.getStatus(),
+                reportRequest.getNotes()
+        );
+        return ResponseEntity.ok("Visit report submitted successfully");
+    }
 
 }
