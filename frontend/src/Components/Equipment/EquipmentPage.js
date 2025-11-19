@@ -1,10 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { NavLink, useNavigate } from "react-router-dom";
 import "../Styles/Admin.css";
 import "../Styles/Main.css";
 import "../Styles/Sidebar.css";
 import AddEquipment from "./AddEquipment";
+
+// Debounce function
+const debounce = (func, delay) => {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
+};
 
 const EquipmentPage = () => {
   const [equipmentList, setEquipmentList] = useState([]);
@@ -35,7 +44,7 @@ const EquipmentPage = () => {
   };
 
   // Fetch equipment list
-  const fetchEquipment = async (pageNum = page, searchTerm = searchQuery) => {
+  const fetchEquipment = useCallback(async (pageNum = page, searchTerm = searchQuery) => {
     try {
       const response = await axios.get(`${apiUrl}admin/view-equipments`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -48,7 +57,20 @@ const EquipmentPage = () => {
       console.error(err);
       setError("Failed to fetch equipment");
     }
-  };
+  }, [apiUrl, page, searchQuery, size, token]);
+
+  // Debounced search effect
+  useEffect(() => {
+    const debouncedSearch = debounce((searchTerm) => {
+      fetchEquipment(0, searchTerm);
+    }, 300);
+
+    debouncedSearch(searchQuery);
+
+    return () => {
+      debouncedSearch.cancel?.();
+    };
+  }, [searchQuery, fetchEquipment]);
 
   // Fetch patients for modal (paginated)
   const fetchPatientsModal = async () => {
@@ -220,7 +242,6 @@ const EquipmentPage = () => {
               placeholder="Search by name or allocated patient..."
               value={searchQuery}
               onChange={(e) => {
-                setPage(0);
                 setSearchQuery(e.target.value);
               }}
               className="search-input"
