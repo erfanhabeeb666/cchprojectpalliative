@@ -4,6 +4,8 @@ import { getDisplayName } from "../../utils/auth";
 import AddVolunteer from "./AddVolunteer";
 import AssignVolunteer from "./AssignVolunteer";
 import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import "../Styles/Admin.css";
 import "../Styles/Main.css";
 import "../Styles/Sidebar.css";
@@ -22,12 +24,11 @@ const VolunteerPage = () => {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
 
-      const response = await axios.get(`${apiUrl}admin/list-volunteers`, {
+      const response = await axios.get(`${apiUrl}admin/list-staff`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { page: pageNum, size, search: searchTerm },
       });
 
-      setVolunteerList(response.data.content);
+      setVolunteerList(response.data);
       setTotalPages(response.data.totalPages);
       setPage(response.data.number);
     } catch (err) {
