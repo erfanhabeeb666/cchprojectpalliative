@@ -45,7 +45,8 @@ const AddPatient = ({ onSuccess }) => {
         if (!patient.gender) errs.gender = 'Gender is required';
         if (!patient.address.trim()) errs.address = 'Address is required';
         if (!patient.medicalCondition.trim()) errs.medicalCondition = 'Medical condition is required';
-        if (patient.emergencyContact && !/^\d{7,15}$/.test(patient.emergencyContact.trim())) errs.emergencyContact = 'Enter a valid emergency contact';
+        if (!patient.emergencyContact.trim()) errs.emergencyContact = 'Mobile number is required';
+        else if (!/^\d{7,11}$/.test(patient.emergencyContact.trim())) errs.emergencyContact = 'Enter a valid mobile number';
         setErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -221,7 +222,7 @@ const AddPatient = ({ onSuccess }) => {
                 />
                 {errors.medicalCondition && <p className="text-red-600 text-sm">{errors.medicalCondition}</p>}
                 <input
-                    type="text"
+                    type="tel"
                     name="emergencyContact"
                     value={patient.emergencyContact}
                     onChange={handleChange}

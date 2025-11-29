@@ -1,6 +1,7 @@
 package com.erfan.cch.Models;
 
 
+import com.erfan.cch.Enums.AliveStatus;
 import com.erfan.cch.Enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -18,7 +19,7 @@ import java.util.List;
 )
 public class Patient {
     private String name;
-    @Column(name = "mobile_number", unique = true, nullable = false)
+    @Column(name = "mobile_number", unique = true)
     private String mobileNumber;
     private int age;
     // Store coordinates
@@ -30,6 +31,7 @@ public class Patient {
     private String medicalCondition; // Example: "Cancer, Stage 4"
     private String emergencyContact;
     private Status status;
+    private AliveStatus alivestatus;
 
     @OneToMany(mappedBy = "patient")
     private List<PatientVisitReport> visitReports;
@@ -126,6 +128,14 @@ public class Patient {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public AliveStatus getAlivestatus() {
+        return alivestatus;
+    }
+
+    public void setAlivestatus(AliveStatus alivestatus) {
+        this.alivestatus = alivestatus;
     }
 
     public Double getLatitude() {

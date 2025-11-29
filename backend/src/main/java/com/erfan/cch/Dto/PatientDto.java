@@ -1,4 +1,7 @@
 package com.erfan.cch.Dto;
+
+import com.erfan.cch.Enums.AliveStatus;
+
 public class PatientDto {
     private Long id;
     private String name;
@@ -10,6 +13,7 @@ public class PatientDto {
     private String emergencyContact;
     private Double latitude;
     private Double longitude;
+    private String alivestatus;
 
     public Double getLatitude() {
         return latitude;
@@ -89,6 +93,15 @@ public class PatientDto {
 
     public void setEmergencyContact(String emergencyContact) {
         this.emergencyContact = emergencyContact;
+    }
+
+    public String getAlivestatus() {
+        return alivestatus;
+    }
+
+    public void setAlivestatus(AliveStatus alivestatus) {
+
+        this.alivestatus = alivestatus.name();
     }
 }
 

@@ -1,6 +1,7 @@
 package com.erfan.cch.Services;
 
 import com.erfan.cch.Dto.*;
+import com.erfan.cch.Enums.AliveStatus;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Enums.UserType;
 import com.erfan.cch.Models.*;
@@ -127,6 +128,7 @@ public class AdminService {
         }
         patient.setMobileNumber(mobile);
         patient.setStatus(Status.ACTIVE);
+        patient.setAlivestatus(AliveStatus.yes);
         try {
             patientRepository.save(patient);
         } catch (DataIntegrityViolationException e) {
@@ -190,7 +192,7 @@ public class AdminService {
     public void deletePatient(long id) {
         Optional<Patient> patient = patientRepository.findById(id);
         Patient actual = patient.get();
-        actual.setStatus(Status.INACTIVE);
+        actual.setAlivestatus(AliveStatus.no);
         actual.setMobileNumber(null);
         patientRepository.save(actual);
     }

@@ -168,6 +168,7 @@ const PatientPage = () => {
                 <th>Gender</th>
                 <th>Address</th>
                 <th>Medical Condition</th>
+                <th>Alive</th>
                 <th>Emergency Contact</th>
                 <th>Action</th>
               </tr>
@@ -188,6 +189,7 @@ const PatientPage = () => {
                     <td>{patient.gender}</td>
                     <td>{patient.address}</td>
                     <td>{patient.medicalCondition}</td>
+                    <td>{patient.alivestatus}</td> 
                     <td>{patient.emergencyContact}</td>
                     <td>
                       <button 

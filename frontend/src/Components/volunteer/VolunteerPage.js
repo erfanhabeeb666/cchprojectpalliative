@@ -4,8 +4,6 @@ import { getDisplayName } from "../../utils/auth";
 import AddVolunteer from "./AddVolunteer";
 import AssignVolunteer from "./AssignVolunteer";
 import axios from "axios";
-import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
 import "../Styles/Admin.css";
 import "../Styles/Main.css";
 import "../Styles/Sidebar.css";

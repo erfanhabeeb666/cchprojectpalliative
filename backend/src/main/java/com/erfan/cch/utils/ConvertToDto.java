@@ -36,6 +36,7 @@ public class ConvertToDto {
         dto.setEmergencyContact(patient.getEmergencyContact());
         dto.setLatitude(patient.getLatitude());
         dto.setLongitude(patient.getLongitude());
+        dto.setAlivestatus(patient.getAlivestatus());
         return dto;
     }
     public static EquipmentDto convertToEquipmentDto(Equipment equipment) {
