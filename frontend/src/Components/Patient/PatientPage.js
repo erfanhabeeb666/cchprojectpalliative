@@ -167,6 +167,7 @@ const PatientPage = () => {
                 <th>Age</th>
                 <th>Gender</th>
                 <th>Address</th>
+                <th>Date</th>
                 <th>Medical Condition</th>
                 <th>Alive</th>
                 <th>Emergency Contact</th>
@@ -188,6 +189,10 @@ const PatientPage = () => {
                     <td>{patient.age}</td>
                     <td>{patient.gender}</td>
                     <td>{patient.address}</td>
+                    <td>
+  {patient.date ? new Date(patient.date).toLocaleDateString() : "-"}
+</td>
+
                     <td>{patient.medicalCondition}</td>
                     <td>{patient.alivestatus}</td> 
                     <td>{patient.emergencyContact}</td>

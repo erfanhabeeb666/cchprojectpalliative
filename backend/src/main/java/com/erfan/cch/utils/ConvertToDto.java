@@ -37,6 +37,7 @@ public class ConvertToDto {
         dto.setLatitude(patient.getLatitude());
         dto.setLongitude(patient.getLongitude());
         dto.setAlivestatus(patient.getAlivestatus());
+        dto.setDate(patient.getDate());
         return dto;
     }
     public static EquipmentDto convertToEquipmentDto(Equipment equipment) {

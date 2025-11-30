@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -32,6 +33,7 @@ public class Patient {
     private String emergencyContact;
     private Status status;
     private AliveStatus alivestatus;
+    private LocalDate date;
 
     @OneToMany(mappedBy = "patient")
     private List<PatientVisitReport> visitReports;
@@ -152,6 +154,14 @@ public class Patient {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 }
 

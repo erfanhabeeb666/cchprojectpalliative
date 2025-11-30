@@ -129,6 +129,7 @@ public class AdminService {
         patient.setMobileNumber(mobile);
         patient.setStatus(Status.ACTIVE);
         patient.setAlivestatus(AliveStatus.yes);
+        patient.setDate(LocalDate.now());
         try {
             patientRepository.save(patient);
         } catch (DataIntegrityViolationException e) {
