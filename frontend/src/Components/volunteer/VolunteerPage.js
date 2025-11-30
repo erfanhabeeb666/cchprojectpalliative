@@ -16,21 +16,28 @@ const VolunteerPage = () => {
   const [size] = useState(6);
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState("");
+  const [error, setError] = useState("");
 
   const fetchVolunteers = async (pageNum = page, searchTerm = search) => {
     try {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
 
-      const response = await axios.get(`${apiUrl}admin/list-staff`, {
+      const response = await axios.get(`${apiUrl}admin/list-volunteers`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: { page: pageNum, size, search: searchTerm, sortBy: 'id' }
       });
 
-      setVolunteerList(response.data);
-      setTotalPages(response.data.totalPages);
-      setPage(response.data.number);
+      const data = response.data || {};
+      setVolunteerList(Array.isArray(data.content) ? data.content : (Array.isArray(data) ? data : []));
+      setTotalPages(typeof data.totalPages === 'number' ? data.totalPages : 0);
+      setPage(typeof data.number === 'number' ? data.number : pageNum);
+      setError("");
     } catch (err) {
       console.error("Failed to fetch volunteers", err);
+      const status = err?.response?.status;
+      const message = err?.response?.data || err?.message || 'Failed to fetch volunteers';
+      setError(typeof message === 'string' ? message : JSON.stringify(message));
     }
   };
 
@@ -114,6 +121,10 @@ const VolunteerPage = () => {
             onKeyDown={(e) => e.key === "Enter" && fetchVolunteers(0, e.target.value)}
           className="search-input"/>
         </div>
+
+        {error && (
+          <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>
+        )}
 
         {/* Add Volunteer Modal */}
         {showAddForm && (
