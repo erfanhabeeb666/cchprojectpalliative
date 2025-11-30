@@ -67,6 +67,22 @@ public class AdminService {
         this.consumableRepository = consumableRepository;
         this.visitConsumableUsageRepository = visitConsumableUsageRepository;
     }
+    public int countNewPatients(LocalDate start, LocalDate end) {
+        if (start == null && end == null) {
+            return 0; // no date range given
+        }
+        if (start != null && end != null) {
+            return patientRepository.countByDateBetween(start, end);
+        }
+        if (start != null) {
+            LocalDate today = LocalDate.now();
+            return patientRepository.countByDateBetween(start, today);
+        }
+        // only end provided
+        return patientRepository.countByDateLessThanEqual(end);
+    }
+
+
 
 
     public void addProcedure(String name) {

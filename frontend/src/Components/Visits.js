@@ -177,7 +177,7 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
 
 const Visits = () => {
   const [visits, setVisits] = useState([]);
-  const [activeTab, setActiveTab] = useState("completed"); // completed / pending / all
+  const [activeTab, setActiveTab] = useState("all"); // completed / pending / all
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -188,6 +188,8 @@ const Visits = () => {
   const [consumables, setConsumables] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVisit, setSelectedVisit] = useState(null);
+  const [newPatientsCount, setNewPatientsCount] = useState(null);
+  const [newPatientsLoading, setNewPatientsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -209,15 +211,36 @@ const Visits = () => {
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
 
+      setNewPatientsLoading(true);
       const response = await axios.get(`${apiUrl}admin/visits`, {
         headers: { Authorization: `Bearer ${token}` },
         params,
       });
 
-      setVisits(response.data.content || []);
-      setTotalPages(response.data.totalPages || 0);
+      // Debug: inspect backend payload
+      console.debug('GET /admin/visits payload:', response.data);
+
+      // Support both shapes:
+      // 1) VisitPageResponseDTO { visits: Page<...>, newPatientsCount }
+      // 2) Plain Page (legacy) { content, totalPages, ... }
+      const maybeDto = response.data;
+      const visitsPage = maybeDto?.visits && maybeDto.visits.content ? maybeDto.visits
+                        : (maybeDto?.content ? maybeDto : null);
+
+      setVisits(visitsPage?.content || []);
+      setTotalPages(visitsPage?.totalPages || 0);
+
+      const rawCount = maybeDto?.newPatientsCount;
+      const parsedCount =
+        typeof rawCount === 'number'
+          ? rawCount
+          : (typeof rawCount === 'string' && /^\d+$/.test(rawCount) ? parseInt(rawCount, 10) : null);
+      setNewPatientsCount(parsedCount);
     } catch (err) {
       console.error("Failed to fetch visits", err);
+    }
+    finally {
+      setNewPatientsLoading(false);
     }
   };
 
@@ -480,6 +503,9 @@ const Visits = () => {
             style={{ marginLeft: "10px" }}
           />
           <button onClick={downloadVisitsCsv} style={{ marginLeft: "20px" }}>Export CSV</button>
+          <span style={{ marginLeft: "12px", padding: "4px 8px", background: "#f3f4f6", borderRadius: 6, border: '1px solid #e5e7eb' }}>
+            Total new patients: {newPatientsLoading ? '...' : (newPatientsCount !== null ? newPatientsCount : '-')}
+          </span>
         </div>
 
         {/* Table */}
