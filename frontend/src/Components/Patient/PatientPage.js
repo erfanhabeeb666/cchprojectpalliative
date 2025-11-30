@@ -197,12 +197,22 @@ const PatientPage = () => {
                     <td>{patient.alivestatus}</td> 
                     <td>{patient.emergencyContact}</td>
                     <td>
-                      <button 
-                        onClick={() => handleDelete(patient.id)} 
-                        style={{ backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}
-                      >
-                        Remove
-                      </button>
+                      <button
+  onClick={() => handleDelete(patient.id)}
+  disabled={patient.alivestatus === "no"}
+  style={{
+    backgroundColor: patient.alivestatus === "no" ? "#ccc" : "red",
+    color: patient.alivestatus === "no" ? "#666" : "white",
+    border: "none",
+    padding: "5px 10px",
+    borderRadius: "5px",
+    cursor: patient.alivestatus === "no" ? "not-allowed" : "pointer",
+    opacity: patient.alivestatus === "no" ? 0.5 : 1,
+  }}
+>
+  {patient.alivestatus === "no" ? "Removed" : "Remove"}
+</button>
+
                     </td>
                   </tr>
                 ))
