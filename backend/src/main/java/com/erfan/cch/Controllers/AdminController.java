@@ -104,12 +104,12 @@ public class AdminController {
         Page<EquipmentDto> equipments = adminService.getAllEquipment(search,pageable);
         return ResponseEntity.ok(equipments);
     }
-    @PostMapping
+    @PostMapping("/equipment-types")
     public EquipmentType createEquipmentType(@RequestBody EquipmentType type) {
         return adminService.createType(type.getName(), type.getDescription());
     }
 
-    @GetMapping
+    @GetMapping("/equipment-types")
     public List<EquipmentType> getAllEquipmentTypes() {
         return adminService.getAllTypes();
     }
@@ -149,7 +149,7 @@ public class AdminController {
     }
 
     @PostMapping("/add-equipment")
-    public ResponseEntity<String> addEquipment(@RequestBody Equipment equipment) {
+    public ResponseEntity<String> addEquipment(@RequestBody NewEquipmentRequestDto equipment) {
         adminService.addEquipment(equipment);
         return ResponseEntity.ok("Equipment added successfully");
     }
