@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import AddVolunteer from "./AddVolunteer";
-import AssignVolunteer from "./AssignVolunteer";
+
 import axios from "axios";
 
 const VolunteerPage = () => {
   const [volunteerList, setVolunteerList] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showAssignForm, setShowAssignForm] = useState(false);
+
   const [page, setPage] = useState(0);
   const [size] = useState(6); // kept as state to satisfy usage if needed, or remove setSize
   const [totalPages, setTotalPages] = useState(0);
@@ -82,12 +82,7 @@ const VolunteerPage = () => {
           >
             <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Add Volunteer
           </button>
-          <button
-            className="btn btn-outline"
-            onClick={() => setShowAssignForm(true)}
-          >
-            <i className="fas fa-clipboard-check" style={{ marginRight: '0.5rem' }}></i> Quick Assign
-          </button>
+
         </div>
       </div>
 
@@ -191,27 +186,7 @@ const VolunteerPage = () => {
         </div>
       )}
 
-      {showAssignForm && (
-        <div className="modal-overlay" style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
-          justifyContent: 'center', alignItems: 'center', zIndex: 1000
-        }}>
-          <div className="form-container" style={{
-            background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
-            width: '100%', maxWidth: '600px'
-          }}>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Quick Assign Volunteer</h3>
-              <button onClick={() => setShowAssignForm(false)} className="text-gray-500 hover:text-gray-700">
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <AssignVolunteer />
-            <button onClick={() => setShowAssignForm(false)} className="btn btn-outline w-full mt-4">Close</button>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };

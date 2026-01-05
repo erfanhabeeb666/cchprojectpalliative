@@ -237,15 +237,26 @@ public class AdminController {
 
         List<PatientVisitReportDto> visits = adminService.getAllVisitsForExport(startDate, endDate);
         try (PrintWriter writer = response.getWriter()) {
-            writer.println("VisitID,PatientName,VolunteerName,Date,ProceduresDone,Status,Notes");
+            writer.println("VisitID,PatientName,VolunteerName,Date,ProceduresDone,ConsumablesUsed,Status,Notes");
 
             for (PatientVisitReportDto v : visits) {
-                writer.printf("%s,%s,%s,%s,%s,%s,%s%n", // <-- added %n here too
+                String procedures = v.getProceduresDone() != null ? String.join(" | ", v.getProceduresDone()) : "";
+
+                String consumables = "";
+                if (v.getConsumablesUsed() != null && !v.getConsumablesUsed().isEmpty()) {
+                    consumables = v.getConsumablesUsed().stream()
+                            .map(c -> c.getConsumable().getName() + " (" + c.getQuantityUsed() + ")")
+                            .reduce((a, b) -> a + " | " + b)
+                            .orElse("");
+                }
+
+                writer.printf("%s,%s,%s,%s,%s,%s,%s,%s%n",
                         v.getVisitCode(),
                         escapeCsv(v.getPatientName()),
                         escapeCsv(v.getVolunteerName()),
                         v.getVisitDate(),
-                        v.getProceduresDone(),
+                        escapeCsv(procedures),
+                        escapeCsv(consumables),
                         v.getStatus(),
                         escapeCsv(v.getNotes()));
             }
