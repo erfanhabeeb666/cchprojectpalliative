@@ -457,8 +457,8 @@ const Visits = () => {
       </div>
 
       {/* Table */}
-      <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-        <table className="main-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div className="card" style={{ padding: '0', overflowX: 'auto' }}>
+        <table className="main-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1000px' }}>
           <thead style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
             <tr>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Visit ID</th>
@@ -470,6 +470,7 @@ const Visits = () => {
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Consumables</th>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Notes</th>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Status</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Submitted By</th>
             </tr>
           </thead>
           <tbody>
@@ -534,6 +535,7 @@ const Visits = () => {
                       )}
                     </div>
                   </td>
+                  <td style={{ padding: '1rem' }}>{visit.submittedBy || '-'}</td>
                 </tr>
               ))
             )}

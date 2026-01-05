@@ -9,6 +9,7 @@ import com.erfan.cch.Models.Consumable;
 import com.erfan.cch.Models.PatientVisitReport;
 import com.erfan.cch.Models.ProcedureDone;
 import com.erfan.cch.Models.VisitConsumableUsage;
+import com.erfan.cch.Models.Volunteer;
 import com.erfan.cch.Repo.ConsumableRepository;
 import com.erfan.cch.Repo.PatientVisitReportRepository;
 import com.erfan.cch.Repo.ProcedureRepository;
@@ -36,7 +37,7 @@ public class VolunteerService {
 
     private final JwtService jwtService;
 
-   private final JwtUtils jwtUtils;
+    private final JwtUtils jwtUtils;
 
     private final HttpServletRequest request;
 
@@ -44,7 +45,9 @@ public class VolunteerService {
     @Autowired
     private PatientVisitReportRepository patientVisitReportRepository;
 
-    public VolunteerService(PatientVisitReportRepository reportRepository, ConsumableRepository consumableRepository, JwtService jwtService, JwtUtils jwtUtils, HttpServletRequest request, VolunteerRepository volunteerRepository) {
+    public VolunteerService(PatientVisitReportRepository reportRepository, ConsumableRepository consumableRepository,
+            JwtService jwtService, JwtUtils jwtUtils, HttpServletRequest request,
+            VolunteerRepository volunteerRepository) {
         this.reportRepository = reportRepository;
         this.consumableRepository = consumableRepository;
         this.jwtService = jwtService;
@@ -66,13 +69,15 @@ public class VolunteerService {
     public List<PatientVisitReportDto> getTodaysAssignedVisits() {
         Long jwtUserId = Long.valueOf(jwtService.extractId(jwtUtils.getJwtFromRequest(request)));
         LocalDate today = LocalDate.now();
-            return patientVisitReportRepository.findByVolunteerIdAndVisitDate(jwtUserId,today)
-                    .stream()
-                    .map(ConvertToDto::convertToPatientVisitReportDto)
-                    .collect(Collectors.toList());
+        return patientVisitReportRepository.findByVolunteerIdAndVisitDate(jwtUserId, today)
+                .stream()
+                .map(ConvertToDto::convertToPatientVisitReportDto)
+                .collect(Collectors.toList());
     }
+
     @Transactional
-    public void submitVisitReport(Long visitId, List<Long> procedureIds, List<ConsumableUsageDto> consumableUsage, Status status,String notes) {
+    public void submitVisitReport(Long visitId, List<Long> procedureIds, List<ConsumableUsageDto> consumableUsage,
+            Status status, String notes) {
         PatientVisitReport report = reportRepository.findById(visitId)
                 .orElseThrow(() -> new RuntimeException("Visit not found"));
 
@@ -102,8 +107,6 @@ public class VolunteerService {
             consumable.setStockQuantity(consumable.getStockQuantity() - qtyUsed);
             consumableRepository.saveAndFlush(consumable);
 
-
-
             // Create usage record
             VisitConsumableUsage usage = new VisitConsumableUsage();
             usage.setVisitReport(report);
@@ -113,10 +116,14 @@ public class VolunteerService {
             report.getConsumablesUsed().add(usage);
         }
 
+        Long jwtUserId = Long.valueOf(jwtService.extractId(jwtUtils.getJwtFromRequest(request)));
+        Volunteer volunteer = volunteerRepository.findById(jwtUserId).orElse(null);
+        if (volunteer != null) {
+            report.setSubmittedBy(volunteer.getName());
+        }
+
         reportRepository.save(report);
     }
-
-
 
     public Page<PatientVisitReportDto> getCompletedAndCancelledVisits(int page, int size) {
         Long jwtUserId = Long.valueOf(jwtService.extractId(jwtUtils.getJwtFromRequest(request)));
@@ -129,6 +136,7 @@ public class VolunteerService {
     public List<Consumable> getAllConsumables() {
         return consumableRepository.findAllByStatus(Status.ACTIVE);
     }
+
     public VolunteerDashboardStatsDto getDashboardStats() {
         Long volunteerId = Long.valueOf(jwtService.extractId(jwtUtils.getJwtFromRequest(request)));
         long todayVisits = reportRepository.countTodayVisits(volunteerId, LocalDate.now());
@@ -136,4 +144,3 @@ public class VolunteerService {
         return new VolunteerDashboardStatsDto(todayVisits, completedVisits);
     }
 }
-

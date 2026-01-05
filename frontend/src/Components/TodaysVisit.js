@@ -368,8 +368,8 @@ const TodaysVisit = () => {
           <p className="text-lg text-gray-600">No visits assigned for today.</p>
         </div>
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <table className="main-table" style={{ width: '100%', marginBottom: 0 }}>
+        <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
+          <table className="main-table" style={{ width: '100%', marginBottom: 0, minWidth: '1000px' }}>
             <thead style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
               <tr>
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Visit ID</th>
@@ -377,6 +377,7 @@ const TodaysVisit = () => {
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Volunteer Name</th>
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Visit Date</th>
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Status</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Submitted By</th>
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Action</th>
               </tr>
             </thead>
@@ -403,6 +404,7 @@ const TodaysVisit = () => {
                       {visit.status}
                     </span>
                   </td>
+                  <td style={{ padding: '1rem' }}>{visit.submittedBy || '-'}</td>
                   <td style={{ padding: '1rem' }}>
                     <div className="flex gap-2 flex-wrap">
                       {visit.status === "PENDING" && (

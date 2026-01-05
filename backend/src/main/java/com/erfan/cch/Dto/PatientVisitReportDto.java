@@ -14,13 +14,22 @@ public class PatientVisitReportDto {
     private String volunteerName;
     private LocalDate visitDate;
     private LocalDate completedDate;
-    private List<String> proceduresDone;  // Just names of procedures
+    private List<String> proceduresDone; // Just names of procedures
     private List<VisitConsumableUsage> consumablesUsed;
     private String status;
     private Double latitude;
     private Double longitude;
     private String visitCode;
     private String notes;
+    private String submittedBy;
+
+    public String getSubmittedBy() {
+        return submittedBy;
+    }
+
+    public void setSubmittedBy(String submittedBy) {
+        this.submittedBy = submittedBy;
+    }
 
     public String getNotes() {
         return notes;

@@ -49,13 +49,15 @@ public class AdminService {
     private UserRepository userRepository;
 
     private AuthenticationService authenticationService;
+    private final jakarta.servlet.http.HttpServletRequest request;
 
     public AdminService(PatientRepository patientRepository, EquipmentTypeRepository equipmentTypeRepository,
             VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository,
             EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder,
             ProcedureRepository procedureRepository, UserRepository userRepository,
             AuthenticationService authenticationService, ConsumableRepository consumableRepository,
-            VisitConsumableUsageRepository visitConsumableUsageRepository) {
+            VisitConsumableUsageRepository visitConsumableUsageRepository,
+            jakarta.servlet.http.HttpServletRequest request) {
         this.patientRepository = patientRepository;
         this.equipmentTypeRepository = equipmentTypeRepository;
         this.volunteerRepository = volunteerRepository;
@@ -67,6 +69,7 @@ public class AdminService {
         this.authenticationService = authenticationService;
         this.consumableRepository = consumableRepository;
         this.visitConsumableUsageRepository = visitConsumableUsageRepository;
+        this.request = request;
     }
 
     public int countNewPatients(LocalDate start, LocalDate end) {
@@ -429,6 +432,20 @@ public class AdminService {
             report.getConsumablesUsed().add(usage);
         }
 
+        reportRepository.save(report);
+
+        try {
+            Long userId = Long.valueOf(authenticationService.getIdFromToken(request).getBody());
+            User user = userRepository.findById(userId).orElse(null);
+            if (user != null) {
+                report.setSubmittedBy(user.getName());
+            }
+        } catch (Exception e) {
+            // Token might not be present or valid if called from internal context, but for
+            // API calls it should work.
+            // Failing silently for now or log it.
+            System.out.println("Could not set submittedBy: " + e.getMessage());
+        }
         reportRepository.save(report);
     }
 

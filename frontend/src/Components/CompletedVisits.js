@@ -90,8 +90,8 @@ const CompletedVisits = () => {
           <p className="text-lg text-gray-600">No completed visits found.</p>
         </div>
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <table className="main-table" style={{ width: '100%', marginBottom: 0 }}>
+        <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
+          <table className="main-table" style={{ width: '100%', marginBottom: 0, minWidth: '1000px' }}>
             <thead style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
               <tr>
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Visit ID</th>
@@ -99,6 +99,7 @@ const CompletedVisits = () => {
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Volunteer Name</th>
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Visit Date</th>
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Completed Date</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Submitted By</th>
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Status</th>
               </tr>
             </thead>
@@ -118,6 +119,7 @@ const CompletedVisits = () => {
                       ? new Date(visit.completedDate).toLocaleDateString()
                       : "-"}
                   </td>
+                  <td style={{ padding: '1rem' }}>{visit.submittedBy || '-'}</td>
                   <td style={{ padding: '1rem' }}>
                     <span style={{
                       padding: '0.25rem 0.5rem',

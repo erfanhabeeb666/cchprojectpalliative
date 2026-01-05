@@ -8,12 +8,13 @@ import java.util.stream.Collectors;
 
 public class ConvertToDto {
 
-    public static  ProcedureDoneDto convertToProcedureDoneDto(ProcedureDone procedureDone) {
+    public static ProcedureDoneDto convertToProcedureDoneDto(ProcedureDone procedureDone) {
         ProcedureDoneDto dto = new ProcedureDoneDto();
         dto.setProcedureId(String.valueOf(procedureDone.getId()));
         dto.setProcedureName(procedureDone.getName());
         return dto;
     }
+
     public static VolunteerDto convertToVolunteerDto(Volunteer volunteer) {
         VolunteerDto dto = new VolunteerDto();
         dto.setId(volunteer.getId());
@@ -24,6 +25,7 @@ public class ConvertToDto {
         dto.setSpecialization(volunteer.getSpecialization());
         return dto;
     }
+
     public static PatientDto convertToPatientDto(Patient patient) {
         PatientDto dto = new PatientDto();
         dto.setId(patient.getId());
@@ -40,6 +42,7 @@ public class ConvertToDto {
         dto.setDate(patient.getDate());
         return dto;
     }
+
     public static EquipmentDto convertToEquipmentDto(Equipment equipment) {
         EquipmentDto dto = new EquipmentDto();
         dto.setId(equipment.getId());
@@ -51,6 +54,7 @@ public class ConvertToDto {
         }
         return dto;
     }
+
     public static PatientVisitReportDto convertToPatientVisitReportDto(PatientVisitReport report) {
         PatientVisitReportDto dto = new PatientVisitReportDto();
         dto.setId(report.getId());
@@ -81,9 +85,9 @@ public class ConvertToDto {
 
         dto.setConsumablesUsed(report.getConsumablesUsed());
         dto.setStatus(report.getStatus() != null ? report.getStatus().name() : null);
+        dto.setSubmittedBy(report.getSubmittedBy());
 
         return dto;
     }
-
 
 }

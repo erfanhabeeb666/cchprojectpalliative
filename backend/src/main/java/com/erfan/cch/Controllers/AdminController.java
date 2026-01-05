@@ -257,7 +257,8 @@ public class AdminController {
             response.setHeader("Content-Disposition", "attachment; filename=visits.csv");
 
             try (PrintWriter writer = response.getWriter()) {
-                writer.println("VisitID,PatientName,VolunteerName,Date,ProceduresDone,ConsumablesUsed,Status,Notes");
+                writer.println(
+                        "VisitID,PatientName,VolunteerName,Date,ProceduresDone,ConsumablesUsed,Status,SubmittedBy,Notes");
 
                 for (PatientVisitReportDto v : visits) {
                     String procedures = v.getProceduresDone() != null ? String.join(" | ", v.getProceduresDone()) : "";
@@ -270,7 +271,7 @@ public class AdminController {
                                 .orElse("");
                     }
 
-                    writer.printf("%s,%s,%s,%s,%s,%s,%s,%s%n",
+                    writer.printf("%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
                             v.getVisitCode(),
                             escapeCsv(v.getPatientName()),
                             escapeCsv(v.getVolunteerName()),
@@ -278,6 +279,7 @@ public class AdminController {
                             escapeCsv(procedures),
                             escapeCsv(consumables),
                             v.getStatus(),
+                            escapeCsv(v.getSubmittedBy()),
                             escapeCsv(v.getNotes()));
                 }
             }

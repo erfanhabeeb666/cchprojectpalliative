@@ -70,7 +70,7 @@ public class PdfExportService {
 
             PdfPTable table = new PdfPTable(7); // Date, Patient, Volunteer, procedures, consumables, status, notes
             table.setWidthPercentage(100);
-            table.setWidths(new float[] { 2, 3, 3, 3, 4, 2, 4 });
+            table.setWidths(new float[] { 2, 3, 3, 3, 4, 3, 2, 4 });
 
             addHeader(table, "Date");
             addHeader(table, "Patient");
@@ -78,6 +78,7 @@ public class PdfExportService {
             addHeader(table, "Procedures");
             addHeader(table, "Consumables");
             addHeader(table, "Status");
+            addHeader(table, "Submitted By");
             addHeader(table, "Notes");
 
             for (PatientVisitReportDto v : visits) {
@@ -98,6 +99,7 @@ public class PdfExportService {
                 addCell(table, consumables);
 
                 addCell(table, v.getStatus() != null ? v.getStatus().toString() : "");
+                addCell(table, v.getSubmittedBy());
                 addCell(table, v.getNotes());
             }
 

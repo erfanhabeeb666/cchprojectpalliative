@@ -27,11 +27,7 @@ public class PatientVisitReport {
     private LocalDate completedDate;
 
     @ManyToMany
-    @JoinTable(
-            name = "visit_procedure",
-            joinColumns = @JoinColumn(name = "visit_id"),
-            inverseJoinColumns = @JoinColumn(name = "procedure_id")
-    )
+    @JoinTable(name = "visit_procedure", joinColumns = @JoinColumn(name = "visit_id"), inverseJoinColumns = @JoinColumn(name = "procedure_id"))
     private List<ProcedureDone> proceduresDone;
 
     @OneToMany(mappedBy = "visitReport", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -39,6 +35,15 @@ public class PatientVisitReport {
 
     private Status status;
     private String notes;
+    private String submittedBy;
+
+    public String getSubmittedBy() {
+        return submittedBy;
+    }
+
+    public void setSubmittedBy(String submittedBy) {
+        this.submittedBy = submittedBy;
+    }
 
     public String getNotes() {
         return notes;
@@ -62,38 +67,72 @@ public class PatientVisitReport {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getVisitCode() { return visitCode; }
+    public String getVisitCode() {
+        return visitCode;
+    }
 
-    public void setVisitCode(String visitCode) { this.visitCode = visitCode; }
+    public void setVisitCode(String visitCode) {
+        this.visitCode = visitCode;
+    }
 
-    public Volunteer getVolunteer() { return volunteer; }
+    public Volunteer getVolunteer() {
+        return volunteer;
+    }
 
-    public void setVolunteer(Volunteer volunteer) { this.volunteer = volunteer; }
+    public void setVolunteer(Volunteer volunteer) {
+        this.volunteer = volunteer;
+    }
 
-    public Patient getPatient() { return patient; }
+    public Patient getPatient() {
+        return patient;
+    }
 
-    public void setPatient(Patient patient) { this.patient = patient; }
+    public void setPatient(Patient patient) {
+        this.patient = patient;
+    }
 
-    public LocalDate getVisitDate() { return visitDate; }
+    public LocalDate getVisitDate() {
+        return visitDate;
+    }
 
-    public void setVisitDate(LocalDate visitDate) { this.visitDate = visitDate; }
+    public void setVisitDate(LocalDate visitDate) {
+        this.visitDate = visitDate;
+    }
 
-    public LocalDate getCompletedDate() { return completedDate; }
+    public LocalDate getCompletedDate() {
+        return completedDate;
+    }
 
-    public void setCompletedDate(LocalDate completedDate) { this.completedDate = completedDate; }
+    public void setCompletedDate(LocalDate completedDate) {
+        this.completedDate = completedDate;
+    }
 
-    public List<ProcedureDone> getProceduresDone() { return proceduresDone; }
+    public List<ProcedureDone> getProceduresDone() {
+        return proceduresDone;
+    }
 
-    public void setProceduresDone(List<ProcedureDone> proceduresDone) { this.proceduresDone = proceduresDone; }
+    public void setProceduresDone(List<ProcedureDone> proceduresDone) {
+        this.proceduresDone = proceduresDone;
+    }
 
-    public List<VisitConsumableUsage> getConsumablesUsed() { return consumablesUsed; }
+    public List<VisitConsumableUsage> getConsumablesUsed() {
+        return consumablesUsed;
+    }
 
-    public void setConsumablesUsed(List<VisitConsumableUsage> consumablesUsed) { this.consumablesUsed = consumablesUsed; }
+    public void setConsumablesUsed(List<VisitConsumableUsage> consumablesUsed) {
+        this.consumablesUsed = consumablesUsed;
+    }
 
-    public Status getStatus() { return status; }
+    public Status getStatus() {
+        return status;
+    }
 
-    public void setStatus(Status status) { this.status = status; }
+    public void setStatus(Status status) {
+        this.status = status;
+    }
 
 }
