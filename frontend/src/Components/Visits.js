@@ -263,6 +263,43 @@ const Visits = () => {
     }
   };
 
+  const downloadVisitsPdf = async () => {
+    try {
+      if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+        alert("Invalid date range: 'From' is after 'To'.");
+        return;
+      }
+
+      if (filteredVisits.length === 0) {
+        alert("No visits found for the selected filters to export.");
+        return;
+      }
+
+      const token = localStorage.getItem("jwtToken");
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const qs = new URLSearchParams();
+      if (startDate) qs.append("startDate", startDate);
+      if (endDate) qs.append("endDate", endDate);
+      qs.append("format", "pdf");
+
+      const response = await axios.get(`${apiUrl}admin/export/visits?${qs.toString()}`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/pdf" },
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "visits.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to export visits PDF", err);
+    }
+  };
+
   useEffect(() => {
     fetchVisits();
     if (activeTab === 'pending') {
@@ -344,9 +381,14 @@ const Visits = () => {
     <div className="visits-page">
       <div className="flex justify-between items-center mb-4">
         <h2>Visit Reports</h2>
-        <button className="btn btn-outline" onClick={downloadVisitsCsv}>
-          <i className="fas fa-file-export" style={{ marginRight: '0.5rem' }}></i> Export CSV
-        </button>
+        <div className="flex gap-2">
+          <button className="btn btn-outline" onClick={downloadVisitsCsv}>
+            <i className="fas fa-file-csv" style={{ marginRight: '0.5rem' }}></i> Export CSV
+          </button>
+          <button className="btn btn-outline" onClick={downloadVisitsPdf}>
+            <i className="fas fa-file-pdf" style={{ marginRight: '0.5rem' }}></i> Export PDF
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

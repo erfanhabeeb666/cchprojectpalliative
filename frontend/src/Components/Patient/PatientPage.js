@@ -55,6 +55,32 @@ const PatientPage = () => {
     }
   };
 
+  const downloadPatientsPdf = async () => {
+    try {
+      const token = localStorage.getItem("jwtToken");
+      const apiUrl = process.env.REACT_APP_API_URL;
+      const params = { format: 'pdf' };
+      if (search) params.search = search;
+
+      const response = await axios.get(`${apiUrl}admin/export/patients`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: "application/pdf" },
+        params,
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "patients.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to export patients PDF", err);
+    }
+  };
+
   useEffect(() => {
     fetchPatients();
   }, [page, size, direction, search]);
@@ -97,7 +123,10 @@ const PatientPage = () => {
             <i className="fas fa-sync-alt"></i>
           </button>
           <button className="btn btn-outline" onClick={downloadPatientsCsv}>
-            <i className="fas fa-file-export"></i> CSV
+            <i className="fas fa-file-csv"></i> CSV
+          </button>
+          <button className="btn btn-outline" onClick={downloadPatientsPdf}>
+            <i className="fas fa-file-pdf"></i> PDF
           </button>
         </div>
       </div>

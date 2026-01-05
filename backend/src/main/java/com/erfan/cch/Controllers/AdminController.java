@@ -4,6 +4,7 @@ import com.erfan.cch.Dto.*;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Models.*;
 import com.erfan.cch.Services.AdminService;
+import com.erfan.cch.Services.PdfExportService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,9 +26,11 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final PdfExportService pdfExportService;
 
-    public AdminController(AdminService adminService) {
+    public AdminController(AdminService adminService, PdfExportService pdfExportService) {
         this.adminService = adminService;
+        this.pdfExportService = pdfExportService;
     }
 
     // ───── Procedure ─────
@@ -207,58 +210,76 @@ public class AdminController {
     }
 
     @GetMapping("/export/patients")
-    public void exportPatientsAsCsv(
+    public void exportPatients(
             @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "csv") String format,
             HttpServletResponse response) throws IOException {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=patients.csv");
 
         List<PatientDto> patients = adminService.getAllPatientsForExport(search); // fetch all, no paging
-        try (PrintWriter writer = response.getWriter()) {
-            writer.println("ID,Name,Phone,Address"); // header row
 
-            for (PatientDto p : patients) {
-                writer.printf("%d,%s,%s,%s%n", // <-- added %n for newline
-                        p.getId(),
-                        escapeCsv(p.getName()),
-                        escapeCsv(p.getMobileNumber()),
-                        escapeCsv(p.getAddress()));
+        if ("pdf".equalsIgnoreCase(format)) {
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=patients.pdf");
+            pdfExportService.exportPatientsToPdf(patients, response.getOutputStream());
+        } else {
+            response.setContentType("text/csv");
+            response.setHeader("Content-Disposition", "attachment; filename=patients.csv");
+
+            try (PrintWriter writer = response.getWriter()) {
+                writer.println("ID,Name,Phone,Address"); // header row
+
+                for (PatientDto p : patients) {
+                    writer.printf("%d,%s,%s,%s%n", // <-- added %n for newline
+                            p.getId(),
+                            escapeCsv(p.getName()),
+                            escapeCsv(p.getMobileNumber()),
+                            escapeCsv(p.getAddress()));
+                }
             }
         }
     }
 
     @GetMapping("/export/visits")
-    public void exportVisitsAsCsv(
+    public void exportVisits(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(defaultValue = "csv") String format,
             HttpServletResponse response) throws IOException {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=visits.csv");
 
         List<PatientVisitReportDto> visits = adminService.getAllVisitsForExport(startDate, endDate);
-        try (PrintWriter writer = response.getWriter()) {
-            writer.println("VisitID,PatientName,VolunteerName,Date,ProceduresDone,ConsumablesUsed,Status,Notes");
 
-            for (PatientVisitReportDto v : visits) {
-                String procedures = v.getProceduresDone() != null ? String.join(" | ", v.getProceduresDone()) : "";
+        if ("pdf".equalsIgnoreCase(format)) {
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=visits.pdf");
+            pdfExportService.exportVisitsToPdf(visits, response.getOutputStream());
+        } else {
+            response.setContentType("text/csv");
+            response.setHeader("Content-Disposition", "attachment; filename=visits.csv");
 
-                String consumables = "";
-                if (v.getConsumablesUsed() != null && !v.getConsumablesUsed().isEmpty()) {
-                    consumables = v.getConsumablesUsed().stream()
-                            .map(c -> c.getConsumable().getName() + " (" + c.getQuantityUsed() + ")")
-                            .reduce((a, b) -> a + " | " + b)
-                            .orElse("");
+            try (PrintWriter writer = response.getWriter()) {
+                writer.println("VisitID,PatientName,VolunteerName,Date,ProceduresDone,ConsumablesUsed,Status,Notes");
+
+                for (PatientVisitReportDto v : visits) {
+                    String procedures = v.getProceduresDone() != null ? String.join(" | ", v.getProceduresDone()) : "";
+
+                    String consumables = "";
+                    if (v.getConsumablesUsed() != null && !v.getConsumablesUsed().isEmpty()) {
+                        consumables = v.getConsumablesUsed().stream()
+                                .map(c -> c.getConsumable().getName() + " (" + c.getQuantityUsed() + ")")
+                                .reduce((a, b) -> a + " | " + b)
+                                .orElse("");
+                    }
+
+                    writer.printf("%s,%s,%s,%s,%s,%s,%s,%s%n",
+                            v.getVisitCode(),
+                            escapeCsv(v.getPatientName()),
+                            escapeCsv(v.getVolunteerName()),
+                            v.getVisitDate(),
+                            escapeCsv(procedures),
+                            escapeCsv(consumables),
+                            v.getStatus(),
+                            escapeCsv(v.getNotes()));
                 }
-
-                writer.printf("%s,%s,%s,%s,%s,%s,%s,%s%n",
-                        v.getVisitCode(),
-                        escapeCsv(v.getPatientName()),
-                        escapeCsv(v.getVolunteerName()),
-                        v.getVisitDate(),
-                        escapeCsv(procedures),
-                        escapeCsv(consumables),
-                        v.getStatus(),
-                        escapeCsv(v.getNotes()));
             }
         }
     }
