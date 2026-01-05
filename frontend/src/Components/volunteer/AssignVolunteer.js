@@ -15,7 +15,7 @@ const AssignVolunteer = () => {
     useEffect(() => {
         const fetchPatients = async () => {
             try {
-                const response = await axios.get(`${apiUrl}admin/list-patients`, {
+                const response = await axios.get(`${apiUrl}admin/list-patients?aliveOnly=true`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 // Check format, might be paginated or list

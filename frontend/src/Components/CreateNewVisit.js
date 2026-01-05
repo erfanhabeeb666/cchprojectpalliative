@@ -24,7 +24,7 @@ const CreateNewVisit = () => {
   const fetchPatients = async () => {
     try {
       const res = await fetch(
-        `${apiUrl}admin/list-patients?page=${pagePatients}&size=5&search=${searchPatient}`,
+        `${apiUrl}admin/list-patients?page=${pagePatients}&size=5&search=${searchPatient}&aliveOnly=true`,
         {
           headers: { Authorization: `Bearer ${jwtToken}` },
         }

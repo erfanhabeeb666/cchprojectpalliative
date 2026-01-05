@@ -47,56 +47,55 @@ public class AdminController {
     public ResponseEntity<String> assignVolunteer(@RequestBody VisitDateDto visitDateDto) {
         adminService.assignVolunteerToPatients(
                 visitDateDto.getVolunteerId(),
-                visitDateDto.getPatientIds(),  // ✅ list of patient IDs
-                visitDateDto.getVisitDate()
-        );
+                visitDateDto.getPatientIds(), // ✅ list of patient IDs
+                visitDateDto.getVisitDate());
         return ResponseEntity.ok("Volunteer assigned successfully to patients");
     }
 
-
     @GetMapping("list-volunteers")
-    public  ResponseEntity<Page<VolunteerDto>> getVolunteers(
+    public ResponseEntity<Page<VolunteerDto>> getVolunteers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "") String search) {
-         Pageable pageable = PageRequest.of(page,size,Sort.by(sortBy));
-         Page<VolunteerDto> volunteers = adminService.getVolunteers(search,pageable);
-         return ResponseEntity.ok(volunteers);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<VolunteerDto> volunteers = adminService.getVolunteers(search, pageable);
+        return ResponseEntity.ok(volunteers);
     }
 
     @GetMapping("/consumable/list")
     public Page<Consumable> listConsumables(@RequestParam(defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "6") int size,
-                                            @RequestParam(defaultValue = "id") String sortBy,
-                                            @RequestParam(defaultValue = "") String search) {
-        Pageable pageable = PageRequest.of(page,size,Sort.by(sortBy));
-        return adminService.getAllConsumables(search,pageable);
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "") String search) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return adminService.getAllConsumables(search, pageable);
     }
+
     @GetMapping("list-patients")
     public ResponseEntity<Page<PatientDto>> getPatients(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "") String search) {
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "false") boolean aliveOnly) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<PatientDto> patients = adminService.getAllPatients(search, pageable);
+        Page<PatientDto> patients = adminService.getAllPatients(search, aliveOnly, pageable);
         return ResponseEntity.ok(patients);
     }
+
     @GetMapping("/visits")
     public ResponseEntity<VisitPageResponseDTO> getVisits(
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         VisitPageResponseDTO response = new VisitPageResponseDTO();
 
         Page<PatientVisitReportDto> visits = adminService.getVisits(status, startDate, endDate, page, size);
         response.setVisits(visits);
-
 
         int newPatientCount = adminService.countNewPatients(startDate, endDate);
         response.setNewPatientsCount(newPatientCount);
@@ -105,15 +104,16 @@ public class AdminController {
     }
 
     @GetMapping("/view-equipments")
-    public  ResponseEntity<Page<EquipmentDto>> viewEquipments(
+    public ResponseEntity<Page<EquipmentDto>> viewEquipments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "") String search) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        Page<EquipmentDto> equipments = adminService.getAllEquipment(search,pageable);
+        Page<EquipmentDto> equipments = adminService.getAllEquipment(search, pageable);
         return ResponseEntity.ok(equipments);
     }
+
     @PostMapping
     public EquipmentType createEquipmentType(@RequestBody EquipmentType type) {
         return adminService.createType(type.getName(), type.getDescription());
@@ -136,12 +136,14 @@ public class AdminController {
         adminService.deallocateEquipment(equipmentId);
         return ResponseEntity.ok("Equipment deallocated successfully");
     }
+
     @PostMapping("/add-patient")
     public ResponseEntity<String> addPatient(@RequestBody Patient patient) {
         adminService.addPatient(patient);
         return ResponseEntity.ok("Patient added successfully");
     }
-    @DeleteMapping ("/delete-patient")
+
+    @DeleteMapping("/delete-patient")
     public ResponseEntity<String> deletePatient(@RequestParam long id) {
         adminService.deletePatient(id);
         return ResponseEntity.ok("Patient deleted successfully");
@@ -152,8 +154,9 @@ public class AdminController {
         adminService.addVolunteer(volunteer);
         return ResponseEntity.ok("Volunteer added successfully");
     }
+
     @DeleteMapping("/delete-volunteer")
-    public ResponseEntity<String> deleteVolunteer(@RequestParam Long id){
+    public ResponseEntity<String> deleteVolunteer(@RequestParam Long id) {
         adminService.deleteVolunteer(id);
         return ResponseEntity.ok("Volunteer deleted successfully");
     }
@@ -171,20 +174,21 @@ public class AdminController {
     }
 
     @GetMapping("/dashboard-stats")
-    public DashboardStatsDto dashboardStats(){
+    public DashboardStatsDto dashboardStats() {
         return adminService.dashboardStats();
     }
 
-
     @DeleteMapping("/delete-procedure")
-    public ResponseEntity<String> deleteProcedure(@RequestParam Long id){
+    public ResponseEntity<String> deleteProcedure(@RequestParam Long id) {
         adminService.deleteProcedure(id);
         return ResponseEntity.ok("Procedure deleted Successfully");
     }
+
     @PostMapping("consumable/add")
     public Consumable addConsumable(@RequestBody Consumable consumable) {
         return adminService.addConsumable(consumable);
     }
+
     // ✅ Add stock
     @PutMapping("consumable/{id}/add-stock")
     public Consumable addStock(@PathVariable Long id, @RequestParam int quantity) {
@@ -197,16 +201,15 @@ public class AdminController {
         return adminService.updateStock(id, quantity, false);
     }
 
-
     @DeleteMapping("consumable/delete/{id}")
     public void deleteConsumable(@PathVariable Long id) {
         adminService.deleteConsumable(id);
     }
+
     @GetMapping("/export/patients")
     public void exportPatientsAsCsv(
             @RequestParam(defaultValue = "") String search,
-            HttpServletResponse response
-    ) throws IOException {
+            HttpServletResponse response) throws IOException {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=patients.csv");
 
@@ -226,12 +229,9 @@ public class AdminController {
 
     @GetMapping("/export/visits")
     public void exportVisitsAsCsv(
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            HttpServletResponse response
-    ) throws IOException {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            HttpServletResponse response) throws IOException {
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=visits.csv");
 
@@ -254,18 +254,17 @@ public class AdminController {
 
     @GetMapping("/consumable/usage-summary")
     public ResponseEntity<List<ConsumableUsageSummaryDto>> getConsumableUsageSummary(
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         return ResponseEntity.ok(adminService.getConsumableUsageSummary(startDate, endDate));
     }
 
     private String escapeCsv(String value) {
-        if (value == null) return "";
+        if (value == null)
+            return "";
         return value.replace(",", ";").replace("\n", " ").replace("\r", " ");
     }
+
     @PostMapping("/submit-report")
     public ResponseEntity<String> submitReport(@RequestBody VisitReportRequest reportRequest) {
         adminService.submitVisitReport(
@@ -273,8 +272,7 @@ public class AdminController {
                 reportRequest.getProcedureIds(),
                 reportRequest.getConsumables(),
                 reportRequest.getStatus(),
-                reportRequest.getNotes()
-        );
+                reportRequest.getNotes());
         return ResponseEntity.ok("Visit report submitted successfully");
     }
 

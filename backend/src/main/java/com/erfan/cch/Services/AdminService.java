@@ -35,18 +35,14 @@ public class AdminService {
     private PatientRepository patientRepository;
     private final EquipmentTypeRepository equipmentTypeRepository;
 
-
     private VolunteerRepository volunteerRepository;
-
 
     private PatientVisitReportRepository reportRepository;
     private ConsumableRepository consumableRepository;
     private VisitConsumableUsageRepository visitConsumableUsageRepository;
 
-
     private EquipmentRepository equipmentRepository;
     private final PasswordEncoder passwordEncoder;
-
 
     private ProcedureRepository procedureRepository;
 
@@ -54,7 +50,12 @@ public class AdminService {
 
     private AuthenticationService authenticationService;
 
-    public AdminService(PatientRepository patientRepository, EquipmentTypeRepository equipmentTypeRepository, VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository, EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder, ProcedureRepository procedureRepository, UserRepository userRepository, AuthenticationService authenticationService, ConsumableRepository consumableRepository, VisitConsumableUsageRepository visitConsumableUsageRepository) {
+    public AdminService(PatientRepository patientRepository, EquipmentTypeRepository equipmentTypeRepository,
+            VolunteerRepository volunteerRepository, PatientVisitReportRepository reportRepository,
+            EquipmentRepository equipmentRepository, PasswordEncoder passwordEncoder,
+            ProcedureRepository procedureRepository, UserRepository userRepository,
+            AuthenticationService authenticationService, ConsumableRepository consumableRepository,
+            VisitConsumableUsageRepository visitConsumableUsageRepository) {
         this.patientRepository = patientRepository;
         this.equipmentTypeRepository = equipmentTypeRepository;
         this.volunteerRepository = volunteerRepository;
@@ -67,6 +68,7 @@ public class AdminService {
         this.consumableRepository = consumableRepository;
         this.visitConsumableUsageRepository = visitConsumableUsageRepository;
     }
+
     public int countNewPatients(LocalDate start, LocalDate end) {
         if (start == null && end == null) {
             return 0; // no date range given
@@ -82,16 +84,12 @@ public class AdminService {
         return patientRepository.countByDateLessThanEqual(end);
     }
 
-
-
-
     public void addProcedure(String name) {
         ProcedureDone procedureDone = new ProcedureDone();
         procedureDone.setName(name);
         procedureDone.setStatus(Status.ACTIVE);
         procedureRepository.save(procedureDone);
     }
-
 
     public List<ProcedureDoneDto> getAllProcedures() {
         return procedureRepository.findAllByStatus(Status.ACTIVE)
@@ -115,9 +113,10 @@ public class AdminService {
         reportRepository.save(visitReport);
     }
     // todo
-    //public List<PatientVisitReport> getConsumablesUsageReport(LocalDate startDate, LocalDate endDate) {
-    //  return reportRepository.findConsumableUsage(startDate, endDate);
-    //}
+    // public List<PatientVisitReport> getConsumablesUsageReport(LocalDate
+    // startDate, LocalDate endDate) {
+    // return reportRepository.findConsumableUsage(startDate, endDate);
+    // }
 
     public void allocateEquipment(Long equipmentId, Long patientId) {
         Equipment equipment = equipmentRepository.findById(equipmentId).get();
@@ -168,7 +167,6 @@ public class AdminService {
         equipmentRepository.save(equipment);
     }
 
-
     public Page<EquipmentDto> getAllEquipment(String search, Pageable pageable) {
 
         if (search == null || search.isEmpty()) {
@@ -178,25 +176,36 @@ public class AdminService {
 
         // If search term exists, filter by equipment name or patient name
         return equipmentRepository.findByNameContainingIgnoreCaseOrAllocatedTo_NameContainingIgnoreCase(
-                search, search, pageable
-        ).map(ConvertToDto::convertToEquipmentDto);
+                search, search, pageable).map(ConvertToDto::convertToEquipmentDto);
 
     }
-    public Page<Consumable> getAllConsumables(String search,Pageable pageable) {
-            return consumableRepository.findAllByStatus(Status.ACTIVE,pageable);
+
+    public Page<Consumable> getAllConsumables(String search, Pageable pageable) {
+        return consumableRepository.findAllByStatus(Status.ACTIVE, pageable);
     }
 
-    public Page<PatientDto> getAllPatients(String search, Pageable pageable) {
+    public Page<PatientDto> getAllPatients(String search, boolean onlyAlive, Pageable pageable) {
         Page<Patient> patients;
 
-        if (search == null || search.trim().isEmpty()) {
-            patients = patientRepository.findByStatus(Status.ACTIVE, pageable);
+        if (onlyAlive) {
+            if (search == null || search.trim().isEmpty()) {
+                patients = patientRepository.findByStatusAndAlivestatus(Status.ACTIVE, AliveStatus.yes, pageable);
+            } else {
+                patients = patientRepository
+                        .findByStatusAndAlivestatusAndNameContainingIgnoreCaseOrStatusAndAlivestatusAndMobileNumberContaining(
+                                Status.ACTIVE, AliveStatus.yes, search,
+                                Status.ACTIVE, AliveStatus.yes, search,
+                                pageable);
+            }
         } else {
-            patients = patientRepository.findByStatusAndNameContainingIgnoreCaseOrStatusAndMobileNumberContaining(
-                    Status.ACTIVE, search,
-                    Status.ACTIVE, search,
-                    pageable
-            );
+            if (search == null || search.trim().isEmpty()) {
+                patients = patientRepository.findByStatus(Status.ACTIVE, pageable);
+            } else {
+                patients = patientRepository.findByStatusAndNameContainingIgnoreCaseOrStatusAndMobileNumberContaining(
+                        Status.ACTIVE, search,
+                        Status.ACTIVE, search,
+                        pageable);
+            }
         }
 
         return patients.map(ConvertToDto::convertToPatientDto);
@@ -224,7 +233,8 @@ public class AdminService {
         return dashboardStatsDto;
     }
 
-    public Page<PatientVisitReportDto> getVisits(Status status, LocalDate startDate, LocalDate endDate, int page, int size) {
+    public Page<PatientVisitReportDto> getVisits(Status status, LocalDate startDate, LocalDate endDate, int page,
+            int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("visitDate").descending());
 
         Specification<PatientVisitReport> spec = Specification
@@ -234,6 +244,7 @@ public class AdminService {
         return reportRepository.findAll(spec, pageable)
                 .map(ConvertToDto::convertToPatientVisitReportDto);
     }
+
     public void deleteProcedure(Long id) {
         Optional<ProcedureDone> procedureDone = procedureRepository.findById(id);
         ProcedureDone actual = procedureDone.get();
@@ -248,6 +259,7 @@ public class AdminService {
         actual.setEmail(null);
         volunteerRepository.save(actual);
     }
+
     public Page<VolunteerDto> getVolunteers(String search, Pageable pageable) {
         Page<Volunteer> volunteers;
 
@@ -259,17 +271,16 @@ public class AdminService {
             volunteers = volunteerRepository.findByStatusAndNameContainingIgnoreCaseOrStatusAndMobileNumberContaining(
                     Status.ACTIVE, search,
                     Status.ACTIVE, search,
-                    pageable
-            );
+                    pageable);
         }
 
         return volunteers.map(ConvertToDto::convertToVolunteerDto);
     }
+
     public Consumable addConsumable(Consumable consumable) {
         consumable.setStatus(Status.ACTIVE);
         return consumableRepository.save(consumable);
     }
-
 
     public void deleteConsumable(Long id) {
         Optional<Consumable> dbConsumable = consumableRepository.findById(id);
@@ -289,6 +300,7 @@ public class AdminService {
         consumable.setStockQuantity(consumable.getStockQuantity() - quantityUsed);
         consumableRepository.save(consumable);
     }
+
     @Transactional
     public Consumable updateStock(Long id, int quantity, boolean add) {
         Consumable consumable = consumableRepository.findById(id)
@@ -354,16 +366,17 @@ public class AdminService {
                 .map(ConvertToDto::convertToPatientVisitReportDto)
                 .toList();
     }
+
     public List<ConsumableUsageSummaryDto> getConsumableUsageSummary(LocalDate startDate, LocalDate endDate) {
         List<Object[]> rows = visitConsumableUsageRepository.findUsageSummary(startDate, endDate);
         return rows.stream()
                 .map(r -> new ConsumableUsageSummaryDto(
                         (Long) r[0],
                         (String) r[1],
-                        (Long) r[2]
-                ))
+                        (Long) r[2]))
                 .collect(Collectors.toList());
     }
+
     public EquipmentType createType(String name, String description) {
         if (equipmentTypeRepository.existsByName(name)) {
             throw new IllegalArgumentException("Equipment type already exists: " + name);
@@ -374,8 +387,10 @@ public class AdminService {
     public List<EquipmentType> getAllTypes() {
         return equipmentTypeRepository.findAll();
     }
+
     @Transactional
-    public void submitVisitReport(Long visitId, List<Long> procedureIds, List<ConsumableUsageDto> consumableUsage, Status status,String notes) {
+    public void submitVisitReport(Long visitId, List<Long> procedureIds, List<ConsumableUsageDto> consumableUsage,
+            Status status, String notes) {
         PatientVisitReport report = reportRepository.findById(visitId)
                 .orElseThrow(() -> new RuntimeException("Visit not found"));
 
@@ -404,8 +419,6 @@ public class AdminService {
             // Subtract stock
             consumable.setStockQuantity(consumable.getStockQuantity() - qtyUsed);
             consumableRepository.saveAndFlush(consumable);
-
-
 
             // Create usage record
             VisitConsumableUsage usage = new VisitConsumableUsage();
