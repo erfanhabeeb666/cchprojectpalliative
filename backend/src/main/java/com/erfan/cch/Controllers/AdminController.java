@@ -85,15 +85,25 @@ public class AdminController {
         return ResponseEntity.ok(patients);
     }
     @GetMapping("/visits")
-    public ResponseEntity<Page<PatientVisitReportDto>> getVisits(
+    public ResponseEntity<VisitPageResponseDTO> getVisits(
             @RequestParam(required = false) Status status,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        return ResponseEntity.ok(adminService.getVisits(status, startDate, endDate, page, size));
+        VisitPageResponseDTO response = new VisitPageResponseDTO();
+
+        Page<PatientVisitReportDto> visits = adminService.getVisits(status, startDate, endDate, page, size);
+        response.setVisits(visits);
+
+
+        int newPatientCount = adminService.countNewPatients(startDate, endDate);
+        response.setNewPatientsCount(newPatientCount);
+
+        return ResponseEntity.ok(response);
     }
+
     @GetMapping("/view-equipments")
     public  ResponseEntity<Page<EquipmentDto>> viewEquipments(
             @RequestParam(defaultValue = "0") int page,
@@ -255,6 +265,17 @@ public class AdminController {
     private String escapeCsv(String value) {
         if (value == null) return "";
         return value.replace(",", ";").replace("\n", " ").replace("\r", " ");
+    }
+    @PostMapping("/submit-report")
+    public ResponseEntity<String> submitReport(@RequestBody VisitReportRequest reportRequest) {
+        adminService.submitVisitReport(
+                reportRequest.getVisitId(),
+                reportRequest.getProcedureIds(),
+                reportRequest.getConsumables(),
+                reportRequest.getStatus(),
+                reportRequest.getNotes()
+        );
+        return ResponseEntity.ok("Visit report submitted successfully");
     }
 
 }

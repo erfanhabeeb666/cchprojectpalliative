@@ -1,6 +1,7 @@
 package com.erfan.cch.Services;
 
 import com.erfan.cch.Dto.*;
+import com.erfan.cch.Enums.AliveStatus;
 import com.erfan.cch.Enums.Status;
 import com.erfan.cch.Enums.UserType;
 import com.erfan.cch.Models.*;
@@ -66,6 +67,22 @@ public class AdminService {
         this.consumableRepository = consumableRepository;
         this.visitConsumableUsageRepository = visitConsumableUsageRepository;
     }
+    public int countNewPatients(LocalDate start, LocalDate end) {
+        if (start == null && end == null) {
+            return 0; // no date range given
+        }
+        if (start != null && end != null) {
+            return patientRepository.countByDateBetween(start, end);
+        }
+        if (start != null) {
+            LocalDate today = LocalDate.now();
+            return patientRepository.countByDateBetween(start, today);
+        }
+        // only end provided
+        return patientRepository.countByDateLessThanEqual(end);
+    }
+
+
 
 
     public void addProcedure(String name) {
@@ -127,6 +144,8 @@ public class AdminService {
         }
         patient.setMobileNumber(mobile);
         patient.setStatus(Status.ACTIVE);
+        patient.setAlivestatus(AliveStatus.yes);
+        patient.setDate(LocalDate.now());
         try {
             patientRepository.save(patient);
         } catch (DataIntegrityViolationException e) {
@@ -190,7 +209,7 @@ public class AdminService {
     public void deletePatient(long id) {
         Optional<Patient> patient = patientRepository.findById(id);
         Patient actual = patient.get();
-        actual.setStatus(Status.INACTIVE);
+        actual.setAlivestatus(AliveStatus.no);
         actual.setMobileNumber(null);
         patientRepository.save(actual);
     }
@@ -354,6 +373,50 @@ public class AdminService {
 
     public List<EquipmentType> getAllTypes() {
         return equipmentTypeRepository.findAll();
+    }
+    @Transactional
+    public void submitVisitReport(Long visitId, List<Long> procedureIds, List<ConsumableUsageDto> consumableUsage, Status status,String notes) {
+        PatientVisitReport report = reportRepository.findById(visitId)
+                .orElseThrow(() -> new RuntimeException("Visit not found"));
+
+        report.setStatus(status);
+        report.setCompletedDate(LocalDate.now());
+        report.setNotes(notes);
+        // Set procedures
+        List<ProcedureDone> procedureDones = procedureRepository.findAllById(procedureIds);
+        report.setProceduresDone(procedureDones);
+
+        // Clear old consumables and rebuild
+        report.getConsumablesUsed().clear();
+
+        for (ConsumableUsageDto usageDto : consumableUsage) {
+
+            Long consumableId = usageDto.getConsumableId();
+            Integer qtyUsed = usageDto.getQuantity();
+            System.out.println("ConsumableId: " + consumableId + " QtyUsed: " + qtyUsed);
+            Consumable consumable = consumableRepository.findById(consumableId)
+                    .orElseThrow(() -> new RuntimeException("Consumable not found"));
+
+            if (consumable.getStockQuantity() < qtyUsed) {
+                throw new RuntimeException("Not enough stock for consumable: " + consumable.getName());
+            }
+
+            // Subtract stock
+            consumable.setStockQuantity(consumable.getStockQuantity() - qtyUsed);
+            consumableRepository.saveAndFlush(consumable);
+
+
+
+            // Create usage record
+            VisitConsumableUsage usage = new VisitConsumableUsage();
+            usage.setVisitReport(report);
+            usage.setConsumable(consumable);
+            usage.setQuantityUsed(qtyUsed);
+
+            report.getConsumablesUsed().add(usage);
+        }
+
+        reportRepository.save(report);
     }
 
 }

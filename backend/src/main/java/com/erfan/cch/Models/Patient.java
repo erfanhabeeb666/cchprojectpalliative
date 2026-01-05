@@ -1,11 +1,13 @@
 package com.erfan.cch.Models;
 
 
+import com.erfan.cch.Enums.AliveStatus;
 import com.erfan.cch.Enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -18,7 +20,7 @@ import java.util.List;
 )
 public class Patient {
     private String name;
-    @Column(name = "mobile_number", unique = true, nullable = false)
+    @Column(name = "mobile_number", unique = true)
     private String mobileNumber;
     private int age;
     // Store coordinates
@@ -30,6 +32,8 @@ public class Patient {
     private String medicalCondition; // Example: "Cancer, Stage 4"
     private String emergencyContact;
     private Status status;
+    private AliveStatus alivestatus;
+    private LocalDate date;
 
     @OneToMany(mappedBy = "patient")
     private List<PatientVisitReport> visitReports;
@@ -128,6 +132,14 @@ public class Patient {
         this.status = status;
     }
 
+    public AliveStatus getAlivestatus() {
+        return alivestatus;
+    }
+
+    public void setAlivestatus(AliveStatus alivestatus) {
+        this.alivestatus = alivestatus;
+    }
+
     public Double getLatitude() {
         return latitude;
     }
@@ -142,6 +154,14 @@ public class Patient {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 }
 

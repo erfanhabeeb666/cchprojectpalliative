@@ -64,7 +64,11 @@ const PatientPage = () => {
     setShowModal(false);
   };
 
-  const handleDelete = async (id) => {
+  // Logic from `ri`: support 'Remove' vs 'Removed' based on alivestatus
+  const handleDelete = async (patient) => {
+    const isRemoved = patient.alivestatus === "no";
+    if (isRemoved) return; // already removed
+
     if (window.confirm("Are you sure you want to remove this patient?")) {
       try {
         const token = localStorage.getItem("jwtToken");
@@ -72,7 +76,7 @@ const PatientPage = () => {
 
         await axios.delete(`${apiUrl}admin/delete-patient`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { id },
+          params: { id: patient.id },
         });
         fetchPatients();
       } catch (err) {
@@ -121,15 +125,16 @@ const PatientPage = () => {
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Age</th>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Gender</th>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Address</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Date</th>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Condition</th>
-              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Emergency</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Status</th>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Action</th>
             </tr>
           </thead>
           <tbody>
             {patients.length === 0 ? (
               <tr>
-                <td colSpan="8" style={{ textAlign: "center", padding: "2rem", color: 'var(--text-secondary)' }}>
+                <td colSpan="9" style={{ textAlign: "center", padding: "2rem", color: 'var(--text-secondary)' }}>
                   No patients found.
                 </td>
               </tr>
@@ -141,15 +146,45 @@ const PatientPage = () => {
                   <td style={{ padding: '1rem' }}>{patient.age}</td>
                   <td style={{ padding: '1rem' }}>{patient.gender}</td>
                   <td style={{ padding: '1rem' }}>{patient.address}</td>
+                  <td style={{ padding: '1rem' }}>
+                    {patient.date ? new Date(patient.date).toLocaleDateString() : "-"}
+                  </td>
                   <td style={{ padding: '1rem' }}>{patient.medicalCondition}</td>
-                  <td style={{ padding: '1rem' }}>{patient.emergencyContact}</td>
+                  <td style={{ padding: '1rem' }}>
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '999px',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      backgroundColor: patient.alivestatus === 'no' ? '#f3f4f6' : 'var(--success-light)',
+                      color: patient.alivestatus === 'no' ? '#9ca3af' : 'var(--success-dark)'
+                    }}>
+                      {patient.alivestatus === 'no' ? 'Deceased' : 'Alive'}
+                    </span>
+                  </td>
                   <td style={{ padding: '1rem' }}>
                     <button
                       className="btn btn-outline"
-                      style={{ color: 'var(--error-color)', borderColor: 'var(--error-color)' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--error-color)'; e.currentTarget.style.color = 'white'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--error-color)'; }}
-                      onClick={() => handleDelete(patient.id)}
+                      disabled={patient.alivestatus === "no"}
+                      style={{
+                        color: patient.alivestatus === "no" ? '#9ca3af' : 'var(--error-color)',
+                        borderColor: patient.alivestatus === "no" ? '#d1d5db' : 'var(--error-color)',
+                        cursor: patient.alivestatus === "no" ? 'not-allowed' : 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (patient.alivestatus !== 'no') {
+                          e.currentTarget.style.backgroundColor = 'var(--error-color)';
+                          e.currentTarget.style.color = 'white';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (patient.alivestatus !== 'no') {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                          e.currentTarget.style.color = 'var(--error-color)';
+                        }
+                      }}
+                      onClick={() => handleDelete(patient)}
+                      title={patient.alivestatus === "no" ? "Patient removed" : "Mark as removed"}
                     >
                       <i className="fas fa-trash"></i>
                     </button>
