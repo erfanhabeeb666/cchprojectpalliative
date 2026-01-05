@@ -79,6 +79,7 @@ const AddVolunteer = ({ onSuccess }) => {
       setErrors({});
 
       if (onSuccess) onSuccess();
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error(err);
       const status = err && err.response ? err.response.status : undefined;
@@ -88,11 +89,9 @@ const AddVolunteer = ({ onSuccess }) => {
         (err && err.message) ||
         'Failed to add volunteer';
 
-      // Global error
       setError(serverMessage);
       setSuccessMessage('');
 
-      // Field-level hints for duplicates (409 or message hints)
       const duplicateHints = ['duplicate', 'already exists', 'already registered', 'exists'];
       const msgLower = typeof serverMessage === 'string' ? serverMessage.toLowerCase() : '';
       const isDuplicate = status === 409 || duplicateHints.some((h) => msgLower.includes(h));
@@ -112,80 +111,107 @@ const AddVolunteer = ({ onSuccess }) => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold">Add Volunteer</h2>
+      {successMessage && (
+        <div className="p-3 mb-4 text-green-700 bg-green-100 rounded border border-green-200">
+          <i className="fas fa-check-circle mr-2"></i> {successMessage}
+        </div>
+      )}
+      {error && (
+        <div className="p-3 mb-4 text-red-700 bg-red-100 rounded border border-red-200">
+          <i className="fas fa-exclamation-circle mr-2"></i> {error}
+        </div>
+      )}
 
-      {successMessage && <p className="text-green-600">{successMessage}</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      <form onSubmit={handleSubmit} noValidate>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <input
+            type="text"
+            name="name"
+            value={volunteer.name}
+            onChange={handleChange}
+            placeholder="Full Name"
+            required
+            className="input-field"
+          />
+          {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
+        </div>
 
-      <form onSubmit={handleSubmit} noValidate className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          value={volunteer.name}
-          onChange={handleChange}
-          placeholder="Full Name"
-          required
-          className="w-full p-2 border rounded"
-        />
-        {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
-        <input
-          type="email"
-          name="email"
-          value={volunteer.email}
-          onChange={handleChange}
-          placeholder="Email"
-          required
-          className="w-full p-2 border rounded"
-        />
-        {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
-        <input
-          type="password"
-          name="password"
-          value={volunteer.password}
-          onChange={handleChange}
-          placeholder="Password"
-          required
-          className="w-full p-2 border rounded"
-        />
-        {errors.password && <p className="text-red-600 text-sm">{errors.password}</p>}
-         
-        <input
-          type="tel"
-          name="phoneNumber"
-          value={volunteer.phoneNumber}
-          onChange={handleChange}
-          placeholder="Phone Number"
-          required
-          inputMode="numeric"
-          maxLength={10}
-          onInvalid={(e) => e.target.setCustomValidity('')}
-          onInput={(e) => e.currentTarget.setCustomValidity('')}
-          className="w-full p-2 border rounded"
-        />
-        {errors.phoneNumber && <p className="text-red-600 text-sm">{errors.phoneNumber}</p>}
-        <textarea
-          name="address"
-          value={volunteer.address}
-          onChange={handleChange}
-          placeholder="Address"
-          required
-          className="w-full p-2 border rounded"
-        />
-        {errors.address && <p className="text-red-600 text-sm">{errors.address}</p>}
-        <input
-          type="text"
-          name="specialization"
-          value={volunteer.specialization}
-          onChange={handleChange}
-          placeholder="Specialization"
-          className="w-full p-2 border rounded"
-        />
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            type="email"
+            name="email"
+            value={volunteer.email}
+            onChange={handleChange}
+            placeholder="Email"
+            required
+            className="input-field"
+          />
+          {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input
+            type="password"
+            name="password"
+            value={volunteer.password}
+            onChange={handleChange}
+            placeholder="Password"
+            required
+            className="input-field"
+          />
+          {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+          <input
+            type="tel"
+            name="phoneNumber"
+            value={volunteer.phoneNumber}
+            onChange={handleChange}
+            placeholder="Phone Number"
+            required
+            inputMode="numeric"
+            maxLength={10}
+            className="input-field"
+          />
+          {errors.phoneNumber && <p className="text-red-600 text-xs mt-1">{errors.phoneNumber}</p>}
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+          <textarea
+            name="address"
+            value={volunteer.address}
+            onChange={handleChange}
+            placeholder="Address"
+            required
+            className="input-field"
+            rows="2"
+          />
+          {errors.address && <p className="text-red-600 text-xs mt-1">{errors.address}</p>}
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+          <input
+            type="text"
+            name="specialization"
+            value={volunteer.specialization}
+            onChange={handleChange}
+            placeholder="Specialization (Optional)"
+            className="input-field"
+          />
+        </div>
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="btn btn-primary w-full"
         >
-          Submit
+          Register Volunteer
         </button>
       </form>
     </div>

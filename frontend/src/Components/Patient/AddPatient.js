@@ -91,6 +91,7 @@ const AddPatient = ({ onSuccess }) => {
             setErrors({});
             if (onSuccess) onSuccess();
             setSelectedLocation(null);
+            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
             console.error(err);
             const status = err && err.response ? err.response.status : undefined;
@@ -100,11 +101,9 @@ const AddPatient = ({ onSuccess }) => {
                 (err && err.message) ||
                 "Failed to add patient";
 
-            // Show a clear global error
             setError(serverMessage);
             setSuccessMessage('');
 
-            // If duplicate mobile is indicated (often 409 Conflict or explicit message), mark the field
             const duplicateHints = [
                 'duplicate',
                 'already exists',
@@ -124,150 +123,195 @@ const AddPatient = ({ onSuccess }) => {
 
     return (
         <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">Add Patient</h2>
-
-            {successMessage && <p className="text-green-600">{successMessage}</p>}
-            {error && <p className="text-red-600">{error}</p>}
-
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                <input
-                    type="text"
-                    name="name"
-                    value={patient.name}
-                    onChange={handleChange}
-                    placeholder="Full Name"
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
-                <input
-                    type="tel"
-                    name="mobileNumber"
-                    value={patient.mobileNumber}
-                    onChange={handleChange}
-                    placeholder="Mobile Number"
-                    required
-                    inputMode="numeric"
-                    maxLength={10}
-                    onInvalid={(e) => e.target.setCustomValidity('')}
-                    onInput={(e) => e.currentTarget.setCustomValidity('')}
-                    className="w-full p-2 border rounded"
-                />
-                {errors.mobileNumber && <p className="text-red-600 text-sm">{errors.mobileNumber}</p>}
-                <input
-                    type="number"
-                    name="age"
-                    value={patient.age}
-                    onChange={handleChange}
-                    placeholder="Age"
-                    required
-                    min={1}
-                    max={120}
-                    className="w-full p-2 border rounded"
-                />
-                {errors.age && <p className="text-red-600 text-sm">{errors.age}</p>}
-                <select
-                    name="gender"
-                    value={patient.gender}
-                    onChange={handleChange}
-                    required
-                    className="w-full p-2 border rounded"
-                >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                </select>
-                {errors.gender && <p className="text-red-600 text-sm">{errors.gender}</p>}
-                <textarea
-                    name="address"
-                    value={patient.address}
-                    onChange={handleChange}
-                    placeholder="Address"
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                {errors.address && <p className="text-red-600 text-sm">{errors.address}</p>}
-                <div>
-                    <label className="block font-medium mb-1">Patient Location (optional)</label>
-                    {selectedLocation ? (
-                        <p className="text-sm text-gray-700 mb-2">Selected: {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}</p>
-                    ) : (
-                        <p className="text-sm text-gray-500 mb-2">No location selected</p>
-                    )}
-                    <button
-                        type="button"
-                        className="bg-gray-700 text-white px-3 py-2 rounded hover:bg-gray-800"
-                        onClick={() => {
-                            if (typeof navigator !== 'undefined' && !navigator.onLine) {
-                                alert('You are offline — location selection is optional.');
-                                return;
-                            }
-                            setModalLocation(selectedLocation);
-                            setShowLocationModal(true);
-                        }}
-                    >
-                        {selectedLocation ? 'Change Location' : 'Select Location'}
-                    </button>
+            {successMessage && (
+                <div className="p-3 mb-4 text-green-700 bg-green-100 rounded border border-green-200">
+                    <i className="fas fa-check-circle mr-2"></i> {successMessage}
                 </div>
-                <input
-                    type="text"
-                    name="medicalCondition"
-                    value={patient.medicalCondition}
-                    onChange={handleChange}
-                    placeholder="Medical Condition"
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                {errors.medicalCondition && <p className="text-red-600 text-sm">{errors.medicalCondition}</p>}
-                <input
-                    type="text"
-                    name="emergencyContact"
-                    value={patient.emergencyContact}
-                    onChange={handleChange}
-                    placeholder="Emergency Contact"
-                    inputMode="numeric"
-                    maxLength={15}
-                    onInvalid={(e) => e.target.setCustomValidity('')}
-                    onInput={(e) => e.currentTarget.setCustomValidity('')}
-                    className="w-full p-2 border rounded"
-                />
-                {errors.emergencyContact && <p className="text-red-600 text-sm">{errors.emergencyContact}</p>}
+            )}
+            {error && (
+                <div className="p-3 mb-4 text-red-700 bg-red-100 rounded border border-red-200">
+                    <i className="fas fa-exclamation-circle mr-2"></i> {error}
+                </div>
+            )}
+
+            <form onSubmit={handleSubmit} noValidate>
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        value={patient.name}
+                        onChange={handleChange}
+                        placeholder="e.g. John Doe"
+                        required
+                        className="input-field"
+                    />
+                    {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
+                </div>
+
+                <div className="flex gap-4 mb-4">
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+                        <input
+                            type="tel"
+                            name="mobileNumber"
+                            value={patient.mobileNumber}
+                            onChange={handleChange}
+                            placeholder="10-digit number"
+                            required
+                            inputMode="numeric"
+                            maxLength={10}
+                            className="input-field"
+                        />
+                        {errors.mobileNumber && <p className="text-red-600 text-xs mt-1">{errors.mobileNumber}</p>}
+                    </div>
+                    <div className="w-1/3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                        <input
+                            type="number"
+                            name="age"
+                            value={patient.age}
+                            onChange={handleChange}
+                            placeholder="Age"
+                            required
+                            min={1}
+                            max={120}
+                            className="input-field"
+                        />
+                        {errors.age && <p className="text-red-600 text-xs mt-1">{errors.age}</p>}
+                    </div>
+                </div>
+
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                    <select
+                        name="gender"
+                        value={patient.gender}
+                        onChange={handleChange}
+                        required
+                        className="input-field"
+                    >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    {errors.gender && <p className="text-red-600 text-xs mt-1">{errors.gender}</p>}
+                </div>
+
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <textarea
+                        name="address"
+                        value={patient.address}
+                        onChange={handleChange}
+                        placeholder="Full address"
+                        required
+                        className="input-field"
+                        rows="2"
+                    />
+                    {errors.address && <p className="text-red-600 text-xs mt-1">{errors.address}</p>}
+                </div>
+
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Patient Location (optional)</label>
+                    <div className="flex items-center gap-2">
+                        {selectedLocation ? (
+                            <span className="text-sm text-gray-700 bg-gray-100 px-2 py-1 rounded">
+                                <i className="fas fa-map-marker-alt text-red-500 mr-1"></i>
+                                {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
+                            </span>
+                        ) : (
+                            <span className="text-sm text-gray-400 italic">No location selected</span>
+                        )}
+                        <button
+                            type="button"
+                            className="btn btn-outline"
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                            onClick={() => {
+                                if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                                    alert('You are offline — location selection is optional.');
+                                    return;
+                                }
+                                setModalLocation(selectedLocation);
+                                setShowLocationModal(true);
+                            }}
+                        >
+                            {selectedLocation ? 'Change' : 'Select on Map'}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Medical Condition</label>
+                    <input
+                        type="text"
+                        name="medicalCondition"
+                        value={patient.medicalCondition}
+                        onChange={handleChange}
+                        placeholder="e.g. Diabetic, Hypertensive"
+                        required
+                        className="input-field"
+                    />
+                    {errors.medicalCondition && <p className="text-red-600 text-xs mt-1">{errors.medicalCondition}</p>}
+                </div>
+
+                <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact (Optional)</label>
+                    <input
+                        type="text"
+                        name="emergencyContact"
+                        value={patient.emergencyContact}
+                        onChange={handleChange}
+                        placeholder="Contact number"
+                        inputMode="numeric"
+                        maxLength={15}
+                        className="input-field"
+                    />
+                    {errors.emergencyContact && <p className="text-red-600 text-xs mt-1">{errors.emergencyContact}</p>}
+                </div>
+
                 {showLocationModal && (
-                    <div className="modal-overlay">
-                        <div className="form-container" style={{ maxWidth: 800 }}>
-                            <h3 className="text-xl font-semibold mb-2">Select Patient Location</h3>
+                    <div className="modal-overlay" style={{ zIndex: 1100 }}>
+                        <div className="form-container" style={{ maxWidth: 800, width: '95%' }}>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xl font-bold">Select Patient Location</h3>
+                                <button onClick={() => setShowLocationModal(false)} className="text-gray-500 hover:text-gray-700">
+                                    <i className="fas fa-times"></i>
+                                </button>
+                            </div>
                             <PatientLocationPicker
                                 value={modalLocation}
                                 onChange={setModalLocation}
                             />
-                            <div className="mt-3 flex gap-2">
+                            <div className="mt-4 flex justify-end gap-2">
                                 <button
                                     type="button"
-                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                    className="btn btn-outline"
+                                    onClick={() => setShowLocationModal(false)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
                                     onClick={() => {
                                         setSelectedLocation(modalLocation || null);
                                         setShowLocationModal(false);
                                     }}
                                 >
-                                    Use This Location
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn-cancel"
-                                    onClick={() => setShowLocationModal(false)}
-                                >
-                                    Close
+                                    Confirm Location
                                 </button>
                             </div>
                         </div>
                     </div>
                 )}
+
                 <button
                     type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    className="btn btn-primary w-full"
                 >
-                    Submit
+                    Register Patient
                 </button>
             </form>
         </div>

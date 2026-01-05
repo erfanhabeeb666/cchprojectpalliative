@@ -28,29 +28,44 @@ const VolunteerDashboard = () => {
 
   return (
     <div className="volunteer-dashboard">
-      <h1 className="mb-4">Volunteer Dashboard</h1>
-      <section className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+      <h2 className="mb-4">Volunteer Dashboard</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
         {loading ? (
-          <p>Loading dashboard stats...</p>
+          <div className="card p-8 text-center text-gray-500">Loading dashboard stats...</div>
         ) : (
           <>
-            <div className="card">
-              <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Today's Visits</h3>
-              <div className="flex items-center mt-4">
-                <i className="fas fa-calendar-day fa-2x" style={{ color: 'var(--primary-color)', marginRight: '1rem' }}></i>
-                <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>{stats.todayVisits}</span>
+            <div className="card hover:shadow-lg transition-shadow duration-300">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-500 text-sm font-medium mb-1">Today's Visits</p>
+                  <h3 className="text-3xl font-bold text-gray-800">{stats.todayVisits}</h3>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-full">
+                  <i className="fas fa-calendar-day text-blue-500 text-xl"></i>
+                </div>
+              </div>
+              <div className="mt-4 text-sm text-green-600 font-medium">
+                <i className="fas fa-arrow-up mr-1"></i> Due today
               </div>
             </div>
-            <div className="card">
-              <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Completed Visits</h3>
-              <div className="flex items-center mt-4">
-                <i className="fas fa-check fa-2x" style={{ color: 'var(--success-color)', marginRight: '1rem' }}></i>
-                <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>{stats.completedVisits}</span>
+
+            <div className="card hover:shadow-lg transition-shadow duration-300">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-gray-500 text-sm font-medium mb-1">Completed Visits</p>
+                  <h3 className="text-3xl font-bold text-gray-800">{stats.completedVisits}</h3>
+                </div>
+                <div className="p-3 bg-green-50 rounded-full">
+                  <i className="fas fa-check-circle text-green-500 text-xl"></i>
+                </div>
+              </div>
+              <div className="mt-4 text-sm text-green-600 font-medium">
+                <i className="fas fa-chart-line mr-1"></i> Total completed
               </div>
             </div>
           </>
         )}
-      </section>
+      </div>
     </div>
   );
 };

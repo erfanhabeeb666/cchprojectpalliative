@@ -27,6 +27,7 @@ const AddEquipment = () => {
             setSuccessMessage("Equipment added successfully!");
             setError('');
             setEquipment({ name: '' });
+            setTimeout(() => setSuccessMessage(''), 3000);
         } catch (err) {
             console.error(err);
             setError("Failed to add equipment");
@@ -36,22 +37,31 @@ const AddEquipment = () => {
 
     return (
         <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">Add Equipment</h2>
+            {successMessage && (
+                <div className="p-3 mb-4 text-green-700 bg-green-100 rounded border border-green-200">
+                    <i className="fas fa-check-circle mr-2"></i> {successMessage}
+                </div>
+            )}
+            {error && (
+                <div className="p-3 mb-4 text-red-700 bg-red-100 rounded border border-red-200">
+                    <i className="fas fa-exclamation-circle mr-2"></i> {error}
+                </div>
+            )}
 
-            {successMessage && <p className="text-green-600">{successMessage}</p>}
-            {error && <p className="text-red-600">{error}</p>}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                    type="text"
-                    name="name"
-                    value={equipment.name}
-                    onChange={handleChange}
-                    placeholder="Equipment Name"
-                    required
-                    className="w-full p-2 border rounded"
-                />
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Equipment Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        value={equipment.name}
+                        onChange={handleChange}
+                        placeholder="e.g. Wheelchair"
+                        required
+                        className="input-field"
+                    />
+                </div>
+                <button type="submit" className="btn btn-primary w-full">
                     Submit
                 </button>
             </form>
@@ -60,4 +70,3 @@ const AddEquipment = () => {
 };
 
 export default AddEquipment;
-
