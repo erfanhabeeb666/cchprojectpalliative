@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { getDisplayName } from "../utils/auth";
-import "./Styles/Admin.css";
-import "./Styles/Main.css";
-import "./Styles/Sidebar.css";
+
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -31,12 +27,6 @@ const CompletedVisits = () => {
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
-
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/");
-  };
 
   useEffect(() => {
     fetchCompletedVisits();
@@ -85,97 +75,87 @@ const CompletedVisits = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <center>
-          <h2>P A S S</h2>
-        </center>
-        <nav>
-          <ul className="sidebar-menu">
-            <li>
-              <NavLink to="/volunteer" className="sidebar-link">
-                <i className="fas fa-tachometer-alt"></i> Dashboard
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/volunteer/todays-visits" className="sidebar-link">
-                <i className="fas fa-calendar-day"></i> Today's Visits
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/volunteer/completed-visits" className="sidebar-link">
-                <i className="fas fa-check"></i> Completed Visits
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/volunteer/profile" className="sidebar-link">
-                <i className="fas fa-user"></i> Profile
-              </NavLink>
-            </li>
-          </ul>
-        </nav>
-      </aside>
+    <div className="completed-visits-page">
+      <h2 className="mb-4">Completed Visits</h2>
 
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="topbar">
-          <h1>Completed Visits</h1>
-          <div className="topbar-actions">
-            <span className="greeting">Hello, {getDisplayName()}</span>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+      {error && <div className="p-4 mb-4 text-red-700 bg-red-100 rounded border border-red-200">{error}</div>}
+
+      {loading ? (
+        <div className="text-center py-8 text-gray-500">Loading visits...</div>
+      ) : completedVisits.length === 0 ? (
+        <div className="card text-center py-12">
+          <div className="text-gray-400 mb-2">
+            <i className="fas fa-clipboard-check fa-3x"></i>
           </div>
-        </header>
-
-        <section className="content-section">
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          {loading ? (
-            <p>Loading...</p>
-          ) : completedVisits.length === 0 ? (
-            <p>No completed visits found.</p>
-          ) : (
-            <div>
-              <table className="main-table">
-                <thead>
-                  <tr>
-                    <th>Visit ID</th>
-                    <th>Patient Name</th>
-                    <th>Volunteer Name</th>
-                    <th>Visit Date</th>
-                    <th>Completed Date</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {completedVisits.map((visit) => (
-                    <tr key={visit.id}>
-                      <td>{visit.visitCode}</td>
-                      <td>{visit.patientName}</td>
-                      <td>{visit.volunteerName}</td>
-                      <td>
-                        {visit.visitDate
-                          ? new Date(visit.visitDate).toLocaleDateString()
-                          : "-"}
-                      </td>
-                      <td>
-                        {visit.completedDate
-                          ? new Date(visit.completedDate).toLocaleDateString()
-                          : "-"}
-                      </td>
-                      <td>{visit.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div style={{ marginTop: 12 }}>
-                <button disabled={page === 0} onClick={() => setPage((p) => Math.max(p - 1, 0))}>Prev</button>
-                <span style={{ margin: "0 8px" }}>Page {page + 1} of {totalPages}</span>
-                <button disabled={page + 1 >= totalPages} onClick={() => setPage((p) => p + 1)}>Next</button>
-              </div>
-            </div>
-          )}
-        </section>
-      </main>
+          <p className="text-lg text-gray-600">No completed visits found.</p>
+        </div>
+      ) : (
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <table className="main-table" style={{ width: '100%', marginBottom: 0 }}>
+            <thead style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
+              <tr>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Visit ID</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Patient Name</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Volunteer Name</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Visit Date</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Completed Date</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {completedVisits.map((visit) => (
+                <tr key={visit.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '1rem', fontWeight: '500' }}>{visit.visitCode}</td>
+                  <td style={{ padding: '1rem' }}>{visit.patientName}</td>
+                  <td style={{ padding: '1rem' }}>{visit.volunteerName}</td>
+                  <td style={{ padding: '1rem' }}>
+                    {visit.visitDate
+                      ? new Date(visit.visitDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    {visit.completedDate
+                      ? new Date(visit.completedDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '999px',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      backgroundColor: 'var(--primary-light)',
+                      color: 'var(--primary-dark)'
+                    }}>
+                      {visit.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-4 mt-4">
+        <button
+          className="btn btn-outline"
+          disabled={page === 0}
+          onClick={() => setPage((p) => Math.max(p - 1, 0))}
+        >
+          Previous
+        </button>
+        <span style={{ color: 'var(--text-secondary)' }}>
+          Page {page + 1} of {totalPages}
+        </span>
+        <button
+          className="btn btn-outline"
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

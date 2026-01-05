@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { NavLink, useNavigate } from "react-router-dom";
-import "../Styles/Admin.css";
-import "../Styles/Main.css";
-import "../Styles/Sidebar.css";
 import AddEquipment from "./AddEquipment";
 
 const EquipmentPage = () => {
@@ -27,12 +23,6 @@ const EquipmentPage = () => {
 
   const apiUrl = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem("jwtToken");
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/");
-  };
 
   // Fetch equipment list
   const fetchEquipment = async (pageNum = page, searchTerm = searchQuery) => {
@@ -139,294 +129,255 @@ const EquipmentPage = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <center>
-          <h2>P A S S</h2>
-        </center>
-        <nav>
-          <ul className="sidebar-menu">
-            <li>
-              <NavLink to="/admin" className="sidebar-link">
-                <i className="fas fa-tachometer-alt"></i> Dashboard
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/patient" className="sidebar-link">
-                <i className="fas fa-user-injured"></i> Patients
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/volunteers" className="sidebar-link">
-                <i className="fas fa-hands-helping"></i> Volunteers
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/procedures" className="sidebar-link">
-                <i className="fas fa-stethoscope"></i> Procedures
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/visits" className="sidebar-link">
-                <i className="fas fa-notes-medical"></i> Visit Reports
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/createnewvisit" className="sidebar-link">
-                <i className="fas fa-stethoscope"></i> Create New Visit
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/equipment" className="sidebar-link">
-                <i className="fas fa-dolly-flatbed"></i> Equipment
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/consumables" className="sidebar-link">
-                <i className="fas fa-medkit"></i> Consumables
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/settings" className="sidebar-link">
-                <i className="fas fa-cogs"></i> Settings
-              </NavLink>
-            </li>
-          </ul>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="topbar">
-          <h1>Equipment Management</h1>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
+    <div className="equipment-page">
+      <div className="flex justify-between items-center mb-4">
+        <h2>Equipment Management</h2>
+        <div className="flex gap-2">
+          <button className="btn btn-primary" onClick={() => setShowAddForm(true)}>
+            <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Add Equipment
           </button>
-        </header>
+          <button className="btn btn-outline" onClick={() => fetchEquipment(0, searchQuery)}>
+            <i className="fas fa-sync-alt"></i>
+          </button>
+        </div>
+      </div>
 
-        <section className="content-section">
-          {/* Add & Search */}
-          <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px", marginTop: "20px" }}>
-            <button onClick={() => setShowAddForm(true)}>+ Add Equipment</button>
-            <button
-              onClick={() => fetchEquipment(0, searchQuery)}
-              style={{ marginLeft: "15px" }}
-            >
-              Refresh List
-            </button>
-            <input
-              type="text"
-              placeholder="Search by name or allocated patient..."
-              value={searchQuery}
-              onChange={(e) => {
-                setPage(0);
-                setSearchQuery(e.target.value);
-              }}
-              className="search-input"
-            />
-          </div>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by name or allocated patient..."
+          value={searchQuery}
+          onChange={(e) => {
+            setPage(0);
+            setSearchQuery(e.target.value);
+          }}
+          className="input-field"
+          style={{ maxWidth: '350px' }}
+        />
+      </div>
 
-          {error && <p className="text-red-600">{error}</p>}
+      {error && <p className="text-red-600 mb-4">{error}</p>}
 
-          {/* Add Equipment Form */}
-          {showAddForm && (
-            <div className="modal-overlay">
-              <div className="form-container">
-                <AddEquipment onSuccess={handleAddSuccess} />
-                <button
-                  onClick={() => setShowAddForm(false)}
-                  className="btn-cancel"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Equipment Table */}
-          <table className="main-table">
-            <thead>
+      <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+        <table className="main-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
+            <tr>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>ID</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Equipment Name</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Allocated</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Allocated To</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {equipmentList.length === 0 ? (
               <tr>
-                <th>ID</th>
-                <th>Equipment Name</th>
-                <th>Allocated</th>
-                <th>Allocated To</th>
-                <th>Actions</th>
+                <td colSpan="5" style={{ textAlign: "center", padding: "2rem", color: 'var(--text-secondary)' }}>
+                  No equipment available.
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {equipmentList.length === 0 ? (
-                <tr>
-                  <td colSpan="5" className="text-center">
-                    No equipment available.
+            ) : (
+              equipmentList.map((item) => (
+                <tr key={item.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '1rem' }}>{item.id}</td>
+                  <td style={{ padding: '1rem' }}>{item.name}</td>
+                  <td style={{ padding: '1rem' }}>
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '999px',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      backgroundColor: item.allocated ? 'var(--primary-light)' : '#f3f4f6',
+                      color: item.allocated ? 'var(--primary-dark)' : 'var(--text-secondary)'
+                    }}>
+                      {item.allocated ? "Yes" : "No"}
+                    </span>
                   </td>
-                </tr>
-              ) : (
-                equipmentList.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.id}</td>
-                    <td>{item.name}</td>
-                    <td>{item.allocated ? "Yes" : "No"}</td>
-                    <td>{item.patientName || "-"}</td>
-                    <td>
+                  <td style={{ padding: '1rem' }}>{item.patientName || "-"}</td>
+                  <td style={{ padding: '1rem' }}>
+                    <div className="flex gap-2">
                       <button
+                        className="btn btn-outline"
+                        style={{ color: 'var(--error-color)', borderColor: 'var(--error-color)', padding: '0.25rem 0.5rem' }}
                         onClick={() => handleDelete(item.id)}
-                        className="text-red-600 underline mr-2"
+                        title="Delete"
                       >
-                        Delete
+                        <i className="fas fa-trash"></i>
                       </button>
 
                       {item.allocated ? (
                         <button
                           onClick={() => handleDeallocate(item.id)}
-                          className="text-yellow-600 underline"
+                          className="btn btn-outline"
+                          style={{ color: 'var(--warning-color)', borderColor: 'var(--warning-color)', padding: '0.25rem 0.5rem' }}
+                          title="Deallocate"
                         >
-                          Deallocate
+                          <i className="fas fa-unlink"></i>
                         </button>
                       ) : (
                         <button
                           onClick={() => handleAllocate(item)}
-                          className="text-blue-600 underline"
+                          className="btn btn-outline"
+                          style={{ color: 'var(--primary-color)', borderColor: 'var(--primary-color)', padding: '0.25rem 0.5rem' }}
+                          title="Allocate"
                         >
-                          Allocate
+                          <i className="fas fa-link"></i>
                         </button>
                       )}
-                    </td>
-                  </tr>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-4 mt-4">
+        <button
+          className="btn btn-outline"
+          disabled={page === 0}
+          onClick={() => fetchEquipment(page - 1, searchQuery)}
+        >
+          Previous
+        </button>
+        <span style={{ color: 'var(--text-secondary)' }}>
+          Page {page + 1} of {totalPages}
+        </span>
+        <button
+          className="btn btn-outline"
+          disabled={page + 1 >= totalPages}
+          onClick={() => fetchEquipment(page + 1, searchQuery)}
+        >
+          Next
+        </button>
+      </div>
+
+      {/* Add Equipment Form */}
+      {showAddForm && (
+        <div className="modal-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div className="form-container" style={{
+            background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
+            width: '100%', maxWidth: '500px'
+          }}>
+            <AddEquipment onSuccess={handleAddSuccess} />
+            <button
+              onClick={() => setShowAddForm(false)}
+              className="btn btn-outline"
+              style={{ marginTop: '1rem', width: '100%' }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Allocate Modal */}
+      {showAllocateModal && (
+        <div className="modal-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div className="form-container" style={{
+            background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
+            width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto'
+          }}>
+            <h3 className="mb-4 text-lg font-bold">Allocate {selectedEquipment?.name}</h3>
+
+            <input
+              type="text"
+              placeholder="Search patient by name or mobile..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPagePatientsModal(0);
+              }}
+              className="input-field mb-4"
+            />
+
+            <div className="patient-list mb-4" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+              {patientsModal.length === 0 ? (
+                <p className="text-gray-500 text-center">No patients found</p>
+              ) : (
+                patientsModal.map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex justify-between items-center p-2 border-b border-gray-100 hover:bg-gray-50"
+                  >
+                    <div>
+                      <div className="font-medium">{p.name}</div>
+                      <div className="text-sm text-gray-400">{p.mobileNumber}</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      name="patient"
+                      value={p.id}
+                      checked={selectedPatient === String(p.id)}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        if (isChecked) {
+                          setSelectedPatient(String(p.id));
+                        } else if (selectedPatient === String(p.id)) {
+                          setSelectedPatient("");
+                        }
+                      }}
+                      style={{ width: '1.2rem', height: '1.2rem' }}
+                    />
+                  </div>
                 ))
               )}
-            </tbody>
-          </table>
+            </div>
 
-          {/* Pagination */}
-          <div
-            className="pagination"
-            style={{ marginTop: "15px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", fontSize: "12px", whiteSpace: "nowrap" }}
-          >
-            <button
-              style={{ padding: "4px 10px", fontSize: "12px", display: "inline-flex", alignItems: "center", lineHeight: 1, height: "28px" }}
-              disabled={page === 0}
-              onClick={() => fetchEquipment(page - 1, searchQuery)}
-            >
-              Prev
-            </button>
-            <span style={{ fontSize: "12px", lineHeight: 1, display: "inline-block" }}>
-              Page {page + 1} of {totalPages}
-            </span>
-            <button
-              style={{ padding: "4px 10px", fontSize: "12px", display: "inline-flex", alignItems: "center", lineHeight: 1, height: "28px" }}
-              disabled={page + 1 >= totalPages}
-              onClick={() => fetchEquipment(page + 1, searchQuery)}
-            >
-              Next
-            </button>
-          </div>
-        </section>
-
-        {/* Allocate Modal */}
-        {showAllocateModal && (
-          <div className="modal-overlay">
-            <div className="form-container">
-              <h3 className="form-title">Allocate {selectedEquipment?.name}</h3>
-
-              <input
-                type="text"
-                placeholder="Search patient by name or mobile..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setPagePatientsModal(0);
-                }}
-                className="form-input mb-3"
-              />
-
-              <div className="patient-list">
-                {patientsModal.length === 0 ? (
-                  <p className="text-gray-500">No patients found</p>
-                ) : (
-                  patientsModal.map((p) => (
-                    <div
-                      key={p.id}
-                      className="patient-option"
-                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0", fontSize: "14px" }}
-                    >
-                      
-                      <div style={{ flex: "1 1 60%" }}>{p.name}</div>
-                      <div style={{ flex: "0 0 140px", textAlign: "right", color: "#555", fontSize: "12px" }}>
-                        {p.mobileNumber}
-                      </div>
-                      <input
-                        style={{ transform: "scale(0.9)" }}
-                        type="checkbox"
-                        name="patient"
-                        value={p.id}
-                        checked={selectedPatient === String(p.id)}
-                        onChange={(e) => {
-                          const isChecked = e.target.checked;
-                          if (isChecked) {
-                            setSelectedPatient(String(p.id));
-                          } else if (selectedPatient === String(p.id)) {
-                            setSelectedPatient("");
-                          }
-                        }}
-                      />
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Pagination */}
-              <div
-                className="pagination"
-                style={{ marginTop: "10px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", fontSize: "12px", whiteSpace: "nowrap" }}
+            {/* Pagination for Modal */}
+            <div className="flex justify-center items-center gap-2 mb-4">
+              <button
+                className="btn btn-outline"
+                style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                disabled={pagePatientsModal === 0}
+                onClick={() =>
+                  setPagePatientsModal((prev) => Math.max(prev - 1, 0))
+                }
               >
-                <button
-                  style={{ padding: "2px 8px", fontSize: "12px", display: "inline-flex", alignItems: "center", lineHeight: 1, height: "26px" }}
-                  disabled={pagePatientsModal === 0}
-                  onClick={() =>
-                    setPagePatientsModal((prev) => Math.max(prev - 1, 0))
-                  }
-                >
-                  Prev
-                </button>
-                <span style={{ fontSize: "12px", lineHeight: 1, display: "inline-block" }}>
-                  Page {pagePatientsModal + 1} of {totalPagesPatientsModal}
-                </span>
-                <button
-                  style={{ padding: "2px 8px", fontSize: "12px", display: "inline-flex", alignItems: "center", lineHeight: 1, height: "26px" }}
-                  disabled={pagePatientsModal + 1 >= totalPagesPatientsModal}
-                  onClick={() =>
-                    setPagePatientsModal((prev) => prev + 1)
-                  }
-                >
-                  Next
-                </button>
-              </div>
-
-              <div
-                className="form-actions"
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "12px", marginTop: "12px", whiteSpace: "nowrap" }}
+                Prev
+              </button>
+              <span className="text-sm">
+                Page {pagePatientsModal + 1} of {totalPagesPatientsModal}
+              </span>
+              <button
+                className="btn btn-outline"
+                style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                disabled={pagePatientsModal + 1 >= totalPagesPatientsModal}
+                onClick={() =>
+                  setPagePatientsModal((prev) => prev + 1)
+                }
               >
-                <button
-                  onClick={() => setShowAllocateModal(false)}
-                  className="btn-cancel"
-                  style={{ padding: "4px 12px", height: "28px", lineHeight: 1, display: "inline-flex", alignItems: "center" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmAllocate}
-                  className="btn-submit"
-                  style={{ padding: "4px 12px", height: "28px", lineHeight: 1, display: "inline-flex", alignItems: "center" }}
-                >
-                  Confirm
-                </button>
-              </div>
+                Next
+              </button>
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowAllocateModal(false)}
+                className="btn btn-outline flex-1"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAllocate}
+                className="btn btn-primary flex-1"
+              >
+                Confirm
+              </button>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+      )}
     </div>
   );
 };

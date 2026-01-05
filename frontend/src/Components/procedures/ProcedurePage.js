@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { getDisplayName } from "../../utils/auth";
 import AddProcedure from "./AddProcedure";
 import axios from "axios";
-import "../Styles/Admin.css";
-import "../Styles/Main.css";
-import "../Styles/Sidebar.css";
 
 const ProcedurePage = () => {
   const [procedureList, setProcedureList] = useState([]);
@@ -41,7 +36,7 @@ const ProcedurePage = () => {
 
         await axios.delete(`${apiUrl}admin/delete-procedure`, {
           headers: { Authorization: `Bearer ${token}` },
-          params: { id }, // backend expects id as query param
+          params: { id },
         });
         fetchProcedures();
       } catch (err) {
@@ -50,102 +45,75 @@ const ProcedurePage = () => {
     }
   };
 
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/");
-  };
-
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <center><h2>P A S S</h2></center>
-        <nav>
-          <ul className="sidebar-menu">
-            <li><NavLink to="/admin" className="sidebar-link"><i className="fas fa-tachometer-alt"></i> Dashboard</NavLink></li>
-            <li><NavLink to="/admin/patient" className="sidebar-link"><i className="fas fa-user-injured"></i> Patients</NavLink></li>
-            <li><NavLink to="/admin/volunteers" className="sidebar-link"><i className="fas fa-hands-helping"></i> Volunteers</NavLink></li>
-             <li>
-        <NavLink to="/admin/procedures" className="sidebar-link">
-          <i className="fas fa-stethoscope"></i> Procedures
-        </NavLink>
-      </li>
-            <li><NavLink to="/admin/visits" className="sidebar-link"><i className="fas fa-notes-medical"></i> Visit Reports</NavLink></li>
-            <li>
-                          <NavLink to="/admin/createnewvisit" className="sidebar-link">
-                            <i className="fas fa-stethoscope"></i> Create New Visit
-                          </NavLink>
-                        </li>
-            <li><NavLink to="/admin/equipment" className="sidebar-link"><i className="fas fa-dolly-flatbed"></i> Equipment</NavLink></li>
-            <li><NavLink to="/admin/consumables" className="sidebar-link"><i className="fas fa-medkit"></i> Consumables</NavLink></li>
-            <li><NavLink to="/admin/settings" className="sidebar-link"><i className="fas fa-cogs"></i> Settings</NavLink></li>
-          </ul>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="topbar">
-          <h1>Procedure Management</h1>
-          <div className="topbar-actions">
-            <span className="greeting">Hello, {getDisplayName()}</span>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
-          </div>
-        </header>
-
-        <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
-          <button onClick={() => setShowAddForm(true)}>+ Add Procedure</button>
-          <button onClick={fetchProcedures} style={{ marginLeft: "10px" }}>Refresh List</button>
+    <div className="procedure-page">
+      <div className="flex justify-between items-center mb-4">
+        <h2>Procedure Management</h2>
+        <div className="flex gap-2">
+          <button className="btn btn-primary" onClick={() => setShowAddForm(true)}>
+            <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Add Procedure
+          </button>
+          <button className="btn btn-outline" onClick={fetchProcedures}>
+            <i className="fas fa-sync-alt"></i>
+          </button>
         </div>
+      </div>
 
-       {/* Add Procedure Form Modal */}
-{showAddForm && (
-  <div className="modal-overlay">
-    <div className="form-container">
-      <AddProcedure onSuccess={handleAddSuccess} />
-      <button onClick={() => setShowAddForm(false)} className="btn-cancel">Close</button>
-    </div>
-  </div>
-)}
-
-
-        <div>
-          <table className="main-table">
-            <thead>
+      <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+        <table className="main-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>ID</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Procedure Name</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {procedureList.length === 0 ? (
               <tr>
-                <th>ID</th>
-                <th>Procedure Name</th>
-                <th>Action</th>
+                <td colSpan="3" style={{ textAlign: "center", padding: "2rem", color: 'var(--text-secondary)' }}>
+                  No procedures available
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {procedureList.length === 0 ? (
-                <tr>
-                  <td colSpan="3" style={{ textAlign: "center", padding: "20px" }}>
-                    No procedures available
+            ) : (
+              procedureList.map((procedure) => (
+                <tr key={procedure.procedureId} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '1rem' }}>{procedure.procedureId}</td>
+                  <td style={{ padding: '1rem' }}>{procedure.procedureName}</td>
+                  <td style={{ padding: '1rem' }}>
+                    <button
+                      className="btn btn-outline"
+                      style={{ color: 'var(--error-color)', borderColor: 'var(--error-color)' }}
+                      onClick={() => handleDelete(procedure.procedureId)}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--error-color)'; e.currentTarget.style.color = 'white'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--error-color)'; }}
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
                   </td>
                 </tr>
-              ) : (
-                procedureList.map((procedure) => (
-                  <tr key={procedure.procedureId}>
-                    <td>{procedure.procedureId}</td>
-                    <td>{procedure.procedureName}</td>
-                    <td>
-                      <button 
-                        onClick={() => handleDelete(procedure.procedureId)} 
-                        style={{ backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Add Procedure Form Modal */}
+      {showAddForm && (
+        <div className="modal-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div className="form-container" style={{
+            background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
+            width: '100%', maxWidth: '500px'
+          }}>
+            <AddProcedure onSuccess={handleAddSuccess} />
+            <button onClick={() => setShowAddForm(false)} className="btn btn-outline" style={{ marginTop: '1rem', width: '100%' }}>Close</button>
+          </div>
         </div>
-      </main>
+      )}
     </div>
   );
 };

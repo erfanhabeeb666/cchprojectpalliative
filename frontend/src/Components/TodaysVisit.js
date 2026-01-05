@@ -1,31 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { getDisplayName } from "../utils/auth";
-import "./Styles/Admin.css";
-import "./Styles/Main.css";
-import "./Styles/Sidebar.css";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { useMaps } from "./common/MapsProvider";
 import axios from "axios";
-import PatientLocationPicker from "./Patient/PatientLocationPicker";
 
-// Modal Component
-
-
+// Modal Component for Submitting Report
 const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) => {
   const [selectedProcedure, setSelectedProcedure] = useState([]);
   const [selectedConsumables, setSelectedConsumables] = useState([]);
   const [status, setStatus] = useState("COMPLETED");
   const [notes, setNotes] = useState("");
 
-  // Helper: get quantity from state for each consumable
   const getConsumableQty = (id) => {
     const item = selectedConsumables.find((c) => c.consumableId === id);
     return item ? item.quantity : "";
   };
 
-
-  // Handle consumable selection + quantity
   const handleConsumableChange = (id, quantity) => {
     setSelectedConsumables((prev) => {
       const existing = prev.find((c) => c.consumableId === id);
@@ -59,28 +48,39 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <h3>Submit Visit Report</h3>
+    <div className="modal-overlay" style={{
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+      justifyContent: 'center', alignItems: 'center', zIndex: 1000
+    }}>
+      <div className="form-container" style={{
+        background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
+        width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto'
+      }}>
+        <h3 className="text-xl font-bold mb-4">Submit Visit Report</h3>
 
-        {/* Status */}
-        <label>Status:</label>
-        <select value={status} onChange={(e) => {
-          const val = e.target.value;
-          setStatus(val);
-          if (val === "CANCELLED") {
-            setSelectedProcedure([]);
-            setSelectedConsumables([]);
-          }
-        }}>
-          <option value="COMPLETED">Completed</option>
-          <option value="CANCELLED">Cancelled</option>
-        </select>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select
+            value={status}
+            onChange={(e) => {
+              const val = e.target.value;
+              setStatus(val);
+              if (val === "CANCELLED") {
+                setSelectedProcedure([]);
+                setSelectedConsumables([]);
+              }
+            }}
+            className="input-field"
+          >
+            <option value="COMPLETED">Completed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </div>
 
-        {/* Procedures */}
         {status !== "CANCELLED" && (
-          <div>
-            <label>Procedures:</label>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Procedures</label>
             <select
               multiple
               value={selectedProcedure}
@@ -89,7 +89,8 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
                   Array.from(e.target.selectedOptions, (option) => option.value)
                 )
               }
-              className="custom-select"
+              className="input-field"
+              style={{ height: '120px' }}
             >
               {procedures.map((procedure) => (
                 <option key={procedure.procedureId} value={procedure.procedureId}>
@@ -97,99 +98,114 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
                 </option>
               ))}
             </select>
+            <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
           </div>
         )}
 
-        {/* Consumables */}
         {status !== "CANCELLED" && (
-          <div>
-            <label>Consumables:</label>
-            {consumables.map((consumable) => (
-              <div key={consumable.id} className="flex items-center space-x-2 my-1">
-                <span>
-                  {consumable.name} (Stock: {consumable.stockQuantity})
-                </span>
-                {consumable.stockQuantity > 0 ? (
-                  <input
-                    type="number"
-                    min="0"
-                    max={consumable.stockQuantity}
-                    value={getConsumableQty(consumable.id)} // ✅ bind value
-                    placeholder="Qty"
-                    onChange={(e) =>
-                      handleConsumableChange(
-                        consumable.id,
-                        parseInt(e.target.value, 10) || 0
-                      )
-                    }
-                    className="w-20 p-1 border rounded"
-                  />
-                ) : (
-                  <span style={{ marginLeft: 8, color: '#888' }}>Out of stock</span>
-                )}
-              </div>
-            ))}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Consumables Used</label>
+            <div className="bg-gray-50 p-2 rounded border border-gray-200" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+              {consumables.map((consumable) => (
+                <div key={consumable.id} className="flex items-center justify-between mb-2">
+                  <span className="text-sm">
+                    {consumable.name} <span className="text-gray-400 text-xs">(Stock: {consumable.stockQuantity})</span>
+                  </span>
+                  {consumable.stockQuantity > 0 ? (
+                    <input
+                      type="number"
+                      min="0"
+                      max={consumable.stockQuantity}
+                      value={getConsumableQty(consumable.id)}
+                      placeholder="Qty"
+                      onChange={(e) =>
+                        handleConsumableChange(
+                          consumable.id,
+                          parseInt(e.target.value, 10) || 0
+                        )
+                      }
+                      className="input-field"
+                      style={{ width: '80px', padding: '0.25rem 0.5rem', marginBottom: 0 }}
+                    />
+                  ) : (
+                    <span className="text-xs text-red-400">Out of stock</span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
-        {/* Notes */}
-        <div style={{ marginTop: 12 }}>
-          <label htmlFor="visit-notes">Notes:</label>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
           <textarea
-            id="visit-notes"
             rows={4}
             placeholder="Add any notes about the visit..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            style={{ width: '100%', padding: 8, boxSizing: 'border-box' }}
+            className="input-field"
           />
         </div>
 
-        <div className="flex space-x-2 mt-4">
-          <button onClick={handleSubmit}>Submit</button>
-          <button onClick={onClose}>Close</button>
+        <div className="flex gap-4">
+          <button onClick={onClose} className="btn btn-outline flex-1">Cancel</button>
+          <button onClick={handleSubmit} className="btn btn-primary flex-1">Submit Report</button>
         </div>
       </div>
     </div>
   );
 };
 
-
+// Map Modal Component
 const LocationModal = ({ coords, onClose }) => {
   const { isLoaded } = useMaps();
 
   if (!coords) return null;
 
   return (
-    <div className="modal">
-      <div className="modal-content" style={{ width: 700, maxWidth: '95vw' }}>
-        <h3>Patient Location</h3>
+    <div className="modal-overlay" style={{
+      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+      backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+      justifyContent: 'center', alignItems: 'center', zIndex: 1000
+    }}>
+      <div className="form-container" style={{
+        background: 'white', padding: '1.5rem', borderRadius: 'var(--border-radius)',
+        width: '100%', maxWidth: '800px'
+      }}>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-bold">Patient Location</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+
         {!navigator.onLine && (
-          <p className="text-yellow-700" style={{ marginBottom: 8 }}>
-            You are offline — map cannot be loaded now.
+          <p className="text-yellow-600 mb-2">
+            You are offline — map cannot be loaded.
           </p>
         )}
+
         {isLoaded && navigator.onLine ? (
           <GoogleMap
-            mapContainerStyle={{ width: '100%', height: 400 }}
+            mapContainerStyle={{ width: '100%', height: '400px', borderRadius: '8px' }}
             center={{ lat: coords.lat, lng: coords.lng }}
             zoom={14}
           >
             <Marker position={{ lat: coords.lat, lng: coords.lng }} />
           </GoogleMap>
         ) : (
-          <div className="p-3 border rounded" style={{ background: '#fafafa' }}>
+          <div className="p-4 bg-gray-100 rounded text-center">
             Latitude: {coords.lat}, Longitude: {coords.lng}
           </div>
         )}
-        <div className="flex space-x-2 mt-3">
-          <button onClick={onClose}>Close</button>
+
+        <div className="mt-4 flex justify-end">
+          <button onClick={onClose} className="btn btn-outline">Close</button>
         </div>
       </div>
     </div>
   );
 };
-
 
 const TodaysVisit = () => {
   const [assignedVisits, setAssignedVisits] = useState([]);
@@ -201,17 +217,8 @@ const TodaysVisit = () => {
   const [selectedVisit, setSelectedVisit] = useState(null);
   const [isLocationOpen, setIsLocationOpen] = useState(false);
   const [locationCoords, setLocationCoords] = useState(null);
-  const [isUpdateLocationOpen, setIsUpdateLocationOpen] = useState(false);
-  const [updateVisit, setUpdateVisit] = useState(null);
-  const [updateSelection, setUpdateSelection] = useState(null);
 
-  const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
-
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/");
-  };
 
   useEffect(() => {
     fetchAssignedVisits();
@@ -219,7 +226,6 @@ const TodaysVisit = () => {
     fetchConsumables();
   }, []);
 
-  // Fetch assigned visits
   const fetchAssignedVisits = async () => {
     setLoading(true);
     setError("");
@@ -247,53 +253,40 @@ const TodaysVisit = () => {
     }
   };
 
-  // Fetch procedures
   const fetchProcedures = async () => {
     const jwtToken = localStorage.getItem("jwtToken");
-    if (!jwtToken) {
-      setError("No JWT token found");
-      return;
-    }
+    if (!jwtToken) return;
 
     try {
       const response = await fetch(`${apiUrl}volunteer/procedures`, {
-        method: "GET",
         headers: { Authorization: `Bearer ${jwtToken}` },
       });
-
-      if (!response.ok) throw new Error("Failed to fetch procedures");
-
-      const data = await response.json();
-      setProcedures(data);
+      if (response.ok) {
+        const data = await response.json();
+        setProcedures(data);
+      }
     } catch (err) {
-      setError(err.message || "Error fetching procedures");
+      console.error("Error fetching procedures", err);
     }
   };
 
-  // Fetch consumables
   const fetchConsumables = async () => {
     const jwtToken = localStorage.getItem("jwtToken");
-    if (!jwtToken) {
-      setError("No JWT token found");
-      return;
-    }
+    if (!jwtToken) return;
 
     try {
       const response = await fetch(`${apiUrl}volunteer/consumables`, {
-        method: "GET",
         headers: { Authorization: `Bearer ${jwtToken}` },
       });
-
-      if (!response.ok) throw new Error("Failed to fetch consumables");
-
-      const data = await response.json();
-      setConsumables(data);
+      if (response.ok) {
+        const data = await response.json();
+        setConsumables(data);
+      }
     } catch (err) {
-      setError(err.message || "Error fetching consumables");
+      console.error("Error fetching consumables", err);
     }
   };
 
-  // Open/close modal
   const handleModalOpen = (visit) => {
     setSelectedVisit(visit);
     setIsModalOpen(true);
@@ -305,7 +298,6 @@ const TodaysVisit = () => {
   };
 
   const openLocation = (visit) => {
-    // support both visit.latitude/longitude and visit.patientLatitude/patientLongitude
     const lat = visit?.latitude ?? visit?.patientLatitude;
     const lng = visit?.longitude ?? visit?.patientLongitude;
     if (lat == null || lng == null) {
@@ -331,56 +323,9 @@ const TodaysVisit = () => {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const openUpdateLocation = (visit) => {
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
-      alert("You are offline — location update is unavailable.");
-      return;
-    }
-    const lat = visit?.latitude ?? visit?.patientLatitude ?? null;
-    const lng = visit?.longitude ?? visit?.patientLongitude ?? null;
-    setUpdateSelection(lat != null && lng != null ? { lat: Number(lat), lng: Number(lng) } : null);
-    setUpdateVisit(visit);
-    setIsUpdateLocationOpen(true);
-  };
-
-  const submitUpdateLocation = async () => {
-    if (!updateVisit) return;
-    const patientId = updateVisit.patientId ?? updateVisit.patient?.id;
-    if (!patientId) {
-      alert("Patient ID not available for this visit");
-      return;
-    }
-    if (!updateSelection) {
-      alert("Please select a location before updating");
-      return;
-    }
-    try {
-      const token = localStorage.getItem("jwtToken");
-      await axios.put(
-        `${apiUrl}volunteer/patients/${patientId}/location`,
-        {
-          latitude: updateSelection.lat,
-          longitude: updateSelection.lng,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert("Location updated successfully");
-      setIsUpdateLocationOpen(false);
-      setUpdateVisit(null);
-      setUpdateSelection(null);
-      fetchAssignedVisits();
-    } catch (e) {
-      alert("Failed to update location");
-    }
-  };
-
-  // Submit procedure + consumables
   const handleProcedureSubmit = async (visitId, procedureIds, consumables, status, notes) => {
     const jwtToken = localStorage.getItem("jwtToken");
-    if (!jwtToken) {
-      setError("No JWT token found");
-      return;
-    }
+    if (!jwtToken) return;
 
     try {
       const response = await fetch(`${apiUrl}volunteer/submit-report`, {
@@ -392,7 +337,7 @@ const TodaysVisit = () => {
         body: JSON.stringify({
           visitId,
           procedureIds,
-          consumables, // [{ consumableId, quantityUsed }]
+          consumables,
           status,
           notes,
         }),
@@ -403,113 +348,102 @@ const TodaysVisit = () => {
       alert("Visit submitted successfully");
       fetchAssignedVisits();
     } catch (err) {
-      setError("Failed to submit visit");
+      alert("Failed to submit visit");
     }
   };
 
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <center>
-          <h2>P A S S</h2>
-        </center>
-        <nav>
-          <ul className="sidebar-menu">
-            <li>
-              <NavLink to="/volunteer" className="sidebar-link">
-                <i className="fas fa-tachometer-alt"></i> Dashboard
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/volunteer/todays-visits" className="sidebar-link">
-                <i className="fas fa-calendar-day"></i> Today's Visits
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/volunteer/completed-visits" className="sidebar-link">
-                <i className="fas fa-check"></i> Completed Visits
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/volunteer/profile" className="sidebar-link">
-                <i className="fas fa-user"></i> Profile
-              </NavLink>
-            </li>
-          </ul>
-        </nav>
-      </aside>
+    <div className="todays-visits-page">
+      <h2 className="mb-4">Today's Visits</h2>
 
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="topbar">
-          <h1>Today's Visits</h1>
-          <div className="topbar-actions">
-            <span className="greeting">Hello, {getDisplayName()}</span>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+      {error && <div className="p-4 mb-4 text-red-700 bg-red-100 rounded border border-red-200">{error}</div>}
+
+      {loading ? (
+        <div className="text-center py-8 text-gray-500">Loading visits...</div>
+      ) : assignedVisits.length === 0 ? (
+        <div className="card text-center py-12">
+          <div className="text-gray-400 mb-2">
+            <i className="fas fa-calendar-check fa-3x"></i>
           </div>
-        </header>
+          <p className="text-lg text-gray-600">No visits assigned for today.</p>
+        </div>
+      ) : (
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <table className="main-table" style={{ width: '100%', marginBottom: 0 }}>
+            <thead style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
+              <tr>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Visit ID</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Patient Name</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Volunteer Name</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Visit Date</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Status</th>
+                <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assignedVisits.map((visit) => (
+                <tr key={visit.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '1rem', fontWeight: '500' }}>{visit.visitCode}</td>
+                  <td style={{ padding: '1rem' }}>{visit.patientName}</td>
+                  <td style={{ padding: '1rem' }}>{visit.volunteerName}</td>
+                  <td style={{ padding: '1rem' }}>
+                    {visit.visitDate
+                      ? new Date(visit.visitDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    <span style={{
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '999px',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      backgroundColor: visit.status === 'COMPLETED' ? 'var(--primary-light)' : '#fef3c7',
+                      color: visit.status === 'COMPLETED' ? 'var(--primary-dark)' : 'var(--warning-color)'
+                    }}>
+                      {visit.status}
+                    </span>
+                  </td>
+                  <td style={{ padding: '1rem' }}>
+                    <div className="flex gap-2 flex-wrap">
+                      {visit.status === "PENDING" && (
+                        <button
+                          onClick={() => handleModalOpen(visit)}
+                          className="btn btn-primary"
+                          style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}
+                        >
+                          Submit Report
+                        </button>
+                      )}
+                      {((visit.latitude ?? visit.patientLatitude) != null) && ((visit.longitude ?? visit.patientLongitude) != null) && (
+                        <>
+                          <button
+                            onClick={() => openLocation(visit)}
+                            className="btn btn-outline"
+                            title="View Map"
+                            style={{ padding: '0.25rem 0.5rem' }}
+                          >
+                            <i className="fas fa-map-marker-alt"></i>
+                          </button>
+                          <button
+                            onClick={() => openInGoogleMaps(visit)}
+                            className="btn btn-outline"
+                            title="Open Google Maps"
+                            style={{ padding: '0.25rem 0.5rem' }}
+                          >
+                            <i className="fas fa-external-link-alt"></i>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-        <section className="content-section">
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          {loading ? (
-            <p>Loading...</p>
-          ) : assignedVisits.length === 0 ? (
-            <p>No assigned visits today.</p>
-          ) : (
-            <div>
-              <table className="main-table">
-                <thead>
-                  <tr>
-                    <th>Visit ID</th>
-                    <th>Patient Name</th>
-                    <th>Volunteer Name</th>
-                    <th>Visit Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assignedVisits.map((visit) => (
-                    <tr key={visit.id}>
-                      <td>{visit.visitCode}</td>
-                      <td>{visit.patientName}</td>
-                      <td>{visit.volunteerName}</td>
-                      <td>
-                        {visit.visitDate
-                          ? new Date(visit.visitDate).toLocaleDateString()
-                          : "-"}
-                      </td>
-                      <td>{visit.status}</td>
-                      <td>
-                        <div className="flex" style={{ gap: 8, flexWrap: 'wrap' }}>
-                          {visit.status === "PENDING" && (
-                            <button onClick={() => handleModalOpen(visit)}>
-                              Submit
-                            </button>
-                          )}
-                          {((visit.latitude ?? visit.patientLatitude) != null) && ((visit.longitude ?? visit.patientLongitude) != null) && (
-                            <>
-                              <button onClick={() => openLocation(visit)}>
-                                View Location
-                              </button>
-                              <button onClick={() => openInGoogleMaps(visit)}>
-                                Open in Maps
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-      </main>
-
-      {/* Modal */}
+      {/* Report Modal */}
       {isModalOpen && selectedVisit && (
         <ProcedureModal
           visit={selectedVisit}
@@ -519,13 +453,14 @@ const TodaysVisit = () => {
           onSubmit={handleProcedureSubmit}
         />
       )}
+
+      {/* Map Modal */}
       {isLocationOpen && locationCoords && (
         <LocationModal
           coords={locationCoords}
           onClose={() => setIsLocationOpen(false)}
         />
       )}
-    
     </div>
   );
 };

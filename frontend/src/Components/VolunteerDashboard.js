@@ -1,21 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { getDisplayName } from "../utils/auth";
-import "./Styles/Main.css";
-import "./Styles/Admin.css";
-import "./Styles/Sidebar.css";
 
 const VolunteerDashboard = () => {
-  const navigate = useNavigate();
   const [stats, setStats] = useState({ todayVisits: 0, completedVisits: 0 });
   const [loading, setLoading] = useState(true);
 
   const API_BASE_URL = process.env.REACT_APP_API_URL;
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/");
-  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -37,47 +27,30 @@ const VolunteerDashboard = () => {
   }, [API_BASE_URL]);
 
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <center><h2>P A S S</h2></center>
-        <nav>
-          <ul className="sidebar-menu">
-            <li><NavLink to="/volunteer" className="sidebar-link"><i className="fas fa-tachometer-alt"></i> Dashboard</NavLink></li>
-            <li><NavLink to="/volunteer/todays-visits" className="sidebar-link"><i className="fas fa-calendar-day"></i> Today's Visits</NavLink></li>
-            <li><NavLink to="/volunteer/completed-visits" className="sidebar-link"><i className="fas fa-check"></i> Completed Visits</NavLink></li>
-            <li><NavLink to="/volunteer/profile" className="sidebar-link"><i className="fas fa-user"></i> Profile</NavLink></li>
-          </ul>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="topbar">
-          <h1>Dashboard</h1>
-          <div className="topbar-actions">
-            <span className="greeting">Hello, {getDisplayName()}</span>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
-          </div>
-        </header>
-
-        <section className="grid">
-          {loading ? (
-            <p>Loading dashboard stats...</p>
-          ) : (
-            <>
-              <div className="card">
-                <i className="fas fa-calendar-day"></i> Today's Visits:{" "}
-                <strong>{stats.todayVisits}</strong>
+    <div className="volunteer-dashboard">
+      <h1 className="mb-4">Volunteer Dashboard</h1>
+      <section className="grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+        {loading ? (
+          <p>Loading dashboard stats...</p>
+        ) : (
+          <>
+            <div className="card">
+              <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Today's Visits</h3>
+              <div className="flex items-center mt-4">
+                <i className="fas fa-calendar-day fa-2x" style={{ color: 'var(--primary-color)', marginRight: '1rem' }}></i>
+                <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>{stats.todayVisits}</span>
               </div>
-              <div className="card">
-                <i className="fas fa-check"></i> Completed Visits:{" "}
-                <strong>{stats.completedVisits}</strong>
+            </div>
+            <div className="card">
+              <h3 style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Completed Visits</h3>
+              <div className="flex items-center mt-4">
+                <i className="fas fa-check fa-2x" style={{ color: 'var(--success-color)', marginRight: '1rem' }}></i>
+                <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>{stats.completedVisits}</span>
               </div>
-            </>
-          )}
-        </section>
-      </main>
+            </div>
+          </>
+        )}
+      </section>
     </div>
   );
 };

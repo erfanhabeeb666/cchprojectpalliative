@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { getDisplayName } from "../../utils/auth";
 import AddPatient from "./AddPatient";
 import axios from "axios";
-import "../Styles/Admin.css";
-import "../Styles/Main.css";
-import "../Styles/Sidebar.css";
 
 const PatientPage = () => {
   const [patients, setPatients] = useState([]);
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(6);
-  const [direction, setDirection] = useState("asc");
+  const [size] = useState(6);
+  const [direction] = useState("asc");
   const [search, setSearch] = useState("");
   const [totalPages, setTotalPages] = useState(0);
 
   const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate();
 
   const fetchPatients = async () => {
     try {
@@ -63,7 +57,7 @@ const PatientPage = () => {
 
   useEffect(() => {
     fetchPatients();
-  }, [page, size, direction, search]); // re-fetch when params change
+  }, [page, size, direction, search]);
 
   const handleAddSuccess = () => {
     fetchPatients();
@@ -87,140 +81,125 @@ const PatientPage = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/");
-  };
-
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <center><h2>P A S S</h2></center>
-        <nav>
-          <ul className="sidebar-menu">
-            <li><NavLink to="/admin" className="sidebar-link"><i className="fas fa-tachometer-alt"></i> Dashboard</NavLink></li>
-            <li><NavLink to="/admin/patient" className="sidebar-link"><i className="fas fa-user-injured"></i> Patients</NavLink></li>
-            <li><NavLink to="/admin/volunteers" className="sidebar-link"><i className="fas fa-hands-helping"></i> Volunteers</NavLink></li>
-            <li><NavLink to="/admin/procedures" className="sidebar-link"><i className="fas fa-stethoscope"></i> Procedures</NavLink></li>
-            <li><NavLink to="/admin/visits" className="sidebar-link"><i className="fas fa-notes-medical"></i> Visit Reports</NavLink></li>
-            <li>
-                          <NavLink to="/admin/createnewvisit" className="sidebar-link">
-                            <i className="fas fa-stethoscope"></i> Create New Visit
-                          </NavLink>
-                        </li>
-            <li><NavLink to="/admin/equipment" className="sidebar-link"><i className="fas fa-dolly-flatbed"></i> Equipment</NavLink></li>
-            <li><NavLink to="/admin/consumables" className="sidebar-link"><i className="fas fa-medkit"></i> Consumables</NavLink></li>
-            <li><NavLink to="/admin/settings" className="sidebar-link"><i className="fas fa-cogs"></i> Settings</NavLink></li>
-          </ul>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="topbar">
-          <h1>Patient Management</h1>
-          <div className="topbar-actions">
-            <span className="greeting">Hello, {getDisplayName()}</span>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
-          </div>
-        </header>
-        <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"50px"}}>
-          <button onClick={() => setShowModal(true)}>+ Add Patient</button>
-          <button onClick={fetchPatients} style={{ marginLeft: "15px" }}>Refresh List</button>
-          <button onClick={downloadPatientsCsv} style={{ marginLeft: "15px" }}>Export CSV</button>
-          <input type="text" placeholder="Search by name or mobile..." value={search} onChange={(e) => {
-                                                                                        setPage(0);
-                                                                                        setSearch(e.target.value);
-                                                                                                        }
-                                                                                                }
-            className="search-input" />
+    <div className="patients-page">
+      <div className="flex justify-between items-center mb-4">
+        <h2>Patient Management</h2>
+        <div className="flex gap-2">
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Add Patient
+          </button>
+          <button className="btn btn-outline" onClick={fetchPatients}>
+            <i className="fas fa-sync-alt"></i>
+          </button>
+          <button className="btn btn-outline" onClick={downloadPatientsCsv}>
+            <i className="fas fa-file-export"></i> CSV
+          </button>
         </div>
+      </div>
 
-        {/* Modal for AddPatient */}
-        {showModal && (
-          <div className="modal-overlay">
-            <div className="form-container">
-              <AddPatient onSuccess={handleAddSuccess} />
-              <button
-                onClick={() => {
-                                setShowModal(false);
-                                fetchPatients();
-                              }
-                        }
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by name or mobile..."
+          value={search}
+          onChange={(e) => {
+            setPage(0);
+            setSearch(e.target.value);
+          }}
+          className="input-field"
+          style={{ maxWidth: '300px' }}
+        />
+      </div>
 
-                className="btn-cancel"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Patients Table */}
-        <div>
-          <table className="main-table">
-            <thead>
+      <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+        <table className="main-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
+            <tr>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Name</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Mobile</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Age</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Gender</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Address</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Condition</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Emergency</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {patients.length === 0 ? (
               <tr>
-                <th>Name</th>
-                <th>Mobile</th>
-                <th>Age</th>
-                <th>Gender</th>
-                <th>Address</th>
-                <th>Medical Condition</th>
-                <th>Emergency Contact</th>
-                <th>Action</th>
+                <td colSpan="8" style={{ textAlign: "center", padding: "2rem", color: 'var(--text-secondary)' }}>
+                  No patients found.
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {patients.length === 0 ? (
-                <tr>
-                  <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>
-                    No patients available
+            ) : (
+              patients.map((patient) => (
+                <tr key={patient.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '1rem' }}>{patient.name}</td>
+                  <td style={{ padding: '1rem' }}>{patient.mobileNumber}</td>
+                  <td style={{ padding: '1rem' }}>{patient.age}</td>
+                  <td style={{ padding: '1rem' }}>{patient.gender}</td>
+                  <td style={{ padding: '1rem' }}>{patient.address}</td>
+                  <td style={{ padding: '1rem' }}>{patient.medicalCondition}</td>
+                  <td style={{ padding: '1rem' }}>{patient.emergencyContact}</td>
+                  <td style={{ padding: '1rem' }}>
+                    <button
+                      className="btn btn-outline"
+                      style={{ color: 'var(--error-color)', borderColor: 'var(--error-color)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--error-color)'; e.currentTarget.style.color = 'white'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'var(--error-color)'; }}
+                      onClick={() => handleDelete(patient.id)}
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
                   </td>
                 </tr>
-              ) : (
-                patients.map((patient) => (
-                  <tr key={patient.id}>
-                    <td>{patient.name}</td>
-                    <td>{patient.mobileNumber}</td>
-                    <td>{patient.age}</td>
-                    <td>{patient.gender}</td>
-                    <td>{patient.address}</td>
-                    <td>{patient.medicalCondition}</td>
-                    <td>{patient.emergencyContact}</td>
-                    <td>
-                      <button 
-                        onClick={() => handleDelete(patient.id)} 
-                        style={{ backgroundColor: "red", color: "white", border: "none", padding: "5px 10px", borderRadius: "5px", cursor: "pointer" }}
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-        {/* Pagination Controls */}
-        <div style={{ marginTop: "15px", display: "flex", justifyContent: "center", gap: "10px" }}>
-          <button
-            disabled={page === 0}
-            onClick={() => setPage((prev) => prev - 1)}
-          >
-            Previous
-          </button>
-          <span>Page {page + 1} of {totalPages}</span>
-          <button
-            disabled={page + 1 >= totalPages}
-            onClick={() => setPage((prev) => prev + 1)}
-          >
-            Next
-          </button>
+      <div className="flex justify-center items-center gap-4 mt-4">
+        <button
+          className="btn btn-outline"
+          disabled={page === 0}
+          onClick={() => setPage((prev) => prev - 1)}
+        >
+          Previous
+        </button>
+        <span style={{ color: 'var(--text-secondary)' }}>Page {page + 1} of {totalPages || 1}</span>
+        <button
+          className="btn btn-outline"
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Next
+        </button>
+      </div>
+
+      {showModal && (
+        <div className="modal-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div className="form-container" style={{
+            background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
+            width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto'
+          }}>
+            <AddPatient onSuccess={handleAddSuccess} />
+            <button
+              onClick={() => { setShowModal(false); fetchPatients(); }}
+              className="btn btn-outline"
+              style={{ marginTop: '1rem', width: '100%' }}
+            >
+              Close
+            </button>
+          </div>
         </div>
-      </main>
+      )}
     </div>
   );
 };

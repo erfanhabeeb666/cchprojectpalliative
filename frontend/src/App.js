@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./Components/Login";
 import Admin from "./Components/Admin";
-import VolunteerDashboard from "./Components/VolunteerDashboard"; 
+import VolunteerDashboard from "./Components/VolunteerDashboard";
 import Patient from "./Components/Patient/PatientPage";
 import Equipment from "./Components/Equipment/EquipmentPage";
 import AssignVolunteer from "./Components/volunteer/AssignVolunteer";
@@ -17,6 +17,7 @@ import SettingsPage from "./Components/Settings/SettingsPage";
 import VolunteerProfile from "./Components/VolunteerProfile";
 import { MapsProvider } from "./Components/common/MapsProvider";
 import { initAuthAutoLogout } from "./utils/auth";
+import DashboardLayout from "./Components/Layout/DashboardLayout";
 
 const App = () => {
   useEffect(() => {
@@ -25,27 +26,35 @@ const App = () => {
   return (
     <Router>
       <MapsProvider>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/volunteer" element={<VolunteerDashboard />} /> 
-        <Route path="/admin/procedures" element={<ProcedurePage />} />
-        <Route path="/admin/volunteers" element={<VolunteerPage />} />
-        <Route path="/admin/patient" element={<Patient />} />
-        <Route path="/admin/visits" element={<Visits/>} />
-        <Route path="/admin/equipment" element={<Equipment />} />
-        <Route path="/admin/assign-volunteer" element={<AssignVolunteer />} />
-        <Route path="/volunteer/todays-visits" element={<TodaysVisit />} /> 
-        <Route path="/volunteer/completed-visits" element={<CompletedVisits />} /> {/* match NavLink */}
-        <Route path="/volunteer/profile" element={<VolunteerProfile />} />
-        <Route path="/admin/consumables" element={<ConsumablePage/>} />
-        <Route path="/admin/createnewvisit" element={<CreateNewVisit/>}/>
-        <Route path="/admin/settings" element={<SettingsPage/>} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<Login />} />
+
+          {/* Admin Layout & Routes */}
+          <Route path="/admin" element={<DashboardLayout role="admin" />}>
+            <Route index element={<Admin />} />
+            <Route path="patient" element={<Patient />} />
+            <Route path="volunteers" element={<VolunteerPage />} />
+            <Route path="procedures" element={<ProcedurePage />} />
+            <Route path="visits" element={<Visits />} />
+            <Route path="equipment" element={<Equipment />} />
+            <Route path="assign-volunteer" element={<AssignVolunteer />} />
+            <Route path="consumables" element={<ConsumablePage />} />
+            <Route path="createnewvisit" element={<CreateNewVisit />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+
+          {/* Volunteer Layout & Routes */}
+          <Route path="/volunteer" element={<DashboardLayout role="volunteer" />}>
+            <Route index element={<VolunteerDashboard />} />
+            <Route path="todays-visits" element={<TodaysVisit />} />
+            <Route path="completed-visits" element={<CompletedVisits />} />
+            <Route path="profile" element={<VolunteerProfile />} />
+          </Route>
+
+        </Routes>
       </MapsProvider>
     </Router>
   );
 };
 
 export default App;
-

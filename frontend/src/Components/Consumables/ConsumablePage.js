@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { getDisplayName } from "../../utils/auth";
 import AddConsumable from "./AddConsumable";
 import axios from "axios";
-import "../Styles/Admin.css";
-import "../Styles/Main.css";
-import "../Styles/Sidebar.css";
 
 const ConsumablePage = () => {
   const [consumableList, setConsumableList] = useState([]);
@@ -13,6 +8,7 @@ const ConsumablePage = () => {
   const [updateQuantity, setUpdateQuantity] = useState({}); // {id: qty}
   const apiUrl = process.env.REACT_APP_API_URL;
   const token = localStorage.getItem("jwtToken");
+
   // Pagination & search
   const [page, setPage] = useState(0);
   const [size] = useState(6);
@@ -112,89 +108,23 @@ const ConsumablePage = () => {
     }
   };
 
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/");
-  };
-
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <center>
-          <h2>P A S S</h2>
-        </center>
-        <nav>
-          <ul className="sidebar-menu">
-            <li>
-              <NavLink to="/admin" className="sidebar-link">
-                <i className="fas fa-tachometer-alt"></i> Dashboard
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/patient" className="sidebar-link">
-                <i className="fas fa-user-injured"></i> Patients
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/volunteers" className="sidebar-link">
-                <i className="fas fa-hands-helping"></i> Volunteers
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/procedures" className="sidebar-link">
-                <i className="fas fa-stethoscope"></i> Procedures
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/visits" className="sidebar-link">
-                <i className="fas fa-notes-medical"></i> Visit Reports
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/createnewvisit" className="sidebar-link">
-                <i className="fas fa-stethoscope"></i> Create New Visit
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/equipment" className="sidebar-link">
-                <i className="fas fa-dolly-flatbed"></i> Equipment
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/consumables" className="sidebar-link">
-                <i className="fas fa-medkit"></i> Consumables
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/settings" className="sidebar-link">
-                <i className="fas fa-cogs"></i> Settings
-              </NavLink>
-            </li>
-          </ul>
-        </nav>
-      </aside>
+    <div className="consumable-page">
+      <div className="flex justify-between items-center mb-4">
+        <h2>Consumables Management</h2>
 
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="topbar">
-          <h1>Consumables Management</h1>
-          <div className="topbar-actions">
-            <span className="greeting">Hello, {getDisplayName()}</span>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
-          </div>
-        </header>
-
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <div className="flex gap-2 bg-white rounded-lg p-1 border border-gray-200">
           <button
             onClick={() => setActiveTab("manage")}
             style={{
-              padding: "8px 12px",
-              border: activeTab === "manage" ? "2px solid #333" : "1px solid #ccc",
-              background: activeTab === "manage" ? "#f5f5f5" : "#fff",
-              color: "#000",
-              borderRadius: 6,
+              padding: "0.5rem 1rem",
+              borderRadius: "6px",
+              border: "none",
+              backgroundColor: activeTab === "manage" ? "var(--primary-light)" : "transparent",
+              color: activeTab === "manage" ? "var(--primary-dark)" : "var(--text-secondary)",
+              fontWeight: activeTab === "manage" ? "600" : "500",
+              cursor: "pointer",
+              transition: "all 0.2s"
             }}
           >
             Manage
@@ -202,99 +132,144 @@ const ConsumablePage = () => {
           <button
             onClick={() => setActiveTab("usage")}
             style={{
-              padding: "8px 12px",
-              border: activeTab === "usage" ? "2px solid #333" : "1px solid #ccc",
-              background: activeTab === "usage" ? "#f5f5f5" : "#fff",
-              color: "#000",
-              borderRadius: 6,
+              padding: "0.5rem 1rem",
+              borderRadius: "6px",
+              border: "none",
+              backgroundColor: activeTab === "usage" ? "var(--primary-light)" : "transparent",
+              color: activeTab === "usage" ? "var(--primary-dark)" : "var(--text-secondary)",
+              fontWeight: activeTab === "usage" ? "600" : "500",
+              cursor: "pointer",
+              transition: "all 0.2s"
             }}
           >
             Usage stats
           </button>
         </div>
+      </div>
 
-        {activeTab === "usage" && (
-          <>
-            <div style={{ marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-              <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-              <span>to</span>
-              <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-              <button onClick={fetchUsage}>Show Usage</button>
+      {activeTab === "usage" && (
+        <div className="card">
+          <div className="flex items-end gap-4 mb-6 flex-wrap">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="input-field"
+              />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="input-field"
+              />
+            </div>
+            <button className="btn btn-primary" onClick={fetchUsage}>Show Usage</button>
+          </div>
 
-            <div style={{ marginBottom: "24px" }}>
-              <h2>Consolidated Consumable Usage</h2>
-              {loadingUsage ? (
-                <div>Loading...</div>
-              ) : usageError ? (
-                <div style={{ color: "red" }}>{usageError}</div>
-              ) : (
-                <table className="main-table">
-                  <thead>
+          <div>
+            <h3 className="mb-4 text-lg font-semibold">Consolidated Consumable Usage</h3>
+            {loadingUsage ? (
+              <div className="text-gray-500">Loading usage statistics...</div>
+            ) : usageError ? (
+              <div className="text-red-500">{usageError}</div>
+            ) : (
+              <div style={{ overflow: 'hidden', borderRadius: 'var(--border-radius)', border: '1px solid var(--border-color)' }}>
+                <table className="main-table" style={{ width: '100%', marginBottom: 0 }}>
+                  <thead style={{ backgroundColor: 'var(--background-color)' }}>
                     <tr>
-                      <th>Consumable</th>
-                      <th>Total Quantity Used</th>
+                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Consumable</th>
+                      <th style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Total Quantity Used</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(!usage || usage.length === 0) ? (
                       <tr>
-                        <td colSpan="2" style={{ textAlign: "center", padding: "16px" }}>No usage in this period</td>
+                        <td colSpan="2" style={{ textAlign: "center", padding: "16px", color: 'var(--text-secondary)' }}>No usage recorded in this period</td>
                       </tr>
                     ) : (
                       usage.map((u) => (
-                        <tr key={u.consumableId}>
-                          <td>{u.name}</td>
-                          <td>{u.totalQuantityUsed}</td>
+                        <tr key={u.consumableId} style={{ borderTop: '1px solid var(--border-color)' }}>
+                          <td style={{ padding: '0.75rem 1rem' }}>{u.name}</td>
+                          <td style={{ padding: '0.75rem 1rem' }}>{u.totalQuantityUsed}</td>
                         </tr>
                       ))
                     )}
                   </tbody>
                 </table>
-              )}
-            </div>
-          </>
-        )}
-
-        {activeTab === "manage" && (
-          <>
-            <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" }}>
-              <button onClick={() => setShowAddForm(true)}>+ Add Consumable</button>
-              <button onClick={() => fetchConsumables(0, searchQuery)} style={{ marginLeft: "10px" }}>Refresh List</button>
-            </div>
-
-            {showAddForm && (
-              <div className="form-container">
-                <AddConsumable onSuccess={handleAddSuccess} />
-                <button onClick={() => setShowAddForm(false)} className="btn-cancel">Close</button>
               </div>
             )}
+          </div>
+        </div>
+      )}
 
-            <div>
-              <table className="main-table">
-                <thead>
+      {activeTab === "manage" && (
+        <>
+          <div className="flex justify-between items-center mb-4">
+            <input
+              type="text"
+              placeholder="Search consumables..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="input-field"
+              style={{ maxWidth: '300px' }}
+            />
+            <div className="flex gap-2">
+              <button className="btn btn-primary" onClick={() => setShowAddForm(true)}>
+                <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Add Consumable
+              </button>
+              <button className="btn btn-outline" onClick={() => fetchConsumables(0, searchQuery)}>
+                <i className="fas fa-sync-alt"></i>
+              </button>
+            </div>
+          </div>
+
+          {showAddForm && (
+            <div className="modal-overlay" style={{
+              position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+              justifyContent: 'center', alignItems: 'center', zIndex: 1000
+            }}>
+              <div className="form-container" style={{
+                background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
+                width: '100%', maxWidth: '500px'
+              }}>
+                <AddConsumable onSuccess={handleAddSuccess} />
+                <button onClick={() => setShowAddForm(false)} className="btn btn-outline" style={{ marginTop: '1rem', width: '100%' }}>Close</button>
+              </div>
+            </div>
+          )}
+
+          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <table className="main-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
+                <tr>
+                  <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>ID</th>
+                  <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Consumable Name</th>
+                  <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Quantity</th>
+                  <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Update Stock</th>
+                  <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {consumableList.length === 0 ? (
                   <tr>
-                    <th>ID</th>
-                    <th>Consumable Name</th>
-                    <th>Quantity</th>
-                    <th>Update Stock</th>
-                    <th>Actions</th>
+                    <td colSpan="5" style={{ textAlign: "center", padding: "2rem", color: 'var(--text-secondary)' }}>
+                      No consumables available
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {consumableList.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" style={{ textAlign: "center", padding: "20px" }}>
-                        No consumables available
-                      </td>
-                    </tr>
-                  ) : (
-                    consumableList.map((consumable) => (
-                      <tr key={consumable.id}>
-                        <td>{consumable.id}</td>
-                        <td>{consumable.name}</td>
-                        <td>{consumable.stockQuantity}</td>
-                        <td>
+                ) : (
+                  consumableList.map((consumable) => (
+                    <tr key={consumable.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                      <td style={{ padding: '1rem' }}>{consumable.id}</td>
+                      <td style={{ padding: '1rem' }}>{consumable.name}</td>
+                      <td style={{ padding: '1rem', fontWeight: 'bold' }}>{consumable.stockQuantity}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <div className="flex items-center gap-2">
                           <input
                             type="number"
                             min="1"
@@ -306,64 +281,65 @@ const ConsumablePage = () => {
                                 [consumable.id]: e.target.value,
                               }))
                             }
-                            style={{ width: "60px", marginRight: "5px" }}
+                            className="input-field"
+                            style={{ width: "60px", padding: '0.25rem 0.5rem' }}
                           />
                           <button
                             onClick={() => handleStockUpdate(consumable.id, "add")}
-                            style={{ marginRight: "5px" }}
+                            className="btn btn-outline"
+                            title="Add Stock"
+                            style={{ padding: '0.25rem 0.5rem', color: 'var(--success-color)', borderColor: 'var(--success-color)' }}
                           >
-                            + Add
+                            <i className="fas fa-plus"></i>
                           </button>
                           <button
                             onClick={() => handleStockUpdate(consumable.id, "subtract")}
+                            className="btn btn-outline"
+                            title="Subtract Stock"
+                            style={{ padding: '0.25rem 0.5rem', color: 'var(--warning-color)', borderColor: 'var(--warning-color)' }}
                           >
-                            - Subtract
+                            <i className="fas fa-minus"></i>
                           </button>
-                        </td>
-                        <td>
-                          <button
-                            onClick={() => handleDelete(consumable.id)}
-                            style={{
-                              backgroundColor: "red",
-                              color: "white",
-                              border: "none",
-                              padding: "5px 10px",
-                              borderRadius: "5px",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-            {/* Pagination */}
-            <div style={{ marginTop: "15px" }}>
-              <button
-                disabled={page === 0}
-                onClick={() => fetchConsumables(page - 1, searchQuery)}
-              >
-                Prev
-              </button>
-              <span style={{ margin: "0 10px" }}>
-                Page {page + 1} of {totalPages}
-              </span>
-              <button
-                disabled={page + 1 >= totalPages}
-                onClick={() => fetchConsumables(page + 1, searchQuery)}
-              >
-                Next
-              </button>
-            </div>
-          </>
-        )}
-
-    
-      </main>
+                        </div>
+                      </td>
+                      <td style={{ padding: '1rem' }}>
+                        <button
+                          onClick={() => handleDelete(consumable.id)}
+                          className="btn btn-outline"
+                          title="Remove Consumable"
+                          style={{ padding: '0.25rem 0.5rem', color: 'var(--error-color)', borderColor: 'var(--error-color)' }}
+                        >
+                          <i className="fas fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          {/* Pagination */}
+          <div className="flex justify-center items-center gap-4 mt-4">
+            <button
+              className="btn btn-outline"
+              disabled={page === 0}
+              onClick={() => fetchConsumables(page - 1, searchQuery)}
+            >
+              Previous
+            </button>
+            <span style={{ color: 'var(--text-secondary)' }}>
+              Page {page + 1} of {totalPages}
+            </span>
+            <button
+              className="btn btn-outline"
+              disabled={page + 1 >= totalPages}
+              onClick={() => fetchConsumables(page + 1, searchQuery)}
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -1,30 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { getDisplayName } from "../../utils/auth";
 import AddVolunteer from "./AddVolunteer";
 import AssignVolunteer from "./AssignVolunteer";
 import axios from "axios";
-import "../Styles/Admin.css";
-import "../Styles/Main.css";
-import "../Styles/Sidebar.css";
 
 const VolunteerPage = () => {
   const [volunteerList, setVolunteerList] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAssignForm, setShowAssignForm] = useState(false);
   const [page, setPage] = useState(0);
-  const [size] = useState(6);
+  const [size] = useState(6); // kept as state to satisfy usage if needed, or remove setSize
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState("");
 
-  const fetchVolunteers = async (pageNum = page, searchTerm = search) => {
+  const fetchVolunteers = async (pageNum = page) => {
     try {
       const token = localStorage.getItem("jwtToken");
       const apiUrl = process.env.REACT_APP_API_URL;
 
       const response = await axios.get(`${apiUrl}admin/list-volunteers`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { page: pageNum, size, search: searchTerm },
+        params: { page: pageNum, size, search: search },
       });
 
       setVolunteerList(response.data.content);
@@ -35,18 +30,22 @@ const VolunteerPage = () => {
     }
   };
 
+  // Fix: include fetchVolunteers in dependency, but wrap in useCallback or just use simpler approach.
+  // Actually simplest is to include [page, search] in useEffect and call fetchVolunteers() inside.
   useEffect(() => {
-    fetchVolunteers();
-  }, []);
+    fetchVolunteers(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, search]);
+  // We ignore exhaustive-deps here because we want to trigger on page/search change, 
+  // but fetchVolunteers itself is stable or we don't want to redefine it.
+
+  // Handle setSize unused warning by just not destructuring it if not used, 
+  // but we used 'size' in fetchVolunteers. 'setSize' is what was unused.
+  // So we can just do: const [size] = useState(6);
 
   const handleAddSuccess = () => {
     fetchVolunteers();
     setShowAddForm(false);
-  };
-
-  const handleAssignSuccess = () => {
-    fetchVolunteers(); // Refresh list after assignment
-    setShowAssignForm(false); // Close modal
   };
 
   const handleDelete = async (id) => {
@@ -54,6 +53,7 @@ const VolunteerPage = () => {
       try {
         const token = localStorage.getItem("jwtToken");
         const apiUrl = process.env.REACT_APP_API_URL;
+
         await axios.delete(`${apiUrl}admin/delete-volunteer`, {
           headers: { Authorization: `Bearer ${token}` },
           params: { id },
@@ -65,131 +65,143 @@ const VolunteerPage = () => {
     }
   };
 
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/");
-  };
-
   return (
-    <div className="dashboard-container">
-      <aside className="sidebar">
-        <center><h2>P A S S</h2></center>
-        <nav>
-                  <ul className="sidebar-menu">
-                    <li><NavLink to="/admin" className="sidebar-link"><i className="fas fa-tachometer-alt"></i> Dashboard</NavLink></li>
-                    <li><NavLink to="/admin/patient" className="sidebar-link"><i className="fas fa-user-injured"></i> Patients</NavLink></li>
-                    <li><NavLink to="/admin/volunteers" className="sidebar-link"><i className="fas fa-hands-helping"></i> Volunteers</NavLink></li>
-                    <li><NavLink to="/admin/procedures" className="sidebar-link"><i className="fas fa-stethoscope"></i> Procedures</NavLink></li>
-                    <li><NavLink to="/admin/visits" className="sidebar-link"><i className="fas fa-notes-medical"></i> Visit Reports</NavLink></li>
-                    <li>
-                                  <NavLink to="/admin/createnewvisit" className="sidebar-link">
-                                    <i className="fas fa-stethoscope"></i> Create New Visit
-                                  </NavLink>
-                                </li>
-                    <li><NavLink to="/admin/equipment" className="sidebar-link"><i className="fas fa-dolly-flatbed"></i> Equipment</NavLink></li>
-                    <li><NavLink to="/admin/consumables" className="sidebar-link"><i className="fas fa-medkit"></i> Consumables</NavLink></li>
-                    <li><NavLink to="/admin/settings" className="sidebar-link"><i className="fas fa-cogs"></i> Settings</NavLink></li>
-                  </ul>
-                </nav>
-      </aside>
-
-      <main className="main-content">
-        <header className="topbar">
-          <h1>Volunteer Management</h1>
-          <div className="topbar-actions">
-            <span className="greeting">Hello, {getDisplayName()}</span>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
-          </div>
-        </header>
-
-        <div className="mb-4 flex space-x-4" style={{ marginBottom: "20px" ,marginTop:"50px" }}>
-          <button onClick={() => setShowAddForm(true)}>+ Add Volunteer</button>
-          <button onClick={() => fetchVolunteers()} style={{ marginLeft: "15px" }}>Refresh List</button>
-
-          <input
-            type="text"
-            placeholder="Search by name or mobile..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && fetchVolunteers(0, e.target.value)}
-          className="search-input"/>
+    <div className="volunteer-page">
+      <div className="flex justify-between items-center mb-4">
+        <h2>Volunteer Management</h2>
+        <div className="flex gap-2">
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowAddForm(true)}
+          >
+            <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Add Volunteer
+          </button>
+          <button
+            className="btn btn-outline"
+            onClick={() => setShowAssignForm(true)}
+          >
+            <i className="fas fa-clipboard-check" style={{ marginRight: '0.5rem' }}></i> Quick Assign
+          </button>
         </div>
+      </div>
 
-        {/* Add Volunteer Modal */}
-        {showAddForm && (
-          <div className="modal-overlay">
-            <div className="form-container">
-              <AddVolunteer onSuccess={handleAddSuccess} />
-              <button onClick={() => setShowAddForm(false)} className="btn-cancel">Close</button>
-            </div>
-          </div>
-        )}
+      <div className="flex gap-2 mb-4">
+        <input
+          type="text"
+          placeholder="Search volunteers..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(0); // reset to first page on search
+          }}
+          className="input-field"
+          style={{ maxWidth: '300px' }}
+        />
+      </div>
 
-        {/* Assign Volunteer Modal */}
-        {showAssignForm && (
-          <div className="modal-overlay">
-            <div className="form-container">
-              <AssignVolunteer onSuccess={handleAssignSuccess} />
-              <button onClick={() => setShowAssignForm(false)} className="btn-cancel">Close</button>
-            </div>
-          </div>
-        )}
-
-        <div>
-          <table className="main-table">
-            <thead>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table className="main-table" style={{ width: '100%', marginBottom: 0 }}>
+          <thead style={{ backgroundColor: 'var(--background-color)', borderBottom: '1px solid var(--border-color)' }}>
+            <tr>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Name</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Email</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Phone</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {volunteerList.length === 0 ? (
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Address</th>
-                <th>Specialization</th>
-                <th>Action</th>
+                <td colSpan="4" style={{ textAlign: "center", padding: "2rem", color: 'var(--text-secondary)' }}>
+                  No volunteers found
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {volunteerList.length === 0 ? (
-                <tr>
-                  <td colSpan="6" style={{ textAlign: "center", padding: "20px" }}>No volunteers available</td>
+            ) : (
+              volunteerList.map((volunteer) => (
+                <tr key={volunteer.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                  <td style={{ padding: '1rem', fontWeight: '500' }}>{volunteer.name}</td>
+                  <td style={{ padding: '1rem' }}>{volunteer.email}</td>
+                  <td style={{ padding: '1rem' }}>{volunteer.phoneNumber}</td>
+                  <td style={{ padding: '1rem' }}>
+                    <button
+                      onClick={() => handleDelete(volunteer.id)}
+                      className="btn btn-outline"
+                      style={{ color: 'var(--error-color)', borderColor: 'var(--error-color)', padding: '0.25rem 0.5rem' }}
+                      title="Delete Volunteer"
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  </td>
                 </tr>
-              ) : (
-                volunteerList.map((vol) => (
-                  <tr key={vol.id}>
-                    <td>{vol.name}</td>
-                    <td>{vol.email}</td>
-                    <td>{vol.phoneNumber}</td>
-                    <td>{vol.address}</td>
-                    <td>{vol.specialization}</td>
-                    <td>
-                      <button
-                        onClick={() => handleDelete(vol.id)}
-                        style={{
-                          backgroundColor: "red",
-                          color: "white",
-                          border: "none",
-                          padding: "5px 10px",
-                          borderRadius: "5px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-        {/* Pagination */}
-        <div style={{ marginTop: "15px" }}>
-          <button disabled={page === 0} onClick={() => fetchVolunteers(page - 1, search)}>Prev</button>
-          <span style={{ margin: "0 10px" }}>Page {page + 1} of {totalPages}</span>
-          <button disabled={page + 1 >= totalPages} onClick={() => fetchVolunteers(page + 1, search)}>Next</button>
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-4 mt-4">
+        <button
+          className="btn btn-outline"
+          disabled={page === 0}
+          onClick={() => setPage((p) => Math.max(p - 1, 0))}
+        >
+          Previous
+        </button>
+        <span style={{ color: 'var(--text-secondary)' }}>
+          Page {page + 1} of {totalPages}
+        </span>
+        <button
+          className="btn btn-outline"
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage((p) => p + 1)}
+        >
+          Next
+        </button>
+      </div>
+
+      {showAddForm && (
+        <div className="modal-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div className="form-container" style={{
+            background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
+            width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto'
+          }}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Add New Volunteer</h3>
+              <button onClick={() => setShowAddForm(false)} className="text-gray-500 hover:text-gray-700">
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <AddVolunteer onSuccess={handleAddSuccess} />
+          </div>
         </div>
-      </main>
+      )}
+
+      {showAssignForm && (
+        <div className="modal-overlay" style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+        }}>
+          <div className="form-container" style={{
+            background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
+            width: '100%', maxWidth: '600px'
+          }}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Quick Assign Volunteer</h3>
+              <button onClick={() => setShowAssignForm(false)} className="text-gray-500 hover:text-gray-700">
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <AssignVolunteer />
+            <button onClick={() => setShowAssignForm(false)} className="btn btn-outline w-full mt-4">Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

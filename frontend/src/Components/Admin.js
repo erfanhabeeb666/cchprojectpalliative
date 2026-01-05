@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { getDisplayName } from "../utils/auth";
-import "./Styles/Main.css";
-import "./Styles/Admin.css";
-import "./Styles/Sidebar.css"; // keep this LAST
+import { useNavigate } from "react-router-dom";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -25,7 +21,8 @@ const Admin = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:8080/admin/dashboard-stats", {
+        const apiUrl = process.env.REACT_APP_API_URL;
+        const response = await fetch(`${apiUrl}admin/dashboard-stats`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -47,100 +44,85 @@ const Admin = () => {
     fetchStats();
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("jwtToken");
-    navigate("/");
-  };
-
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <center><h2>P A S S</h2></center>
-        <nav>
-          <ul className="sidebar-menu">
-            <li>
-              <NavLink to="/admin" className="sidebar-link">
-                <i className="fas fa-tachometer-alt"></i> Dashboard
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/patient" className="sidebar-link">
-                <i className="fas fa-user-injured"></i> Patients
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/volunteers" className="sidebar-link">
-                <i className="fas fa-hands-helping"></i> Volunteers
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/procedures" className="sidebar-link">
-                <i className="fas fa-stethoscope"></i> Procedures
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/visits" className="sidebar-link">
-                <i className="fas fa-notes-medical"></i> Visit Reports
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/createnewvisit" className="sidebar-link">
-                <i className="fas fa-stethoscope"></i> Create New Visit
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/equipment" className="sidebar-link">
-                <i className="fas fa-dolly-flatbed"></i> Equipment
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/consumables" className="sidebar-link">
-                <i className="fas fa-medkit"></i> Consumables
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/admin/settings" className="sidebar-link">
-                <i className="fas fa-cogs"></i> Settings
-              </NavLink>
-            </li>
-          </ul>
-        </nav>
-      </aside>
+    <div className="admin-dashboard">
+      <h2 className="mb-4">Admin Dashboard</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
+        <div className="card hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Total Patients</p>
+              <h3 className="text-3xl font-bold text-gray-800">{stats.totalPatients}</h3>
+            </div>
+            <div className="p-3 bg-blue-50 rounded-full">
+              <i className="fas fa-user-injured text-blue-500 text-xl"></i>
+            </div>
+          </div>
+          <div className="mt-4 text-sm text-green-600 font-medium">
+            <i className="fas fa-arrow-up mr-1"></i> Updated just now
+          </div>
+        </div>
 
-      {/* Main Content */}
-      <main className="main-content">
-        <header className="topbar">
-          <h1>Palliative Care Dashboard</h1>
-          <div className="topbar-actions">
-            <span className="greeting">Hello, {getDisplayName()}</span>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        <div className="card hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Active Volunteers</p>
+              <h3 className="text-3xl font-bold text-gray-800">{stats.activeVolunteers}</h3>
+            </div>
+            <div className="p-3 bg-purple-50 rounded-full">
+              <i className="fas fa-hands-helping text-purple-500 text-xl"></i>
+            </div>
           </div>
-        </header>
+          <div className="mt-4 text-sm text-green-600 font-medium">
+            <i className="fas fa-arrow-up mr-1"></i> Active now
+          </div>
+        </div>
 
-        <section className="grid">
-          <div className="card">
-            <i className="fas fa-user-injured"></i> Total Patients:{" "}
-            <strong>{stats.totalPatients}</strong>
+        <div className="card hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Equipment Items</p>
+              <h3 className="text-3xl font-bold text-gray-800">{stats.equipmentsTotal}</h3>
+            </div>
+            <div className="p-3 bg-indigo-50 rounded-full">
+              <i className="fas fa-dolly-flatbed text-indigo-500 text-xl"></i>
+            </div>
           </div>
-          <div className="card">
-            <i className="fas fa-hands-helping"></i> Active Volunteers:{" "}
-            <strong>{stats.activeVolunteers}</strong>
+          <div className="mt-4 text-sm text-gray-500">
+            Total inventory count
           </div>
-          <div className="card">
-            <i className="fas fa-medkit"></i> Equipments Total:{" "}
-            <strong>{stats.equipmentsTotal}</strong>
+        </div>
+
+        <div className="card hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Visits Completed</p>
+              <h3 className="text-3xl font-bold text-gray-800">{stats.totalVisitDone}</h3>
+            </div>
+            <div className="p-3 bg-green-50 rounded-full">
+              <i className="fas fa-check-circle text-green-500 text-xl"></i>
+            </div>
           </div>
-          <div className="card">
-            <i className="fas fa-check-circle"></i> Total Visits Done:{" "}
-            <strong>{stats.totalVisitDone}</strong>
+          <div className="mt-4 text-sm text-green-600 font-medium">
+            <i className="fas fa-chart-line mr-1"></i> All time
           </div>
-          <div className="card">
-            <i className="fas fa-hourglass-half"></i> Pending Visits:{" "}
-            <strong>{stats.pendingVisits}</strong>
+        </div>
+
+        <div className="card hover:shadow-lg transition-shadow duration-300">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-gray-500 text-sm font-medium mb-1">Pending Visits</p>
+              <h3 className="text-3xl font-bold text-gray-800">{stats.pendingVisits}</h3>
+            </div>
+            <div className="p-3 bg-yellow-50 rounded-full">
+              <i className="fas fa-clock text-yellow-500 text-xl"></i>
+            </div>
           </div>
-        </section>
-      </main>
+          <div className="mt-4 text-sm text-yellow-600 font-medium">
+            <i className="fas fa-exclamation-circle mr-1"></i> Requires attention
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
