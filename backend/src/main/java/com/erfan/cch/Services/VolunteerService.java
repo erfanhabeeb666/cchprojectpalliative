@@ -90,6 +90,7 @@ public class VolunteerService {
 
         // Clear old consumables and rebuild
         report.getConsumablesUsed().clear();
+        report.setSubmittedBy(report.getVolunteer().getName());
 
         for (ConsumableUsageDto usageDto : consumableUsage) {
 
@@ -117,11 +118,6 @@ public class VolunteerService {
         }
 
         Long jwtUserId = Long.valueOf(jwtService.extractId(jwtUtils.getJwtFromRequest(request)));
-        Volunteer volunteer = volunteerRepository.findById(jwtUserId).orElse(null);
-        if (volunteer != null) {
-            report.setSubmittedBy(volunteer.getName());
-        }
-
         reportRepository.save(report);
     }
 

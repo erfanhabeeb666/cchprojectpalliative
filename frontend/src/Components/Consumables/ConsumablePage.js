@@ -168,7 +168,23 @@ const ConsumablePage = () => {
                 className="input-field"
               />
             </div>
-            <button className="btn btn-primary" onClick={fetchUsage}>Show Usage</button>
+            <div>
+              <label className="block text-sm font-medium mb-1 invisible">&nbsp;</label>
+              <button
+                className="btn btn-primary"
+                onClick={fetchUsage}
+                style={{
+                  padding: '0 1rem',
+                  fontSize: '0.875rem',
+                  height: '41px',
+                  minHeight: 'auto',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                Show Usage
+              </button>
+            </div>
           </div>
 
           <div>
@@ -219,11 +235,11 @@ const ConsumablePage = () => {
               style={{ maxWidth: '300px' }}
             />
             <div className="flex gap-2">
-              <button className="btn btn-primary" onClick={() => setShowAddForm(true)}>
-                <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Add Consumable
-              </button>
               <button className="btn btn-outline" onClick={() => fetchConsumables(0, searchQuery)}>
                 <i className="fas fa-sync-alt"></i>
+              </button>
+              <button className="btn btn-primary" onClick={() => setShowAddForm(true)}>
+                <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Add Consumable
               </button>
             </div>
           </div>
@@ -238,8 +254,7 @@ const ConsumablePage = () => {
                 background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
                 width: '100%', maxWidth: '500px'
               }}>
-                <AddConsumable onSuccess={handleAddSuccess} />
-                <button onClick={() => setShowAddForm(false)} className="btn btn-outline" style={{ marginTop: '1rem', width: '100%' }}>Close</button>
+                <AddConsumable onSuccess={handleAddSuccess} onCancel={() => setShowAddForm(false)} />
               </div>
             </div>
           )}

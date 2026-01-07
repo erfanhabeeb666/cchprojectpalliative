@@ -304,14 +304,24 @@ const EquipmentPage = () => {
       {showAllocateModal && (
         <div className="modal-overlay" style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
-          justifyContent: 'center', alignItems: 'center', zIndex: 1000
+          backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex',
+          justifyContent: 'center', alignItems: 'center', zIndex: 1000,
+          backdropFilter: 'blur(2px)'
         }}>
           <div className="form-container" style={{
             background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
             width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto'
           }}>
-            <h3 className="mb-4 text-lg font-bold">Allocate {selectedEquipment?.name}</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold m-0">Allocate {selectedEquipment?.name}</h3>
+              <button
+                onClick={() => setShowAllocateModal(false)}
+                className="text-gray-300 hover:text-gray-500 transition-colors"
+                title="Close"
+              >
+                <i className="fas fa-times text-xl"></i>
+              </button>
+            </div>
 
             <input
               type="text"

@@ -68,7 +68,7 @@ public class PdfExportService {
             document.add(paragraph);
             document.add(Chunk.NEWLINE);
 
-            PdfPTable table = new PdfPTable(7); // Date, Patient, Volunteer, procedures, consumables, status, notes
+            PdfPTable table = new PdfPTable(8); // Date, Patient, Volunteer, procedures, consumables, status, notes
             table.setWidthPercentage(100);
             table.setWidths(new float[] { 2, 3, 3, 3, 4, 3, 2, 4 });
 

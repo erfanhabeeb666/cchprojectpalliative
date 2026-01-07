@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const AddConsumable = ({ onSuccess }) => {
+const AddConsumable = ({ onSuccess, onCancel }) => {
   const [consumable, setConsumable] = useState({
     name: "",
     stockQuantity: "",  // allow empty string for typing
@@ -45,36 +45,55 @@ const AddConsumable = ({ onSuccess }) => {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold">Add Consumable</h2>
+      <h2 className="text-xl font-bold mb-4">Add Consumable</h2>
 
-      {successMessage && <p className="text-green-600">{successMessage}</p>}
-      {error && <p className="text-red-600">{error}</p>}
+      {successMessage && <p className="text-green-600 font-medium">{successMessage}</p>}
+      {error && <p className="text-red-600 font-medium">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="name"
-          value={consumable.name}
-          onChange={handleChange}
-          placeholder="Consumable Name"
-          required
-          className="w-full p-2 border rounded"
-        />
-        <input
-          type="number"
-          name="stockQuantity"
-          value={consumable.stockQuantity}
-          onChange={handleChange}
-          placeholder="Quantity"
-          required
-          className="w-full p-2 border rounded"
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Submit
-        </button>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Consumable Name</label>
+          <input
+            type="text"
+            name="name"
+            value={consumable.name}
+            onChange={handleChange}
+            placeholder="e.g. Cotton Swabs"
+            required
+            className="input-field"
+          />
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Quantity</label>
+          <input
+            type="number"
+            name="stockQuantity"
+            value={consumable.stockQuantity}
+            onChange={handleChange}
+            placeholder="0"
+            required
+            className="input-field"
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', width: '100%' }}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+          >
+            Add Consumable
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="btn btn-outline"
+            style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
