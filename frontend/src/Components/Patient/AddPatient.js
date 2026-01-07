@@ -309,7 +309,8 @@ const AddPatient = ({ onSuccess }) => {
 
                 <button
                     type="submit"
-                    className="btn btn-primary w-full"
+                    className="btn btn-primary w-full mt-8"
+                    style={{ marginTop: '0.5rem' }}
                 >
                     Register Patient
                 </button>

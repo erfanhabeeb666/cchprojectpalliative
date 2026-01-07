@@ -209,7 +209,8 @@ const AddVolunteer = ({ onSuccess }) => {
 
         <button
           type="submit"
-          className="btn btn-primary w-full"
+          className="btn btn-primary w-full mt-8"
+          style={{ marginTop: '1rem' }}
         >
           Register Volunteer
         </button>

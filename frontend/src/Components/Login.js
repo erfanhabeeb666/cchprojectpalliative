@@ -131,9 +131,9 @@ const Login = () => {
 
                     <button
                         type="submit"
-                        className="btn btn-primary w-full py-3 text-lg shadow-md hover:shadow-lg transition-all"
+                        className="btn btn-primary w-full py-3 text-lg shadow-md hover:shadow-lg transition-all mt-8"
                         disabled={isLoading}
-                        style={{ width: '100%', justifyContent: 'center' }}
+                        style={{ width: '100%', justifyContent: 'center', marginTop: '1rem' }}
                     >
                         {isLoading ? (
                             <>
