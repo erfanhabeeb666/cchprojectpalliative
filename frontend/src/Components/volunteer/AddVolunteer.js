@@ -110,108 +110,116 @@ const AddVolunteer = ({ onSuccess }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {successMessage && (
-        <div className="p-3 mb-4 text-green-700 bg-green-100 rounded border border-green-200">
-          <i className="fas fa-check-circle mr-2"></i> {successMessage}
+        <div className="p-4 mb-6 text-teal-700 bg-teal-50 rounded-lg border border-teal-100 flex items-center shadow-sm">
+          <i className="fas fa-check-circle mr-3 text-lg"></i>
+          <span className="font-semibold">{successMessage}</span>
         </div>
       )}
       {error && (
-        <div className="p-3 mb-4 text-red-700 bg-red-100 rounded border border-red-200">
-          <i className="fas fa-exclamation-circle mr-2"></i> {error}
+        <div className="p-4 mb-6 text-red-700 bg-red-50 rounded-lg border border-red-100 flex items-center shadow-sm">
+          <i className="fas fa-exclamation-circle mr-3 text-lg"></i>
+          <span className="font-semibold">{error}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-secondary mb-1.5">Full Name</label>
           <input
             type="text"
             name="name"
             value={volunteer.name}
             onChange={handleChange}
-            placeholder="Full Name"
+            placeholder="e.g. John Doe"
             required
             className="input-field"
+            style={{ height: '44px' }}
           />
-          {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
+          {errors.name && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.name}</p>}
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-secondary mb-1.5">Email</label>
           <input
             type="email"
             name="email"
             value={volunteer.email}
             onChange={handleChange}
-            placeholder="Email"
+            placeholder="e.g. john@example.com"
             required
             className="input-field"
+            style={{ height: '44px' }}
           />
-          {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email}</p>}
+          {errors.email && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.email}</p>}
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-secondary mb-1.5">Password</label>
           <input
             type="password"
             name="password"
             value={volunteer.password}
             onChange={handleChange}
-            placeholder="Password"
+            placeholder="Minimum 6 characters"
             required
             className="input-field"
+            style={{ height: '44px' }}
           />
-          {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password}</p>}
+          {errors.password && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.password}</p>}
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-secondary mb-1.5">Phone Number</label>
           <input
             type="tel"
             name="phoneNumber"
             value={volunteer.phoneNumber}
             onChange={handleChange}
-            placeholder="Phone Number"
+            placeholder="10-digit number"
             required
             inputMode="numeric"
             maxLength={10}
             className="input-field"
+            style={{ height: '44px' }}
           />
-          {errors.phoneNumber && <p className="text-red-600 text-xs mt-1">{errors.phoneNumber}</p>}
+          {errors.phoneNumber && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.phoneNumber}</p>}
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-secondary mb-1.5">Address</label>
           <textarea
             name="address"
             value={volunteer.address}
             onChange={handleChange}
-            placeholder="Address"
+            placeholder="Full address"
             required
             className="input-field"
-            rows="2"
+            rows="3"
           />
-          {errors.address && <p className="text-red-600 text-xs mt-1">{errors.address}</p>}
+          {errors.address && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.address}</p>}
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+        <div className="mb-8">
+          <label className="block text-sm font-semibold text-secondary mb-1.5">Specialization</label>
           <input
             type="text"
             name="specialization"
             value={volunteer.specialization}
             onChange={handleChange}
-            placeholder="Specialization (Optional)"
+            placeholder="e.g. Nursing, Counseling (Optional)"
             className="input-field"
+            style={{ height: '44px' }}
           />
         </div>
 
         <button
           type="submit"
           className="btn btn-primary w-full mt-8"
-          style={{ marginTop: '1rem' }}
+          style={{ marginTop: '1rem', height: '48px', fontSize: '1rem' }}
         >
+          <i className="fas fa-user-plus mr-2"></i>
           Register Volunteer
         </button>
       </form>

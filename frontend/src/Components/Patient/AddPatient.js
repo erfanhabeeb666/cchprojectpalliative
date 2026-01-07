@@ -122,21 +122,23 @@ const AddPatient = ({ onSuccess }) => {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             {successMessage && (
-                <div className="p-3 mb-4 text-green-700 bg-green-100 rounded border border-green-200">
-                    <i className="fas fa-check-circle mr-2"></i> {successMessage}
+                <div className="p-4 mb-6 text-teal-700 bg-teal-50 rounded-lg border border-teal-100 flex items-center shadow-sm">
+                    <i className="fas fa-check-circle mr-3 text-lg"></i>
+                    <span className="font-semibold">{successMessage}</span>
                 </div>
             )}
             {error && (
-                <div className="p-3 mb-4 text-red-700 bg-red-100 rounded border border-red-200">
-                    <i className="fas fa-exclamation-circle mr-2"></i> {error}
+                <div className="p-4 mb-6 text-red-700 bg-red-50 rounded-lg border border-red-100 flex items-center shadow-sm">
+                    <i className="fas fa-exclamation-circle mr-3 text-lg"></i>
+                    <span className="font-semibold">{error}</span>
                 </div>
             )}
 
             <form onSubmit={handleSubmit} noValidate>
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <div className="mb-5">
+                    <label className="block text-sm font-semibold text-secondary mb-1.5">Full Name</label>
                     <input
                         type="text"
                         name="name"
@@ -145,13 +147,14 @@ const AddPatient = ({ onSuccess }) => {
                         placeholder="e.g. John Doe"
                         required
                         className="input-field"
+                        style={{ height: '44px' }}
                     />
-                    {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name}</p>}
+                    {errors.name && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.name}</p>}
                 </div>
 
-                <div className="flex gap-4 mb-4">
+                <div className="flex gap-4 mb-5">
                     <div className="flex-1">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+                        <label className="block text-sm font-semibold text-secondary mb-1.5">Mobile Number</label>
                         <input
                             type="tel"
                             name="mobileNumber"
@@ -162,11 +165,12 @@ const AddPatient = ({ onSuccess }) => {
                             inputMode="numeric"
                             maxLength={10}
                             className="input-field"
+                            style={{ height: '44px' }}
                         />
-                        {errors.mobileNumber && <p className="text-red-600 text-xs mt-1">{errors.mobileNumber}</p>}
+                        {errors.mobileNumber && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.mobileNumber}</p>}
                     </div>
                     <div className="w-1/3">
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
+                        <label className="block text-sm font-semibold text-secondary mb-1.5">Age</label>
                         <input
                             type="number"
                             name="age"
@@ -177,30 +181,32 @@ const AddPatient = ({ onSuccess }) => {
                             min={1}
                             max={120}
                             className="input-field"
+                            style={{ height: '44px' }}
                         />
-                        {errors.age && <p className="text-red-600 text-xs mt-1">{errors.age}</p>}
+                        {errors.age && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.age}</p>}
                     </div>
                 </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <div className="mb-5">
+                    <label className="block text-sm font-semibold text-secondary mb-1.5">Gender</label>
                     <select
                         name="gender"
                         value={patient.gender}
                         onChange={handleChange}
                         required
                         className="input-field"
+                        style={{ height: '44px' }}
                     >
                         <option value="">Select Gender</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                         <option value="Other">Other</option>
                     </select>
-                    {errors.gender && <p className="text-red-600 text-xs mt-1">{errors.gender}</p>}
+                    {errors.gender && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.gender}</p>}
                 </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                <div className="mb-5">
+                    <label className="block text-sm font-semibold text-secondary mb-1.5">Address</label>
                     <textarea
                         name="address"
                         value={patient.address}
@@ -208,26 +214,26 @@ const AddPatient = ({ onSuccess }) => {
                         placeholder="Full address"
                         required
                         className="input-field"
-                        rows="2"
+                        rows="3"
                     />
-                    {errors.address && <p className="text-red-600 text-xs mt-1">{errors.address}</p>}
+                    {errors.address && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.address}</p>}
                 </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Patient Location (optional)</label>
-                    <div className="flex items-center gap-2">
+                <div className="mb-5">
+                    <label className="block text-sm font-semibold text-secondary mb-1.5">Patient Location (optional)</label>
+                    <div className="flex items-center gap-3">
                         {selectedLocation ? (
-                            <span className="text-sm text-gray-700 bg-gray-100 px-2 py-1 rounded">
-                                <i className="fas fa-map-marker-alt text-red-500 mr-1"></i>
+                            <span className="text-sm font-semibold text-secondary bg-slate-100 px-3 py-1.5 rounded-full flex items-center shadow-sm">
+                                <i className="fas fa-map-marker-alt text-red-500 mr-2"></i>
                                 {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
                             </span>
                         ) : (
-                            <span className="text-sm text-gray-400 italic">No location selected</span>
+                            <span className="text-sm text-muted italic">No location selected</span>
                         )}
                         <button
                             type="button"
                             className="btn btn-outline"
-                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.75rem', height: '36px' }}
                             onClick={() => {
                                 if (typeof navigator !== 'undefined' && !navigator.onLine) {
                                     alert('You are offline — location selection is optional.');
@@ -237,13 +243,14 @@ const AddPatient = ({ onSuccess }) => {
                                 setShowLocationModal(true);
                             }}
                         >
+                            <i className={selectedLocation ? 'fas fa-edit' : 'fas fa-map'}></i>
                             {selectedLocation ? 'Change' : 'Select on Map'}
                         </button>
                     </div>
                 </div>
 
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Medical Condition</label>
+                <div className="mb-5">
+                    <label className="block text-sm font-semibold text-secondary mb-1.5">Medical Condition</label>
                     <input
                         type="text"
                         name="medicalCondition"
@@ -252,12 +259,13 @@ const AddPatient = ({ onSuccess }) => {
                         placeholder="e.g. Diabetic, Hypertensive"
                         required
                         className="input-field"
+                        style={{ height: '44px' }}
                     />
-                    {errors.medicalCondition && <p className="text-red-600 text-xs mt-1">{errors.medicalCondition}</p>}
+                    {errors.medicalCondition && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.medicalCondition}</p>}
                 </div>
 
-                <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact (Optional)</label>
+                <div className="mb-8">
+                    <label className="block text-sm font-semibold text-secondary mb-1.5">Emergency Contact (Optional)</label>
                     <input
                         type="text"
                         name="emergencyContact"
@@ -267,8 +275,9 @@ const AddPatient = ({ onSuccess }) => {
                         inputMode="numeric"
                         maxLength={15}
                         className="input-field"
+                        style={{ height: '44px' }}
                     />
-                    {errors.emergencyContact && <p className="text-red-600 text-xs mt-1">{errors.emergencyContact}</p>}
+                    {errors.emergencyContact && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.emergencyContact}</p>}
                 </div>
 
                 {showLocationModal && (
@@ -310,8 +319,9 @@ const AddPatient = ({ onSuccess }) => {
                 <button
                     type="submit"
                     className="btn btn-primary w-full mt-8"
-                    style={{ marginTop: '0.5rem' }}
+                    style={{ marginTop: '0.5rem', height: '48px', fontSize: '1rem' }}
                 >
+                    <i className="fas fa-user-plus mr-2"></i>
                     Register Patient
                 </button>
             </form>

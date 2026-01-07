@@ -181,6 +181,19 @@ const CreateNewVisit = () => {
             </div>
 
             <div className="flex justify-between items-center mt-4">
+              <div className="flex gap-4 items-center">
+                <div className="text-sm text-gray-600">
+                  {selectedPatients.length} patient(s) selected
+                </div>
+                <button
+                  className="btn btn-primary"
+                  disabled={!selectedPatients.length}
+                  onClick={() => setStep(2)}
+                >
+                  Next
+                </button>
+              </div>
+
               <div className="flex items-center gap-2">
                 <button
                   className="btn btn-outline"
@@ -196,19 +209,6 @@ const CreateNewVisit = () => {
                   className="btn btn-outline"
                   disabled={pagePatients + 1 >= totalPagesPatients}
                   onClick={() => setPagePatients((prev) => prev + 1)}
-                >
-                  Next
-                </button>
-              </div>
-
-              <div className="flex gap-4 items-center">
-                <div className="text-sm text-gray-600">
-                  {selectedPatients.length} patient(s) selected
-                </div>
-                <button
-                  className="btn btn-primary"
-                  disabled={!selectedPatients.length}
-                  onClick={() => setStep(2)}
                 >
                   Next
                 </button>
@@ -262,6 +262,19 @@ const CreateNewVisit = () => {
             </div>
 
             <div className="flex justify-between items-center mt-4">
+              <div className="flex gap-2">
+                <button className="btn btn-outline" onClick={() => setStep(1)}>
+                  Back
+                </button>
+                <button
+                  className="btn btn-primary"
+                  disabled={!selectedVolunteer}
+                  onClick={() => setStep(3)}
+                >
+                  Next
+                </button>
+              </div>
+
               <div className="flex items-center gap-2">
                 <button
                   className="btn btn-outline"
@@ -277,19 +290,6 @@ const CreateNewVisit = () => {
                   className="btn btn-outline"
                   disabled={pageVolunteers + 1 >= totalPagesVolunteers}
                   onClick={() => setPageVolunteers((prev) => prev + 1)}
-                >
-                  Next
-                </button>
-              </div>
-
-              <div className="flex gap-2">
-                <button className="btn btn-outline" onClick={() => setStep(1)}>
-                  Back
-                </button>
-                <button
-                  className="btn btn-primary"
-                  disabled={!selectedVolunteer}
-                  onClick={() => setStep(3)}
                 >
                   Next
                 </button>
@@ -337,15 +337,8 @@ const CreateNewVisit = () => {
               <div className="mb-4">
                 <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Patients Selected ({selectedPatients.length})</h4>
                 <div className="bg-white p-3 rounded border border-gray-200">
-                  {/* We need to show names, but we only have IDs in selectedPatients. 
-                             Ideally we should store objects or re-fetch/lookup. 
-                             For now, we can only display count accurately or names if they are in current page 'patients' array.
-                             Better: Let's assume user just wants confirmation.
-                          */}
-                  {/* Trying to find names from valid pool if available, otherwise just ID count */}
                   <ul className="list-disc list-inside">
                     {selectedPatients.map(id => {
-                      // Try to find name in currently loaded page, fallback to ID
                       const p = patients.find(pat => pat.id === id);
                       return <li key={id}>{p ? p.name : `Patient ID: ${id}`}</li>
                     })}
