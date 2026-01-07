@@ -109,8 +109,7 @@ const ProcedurePage = () => {
             background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
             width: '100%', maxWidth: '500px'
           }}>
-            <AddProcedure onSuccess={handleAddSuccess} />
-            <button onClick={() => setShowAddForm(false)} className="btn btn-outline" style={{ marginTop: '1rem', width: '100%' }}>Close</button>
+            <AddProcedure onSuccess={handleAddSuccess} onCancel={() => setShowAddForm(false)} />
           </div>
         </div>
       )}

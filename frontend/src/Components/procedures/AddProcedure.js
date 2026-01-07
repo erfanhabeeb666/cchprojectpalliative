@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const AddProcedure = ({ onSuccess }) => {
+const AddProcedure = ({ onSuccess, onCancel }) => {
   const [procedure, setProcedure] = useState({
     procedureName: ""
   });
@@ -32,7 +32,6 @@ const AddProcedure = ({ onSuccess }) => {
       setProcedure({ procedureName: "" });
 
       if (onSuccess) onSuccess();
-      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
       console.error(err);
       setError("Failed to add procedure");
@@ -42,20 +41,14 @@ const AddProcedure = ({ onSuccess }) => {
 
   return (
     <div className="space-y-4">
-      {successMessage && (
-        <div className="p-3 mb-4 text-green-700 bg-green-100 rounded border border-green-200">
-          <i className="fas fa-check-circle mr-2"></i> {successMessage}
-        </div>
-      )}
-      {error && (
-        <div className="p-3 mb-4 text-red-700 bg-red-100 rounded border border-red-200">
-          <i className="fas fa-exclamation-circle mr-2"></i> {error}
-        </div>
-      )}
+      <h2 className="text-xl font-bold mb-4">Add Procedure</h2>
+
+      {successMessage && <p className="text-green-600 font-medium">{successMessage}</p>}
+      {error && <p className="text-red-600 font-medium">{error}</p>}
 
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Procedure Name</label>
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Procedure Name</label>
           <input
             type="text"
             name="procedureName"
@@ -66,12 +59,24 @@ const AddProcedure = ({ onSuccess }) => {
             className="input-field"
           />
         </div>
-        <button
-          type="submit"
-          className="btn btn-primary w-full"
-        >
-          Submit
-        </button>
+
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', width: '100%' }}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+          >
+            Add Procedure
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="btn btn-outline"
+            style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -253,14 +253,10 @@ const PatientPage = () => {
             background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
             width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto'
           }}>
-            <AddPatient onSuccess={handleAddSuccess} />
-            <button
-              onClick={() => { setShowModal(false); fetchPatients(); }}
-              className="btn btn-outline"
-              style={{ marginTop: '1rem', width: '100%' }}
-            >
-              Close
-            </button>
+            <AddPatient
+              onSuccess={handleAddSuccess}
+              onCancel={() => setShowModal(false)}
+            />
           </div>
         </div>
       )}

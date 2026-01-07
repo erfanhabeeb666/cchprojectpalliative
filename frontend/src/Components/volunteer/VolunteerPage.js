@@ -175,13 +175,7 @@ const VolunteerPage = () => {
             background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
             width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto'
           }}>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Add New Volunteer</h3>
-              <button onClick={() => setShowAddForm(false)} className="text-gray-500 hover:text-gray-700">
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <AddVolunteer onSuccess={handleAddSuccess} />
+            <AddVolunteer onSuccess={handleAddSuccess} onCancel={() => setShowAddForm(false)} />
           </div>
         </div>
       )}

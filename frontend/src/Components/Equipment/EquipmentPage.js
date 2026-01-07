@@ -288,14 +288,7 @@ const EquipmentPage = () => {
             background: 'white', padding: '2rem', borderRadius: 'var(--border-radius)',
             width: '100%', maxWidth: '500px'
           }}>
-            <AddEquipment onSuccess={handleAddSuccess} />
-            <button
-              onClick={() => setShowAddForm(false)}
-              className="btn btn-outline"
-              style={{ marginTop: '1rem', width: '100%' }}
-            >
-              Close
-            </button>
+            <AddEquipment onSuccess={handleAddSuccess} onCancel={() => setShowAddForm(false)} />
           </div>
         </div>
       )}
@@ -367,47 +360,49 @@ const EquipmentPage = () => {
               )}
             </div>
 
-            <div className="flex gap-4 mb-6">
-              <button
-                onClick={() => setShowAllocateModal(false)}
-                className="btn btn-outline flex-1"
-                style={{ padding: '0.4rem 1rem', fontSize: '0.875rem' }}
-              >
-                Cancel
-              </button>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', width: '100%' }}>
               <button
                 onClick={confirmAllocate}
-                className="btn btn-primary flex-1"
-                style={{ padding: '0.4rem 1rem', fontSize: '0.875rem' }}
+                className="btn btn-primary"
+                style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
               >
                 Confirm
+              </button>
+              <button
+                onClick={() => setShowAllocateModal(false)}
+                className="btn btn-outline"
+                style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+              >
+                Cancel
               </button>
             </div>
 
             {/* Pagination for Modal */}
-            <div className="flex justify-center items-center gap-2">
+            <div className="flex justify-center items-center gap-4" style={{ marginTop: '1.5rem' }}>
               <button
                 className="btn btn-outline"
-                style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', minWidth: 'auto' }}
                 disabled={pagePatientsModal === 0}
                 onClick={() =>
                   setPagePatientsModal((prev) => Math.max(prev - 1, 0))
                 }
+                title="Previous"
               >
-                Prev
+                <i className="fas fa-chevron-left text-xs"></i>
               </button>
-              <span className="text-sm">
-                Page {pagePatientsModal + 1} of {totalPagesPatientsModal}
+              <span className="text-xs font-medium text-gray-500">
+                {pagePatientsModal + 1} / {totalPagesPatientsModal}
               </span>
               <button
                 className="btn btn-outline"
-                style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
+                style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', minWidth: 'auto' }}
                 disabled={pagePatientsModal + 1 >= totalPagesPatientsModal}
                 onClick={() =>
                   setPagePatientsModal((prev) => prev + 1)
                 }
+                title="Next"
               >
-                Next
+                <i className="fas fa-chevron-right text-xs"></i>
               </button>
             </div>
           </div>

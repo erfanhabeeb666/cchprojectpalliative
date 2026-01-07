@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const AddVolunteer = ({ onSuccess }) => {
+const AddVolunteer = ({ onSuccess, onCancel }) => {
   const [volunteer, setVolunteer] = useState({
     name: '',
     email: '',
@@ -79,7 +79,6 @@ const AddVolunteer = ({ onSuccess }) => {
       setErrors({});
 
       if (onSuccess) onSuccess();
-      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       console.error(err);
       const status = err && err.response ? err.response.status : undefined;
@@ -110,23 +109,15 @@ const AddVolunteer = ({ onSuccess }) => {
   };
 
   return (
-    <div className="space-y-6">
-      {successMessage && (
-        <div className="p-4 mb-6 text-teal-700 bg-teal-50 rounded-lg border border-teal-100 flex items-center shadow-sm">
-          <i className="fas fa-check-circle mr-3 text-lg"></i>
-          <span className="font-semibold">{successMessage}</span>
-        </div>
-      )}
-      {error && (
-        <div className="p-4 mb-6 text-red-700 bg-red-50 rounded-lg border border-red-100 flex items-center shadow-sm">
-          <i className="fas fa-exclamation-circle mr-3 text-lg"></i>
-          <span className="font-semibold">{error}</span>
-        </div>
-      )}
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold mb-4">Add Volunteer</h2>
+
+      {successMessage && <p className="text-green-600 font-medium">{successMessage}</p>}
+      {error && <p className="text-red-600 font-medium">{error}</p>}
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="mb-5">
-          <label className="block text-sm font-semibold text-secondary mb-1.5">Full Name</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
           <input
             type="text"
             name="name"
@@ -135,13 +126,12 @@ const AddVolunteer = ({ onSuccess }) => {
             placeholder="e.g. John Doe"
             required
             className="input-field"
-            style={{ height: '44px' }}
           />
           {errors.name && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.name}</p>}
         </div>
 
         <div className="mb-5">
-          <label className="block text-sm font-semibold text-secondary mb-1.5">Email</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
           <input
             type="email"
             name="email"
@@ -150,13 +140,12 @@ const AddVolunteer = ({ onSuccess }) => {
             placeholder="e.g. john@example.com"
             required
             className="input-field"
-            style={{ height: '44px' }}
           />
           {errors.email && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.email}</p>}
         </div>
 
         <div className="mb-5">
-          <label className="block text-sm font-semibold text-secondary mb-1.5">Password</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
           <input
             type="password"
             name="password"
@@ -165,13 +154,12 @@ const AddVolunteer = ({ onSuccess }) => {
             placeholder="Minimum 6 characters"
             required
             className="input-field"
-            style={{ height: '44px' }}
           />
           {errors.password && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.password}</p>}
         </div>
 
         <div className="mb-5">
-          <label className="block text-sm font-semibold text-secondary mb-1.5">Phone Number</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number</label>
           <input
             type="tel"
             name="phoneNumber"
@@ -182,13 +170,12 @@ const AddVolunteer = ({ onSuccess }) => {
             inputMode="numeric"
             maxLength={10}
             className="input-field"
-            style={{ height: '44px' }}
           />
           {errors.phoneNumber && <p className="text-red-500 text-xs mt-1.5 font-medium">{errors.phoneNumber}</p>}
         </div>
 
         <div className="mb-5">
-          <label className="block text-sm font-semibold text-secondary mb-1.5">Address</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Address</label>
           <textarea
             name="address"
             value={volunteer.address}
@@ -202,7 +189,7 @@ const AddVolunteer = ({ onSuccess }) => {
         </div>
 
         <div className="mb-8">
-          <label className="block text-sm font-semibold text-secondary mb-1.5">Specialization</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Specialization</label>
           <input
             type="text"
             name="specialization"
@@ -210,18 +197,26 @@ const AddVolunteer = ({ onSuccess }) => {
             onChange={handleChange}
             placeholder="e.g. Nursing, Counseling (Optional)"
             className="input-field"
-            style={{ height: '44px' }}
           />
         </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary w-full mt-8"
-          style={{ marginTop: '1rem', height: '48px', fontSize: '1rem' }}
-        >
-          <i className="fas fa-user-plus mr-2"></i>
-          Register Volunteer
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', width: '100%' }}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+          >
+            Add Volunteer
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="btn btn-outline"
+            style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
