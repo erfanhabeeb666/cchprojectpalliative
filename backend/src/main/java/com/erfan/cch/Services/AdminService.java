@@ -226,6 +226,40 @@ public class AdminService {
         patientRepository.save(actual);
     }
 
+    @Transactional
+    public void updatePatient(Long id, Patient updatedPatient) {
+        Patient existingPatient = patientRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found"));
+
+        String newMobile = updatedPatient.getMobileNumber() != null ? updatedPatient.getMobileNumber().trim() : null;
+        if (newMobile == null || newMobile.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mobile number is required");
+        }
+
+        // If mobile is changing, check for uniqueness
+        if (!newMobile.equals(existingPatient.getMobileNumber())) {
+            if (patientRepository.existsByMobileNumber(newMobile)) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Patient with this mobile number already exists");
+            }
+            existingPatient.setMobileNumber(newMobile);
+        }
+
+        existingPatient.setName(updatedPatient.getName());
+        existingPatient.setAge(updatedPatient.getAge());
+        existingPatient.setGender(updatedPatient.getGender());
+        existingPatient.setAddress(updatedPatient.getAddress());
+        existingPatient.setMedicalCondition(updatedPatient.getMedicalCondition());
+        existingPatient.setEmergencyContact(updatedPatient.getEmergencyContact());
+        existingPatient.setLatitude(updatedPatient.getLatitude());
+        existingPatient.setLongitude(updatedPatient.getLongitude());
+
+        try {
+            patientRepository.save(existingPatient);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Patient with this mobile number already exists");
+        }
+    }
+
     public DashboardStatsDto dashboardStats() {
         DashboardStatsDto dashboardStatsDto = new DashboardStatsDto();
         dashboardStatsDto.setTotalPatients(patientRepository.count());

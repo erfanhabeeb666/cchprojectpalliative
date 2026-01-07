@@ -146,6 +146,12 @@ public class AdminController {
         return ResponseEntity.ok("Patient added successfully");
     }
 
+    @PutMapping("/update-patient/{id}")
+    public ResponseEntity<String> updatePatient(@PathVariable Long id, @RequestBody Patient patient) {
+        adminService.updatePatient(id, patient);
+        return ResponseEntity.ok("Patient updated successfully");
+    }
+
     @DeleteMapping("/delete-patient")
     public ResponseEntity<String> deletePatient(@RequestParam long id) {
         adminService.deletePatient(id);

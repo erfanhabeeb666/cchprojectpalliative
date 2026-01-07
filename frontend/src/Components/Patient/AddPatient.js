@@ -2,16 +2,43 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import PatientLocationPicker from './PatientLocationPicker';
 
-const AddPatient = ({ onSuccess, onCancel }) => {
+const AddPatient = ({ onSuccess, onCancel, patientToEdit, mode = 'add' }) => {
     const [patient, setPatient] = useState({
-        name: '',
-        mobileNumber: '',
-        age: '',
-        gender: '',
-        address: '',
-        medicalCondition: '',
-        emergencyContact: ''
+        name: patientToEdit?.name || '',
+        mobileNumber: patientToEdit?.mobileNumber || '',
+        age: patientToEdit?.age || '',
+        gender: patientToEdit?.gender || '',
+        address: patientToEdit?.address || '',
+        medicalCondition: patientToEdit?.medicalCondition || '',
+        emergencyContact: patientToEdit?.emergencyContact || ''
     });
+
+    useState(() => {
+        if (mode === 'edit' && patientToEdit) {
+            if (patientToEdit.latitude && patientToEdit.longitude) {
+                // Initializing doesn't work well with useState lazy init for props change after mount
+                // but PatientPage will unmount/remount usually. 
+                // Let's use useEffect instead for safety.
+            }
+        }
+    });
+
+    React.useEffect(() => {
+        if (mode === 'edit' && patientToEdit) {
+            setPatient({
+                name: patientToEdit.name || '',
+                mobileNumber: patientToEdit.mobileNumber || '',
+                age: patientToEdit.age || '',
+                gender: patientToEdit.gender || '',
+                address: patientToEdit.address || '',
+                medicalCondition: patientToEdit.medicalCondition || '',
+                emergencyContact: patientToEdit.emergencyContact || ''
+            });
+            if (patientToEdit.latitude && patientToEdit.longitude) {
+                setSelectedLocation({ lat: patientToEdit.latitude, lng: patientToEdit.longitude });
+            }
+        }
+    }, [patientToEdit, mode]);
 
     const [successMessage, setSuccessMessage] = useState('');
     const [error, setError] = useState('');
@@ -69,15 +96,25 @@ const AddPatient = ({ onSuccess, onCancel }) => {
                 longitude: selectedLocation ? selectedLocation.lng : undefined,
             };
 
-            await axios.post(
-                `${apiUrl}admin/add-patient`,
-                payload,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            setSuccessMessage("Patient added successfully!");
+            if (mode === 'edit') {
+                await axios.put(
+                    `${apiUrl}admin/update-patient/${patientToEdit.id}`,
+                    payload,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
+                setSuccessMessage("Patient updated successfully!");
+            } else {
+                await axios.post(
+                    `${apiUrl}admin/add-patient`,
+                    payload,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
+                setSuccessMessage("Patient added successfully!");
+            }
             setError('');
             setPatient({
                 name: '',
@@ -122,7 +159,7 @@ const AddPatient = ({ onSuccess, onCancel }) => {
 
     return (
         <div className="space-y-4">
-            <h2 className="text-xl font-bold mb-5">Add Patient</h2>
+            <h2 className="text-xl font-bold mb-5">{mode === 'edit' ? 'Edit Patient' : 'Add Patient'}</h2>
 
             {successMessage && <p className="text-green-600 font-medium mb-3">{successMessage}</p>}
             {error && <p className="text-red-600 font-medium mb-3">{error}</p>}
@@ -307,7 +344,7 @@ const AddPatient = ({ onSuccess, onCancel }) => {
                         className="btn btn-primary"
                         style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
                     >
-                        Add Patient
+                        {mode === 'edit' ? 'Update Patient' : 'Add Patient'}
                     </button>
                     <button
                         type="button"

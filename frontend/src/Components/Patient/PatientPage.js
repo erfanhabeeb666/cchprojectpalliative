@@ -11,6 +11,8 @@ const PatientPage = () => {
   const [totalPages, setTotalPages] = useState(0);
 
   const [showModal, setShowModal] = useState(false);
+  const [patientToEdit, setPatientToEdit] = useState(null);
+  const [modalMode, setModalMode] = useState("add"); // "add" or "edit"
 
   const fetchPatients = async () => {
     try {
@@ -88,6 +90,14 @@ const PatientPage = () => {
   const handleAddSuccess = () => {
     fetchPatients();
     setShowModal(false);
+    setPatientToEdit(null);
+    setModalMode("add");
+  };
+
+  const handleEdit = (patient) => {
+    setPatientToEdit(patient);
+    setModalMode("edit");
+    setShowModal(true);
   };
 
   // Logic from `ri`: support 'Remove' vs 'Removed' based on alivestatus
@@ -116,7 +126,11 @@ const PatientPage = () => {
       <div className="flex justify-between items-center mb-4">
         <h2>Patient Management</h2>
         <div className="flex gap-2">
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          <button className="btn btn-primary" onClick={() => {
+            setModalMode("add");
+            setPatientToEdit(null);
+            setShowModal(true);
+          }}>
             <i className="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Add Patient
           </button>
           <button className="btn btn-outline" onClick={fetchPatients}>
@@ -192,31 +206,41 @@ const PatientPage = () => {
                     </span>
                   </td>
                   <td style={{ padding: '1rem' }}>
-                    <button
-                      className="btn btn-outline"
-                      disabled={patient.alivestatus === "no"}
-                      style={{
-                        color: patient.alivestatus === "no" ? '#9ca3af' : 'var(--error-color)',
-                        borderColor: patient.alivestatus === "no" ? '#d1d5db' : 'var(--error-color)',
-                        cursor: patient.alivestatus === "no" ? 'not-allowed' : 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (patient.alivestatus !== 'no') {
-                          e.currentTarget.style.backgroundColor = 'var(--error-color)';
-                          e.currentTarget.style.color = 'white';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (patient.alivestatus !== 'no') {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                          e.currentTarget.style.color = 'var(--error-color)';
-                        }
-                      }}
-                      onClick={() => handleDelete(patient)}
-                      title={patient.alivestatus === "no" ? "Patient removed" : "Mark as removed"}
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        className="btn btn-outline"
+                        style={{ color: 'var(--primary-color)', borderColor: 'var(--primary-color)' }}
+                        onClick={() => handleEdit(patient)}
+                        title="Edit Patient"
+                      >
+                        <i className="fas fa-edit"></i>
+                      </button>
+                      <button
+                        className="btn btn-outline"
+                        disabled={patient.alivestatus === "no"}
+                        style={{
+                          color: patient.alivestatus === "no" ? '#9ca3af' : 'var(--error-color)',
+                          borderColor: patient.alivestatus === "no" ? '#d1d5db' : 'var(--error-color)',
+                          cursor: patient.alivestatus === "no" ? 'not-allowed' : 'pointer'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (patient.alivestatus !== 'no') {
+                            e.currentTarget.style.backgroundColor = 'var(--error-color)';
+                            e.currentTarget.style.color = 'white';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (patient.alivestatus !== 'no') {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.color = 'var(--error-color)';
+                          }
+                        }}
+                        onClick={() => handleDelete(patient)}
+                        title={patient.alivestatus === "no" ? "Patient removed" : "Mark as removed"}
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -256,6 +280,8 @@ const PatientPage = () => {
             <AddPatient
               onSuccess={handleAddSuccess}
               onCancel={() => setShowModal(false)}
+              patientToEdit={patientToEdit}
+              mode={modalMode}
             />
           </div>
         </div>
