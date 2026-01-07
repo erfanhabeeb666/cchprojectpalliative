@@ -333,14 +333,14 @@ const CreateNewVisit = () => {
           <section>
             <h3 className="text-lg font-bold mb-4">Step 4: Review & Confirm Details</h3>
 
-            <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 mb-6">
+            <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 mb-6 font-medium">
               <div className="mb-4">
                 <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Patients Selected ({selectedPatients.length})</h4>
                 <div className="bg-white p-3 rounded border border-gray-200">
                   <ul className="list-disc list-inside">
                     {selectedPatients.map(id => {
                       const p = patients.find(pat => pat.id === id);
-                      return <li key={id}>{p ? p.name : `Patient ID: ${id}`}</li>
+                      return <li key={id} className="text-gray-800 py-1">{p ? p.name : `Patient ID: ${id}`}</li>
                     })}
                   </ul>
                   {selectedPatients.length > patients.length && <p className="text-xs text-gray-400 mt-2 italic">*Only showing patients from current view. All {selectedPatients.length} are selected.</p>}
@@ -349,14 +349,14 @@ const CreateNewVisit = () => {
 
               <div className="mb-4">
                 <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Assigned Volunteer</h4>
-                <div className="bg-white p-3 rounded border border-gray-200 font-medium">
+                <div className="bg-white p-3 rounded border border-gray-200 font-bold text-gray-800">
                   {volunteers.find((v) => v.id === selectedVolunteer)?.name || `Volunteer ID: ${selectedVolunteer}`}
                 </div>
               </div>
 
               <div>
                 <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Visit Date</h4>
-                <div className="bg-white p-3 rounded border border-gray-200 font-medium">
+                <div className="bg-white p-3 rounded border border-gray-200 font-bold text-gray-800">
                   {visitDate}
                 </div>
               </div>

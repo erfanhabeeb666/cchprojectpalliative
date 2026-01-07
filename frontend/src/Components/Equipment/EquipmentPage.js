@@ -357,8 +357,25 @@ const EquipmentPage = () => {
               )}
             </div>
 
+            <div className="flex gap-4 mb-6">
+              <button
+                onClick={() => setShowAllocateModal(false)}
+                className="btn btn-outline flex-1"
+                style={{ padding: '0.4rem 1rem', fontSize: '0.875rem' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAllocate}
+                className="btn btn-primary flex-1"
+                style={{ padding: '0.4rem 1rem', fontSize: '0.875rem' }}
+              >
+                Confirm
+              </button>
+            </div>
+
             {/* Pagination for Modal */}
-            <div className="flex justify-center items-center gap-2 mb-4">
+            <div className="flex justify-center items-center gap-2">
               <button
                 className="btn btn-outline"
                 style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
@@ -381,21 +398,6 @@ const EquipmentPage = () => {
                 }
               >
                 Next
-              </button>
-            </div>
-
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowAllocateModal(false)}
-                className="btn btn-outline flex-1"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmAllocate}
-                className="btn btn-primary flex-1"
-              >
-                Confirm
               </button>
             </div>
           </div>
