@@ -68,7 +68,7 @@ const EquipmentPage = () => {
     try {
       const res = await axios.get(`${apiUrl}admin/list-patients`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { page: pagePatientsModal, size: 5, search: searchQuery },
+        params: { page: pagePatientsModal, size: 5, search: searchQuery, aliveOnly: true },
       });
       setPatientsModal(res.data.content);
       setTotalPagesPatientsModal(res.data.totalPages);

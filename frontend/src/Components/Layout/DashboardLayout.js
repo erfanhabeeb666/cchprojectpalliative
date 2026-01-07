@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { getDisplayName } from '../../utils/auth';
-import Breadcrumbs from '../Common/Breadcrumbs';
+import Breadcrumbs from '../common/Breadcrumbs';
 import './DashboardLayout.css';
 
 const DashboardLayout = ({ role }) => {
@@ -44,7 +44,10 @@ const DashboardLayout = ({ role }) => {
             {/* Sidebar */}
             <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
                 <div className="sidebar-header">
-                    <span className="sidebar-brand">PASS CARE</span>
+                    <span className="sidebar-brand">
+                        <i className="fas fa-heartbeat"></i>
+                        PASS CARE
+                    </span>
                 </div>
                 <nav className="sidebar-nav">
                     {links.map((link) => (
@@ -74,12 +77,13 @@ const DashboardLayout = ({ role }) => {
                         </div>
                     </div>
 
-                    <div className="topbar-actions">
-                        <span className="greeting" style={{ marginRight: '1rem', color: 'var(--text-primary)' }}>
-                            Hi, {getDisplayName()}
+                    <div className="topbar-actions flex items-center">
+                        <span className="greeting text-sm font-semibold mr-4" style={{ color: 'var(--text-secondary)' }}>
+                            Welcome, <span className="text-primary">{getDisplayName()}</span>
                         </span>
-                        <button className="btn btn-outline" onClick={handleLogout}>
-                            <i className="fas fa-sign-out-alt" style={{ marginRight: '0.5rem' }}></i> Logout
+                        <button className="btn btn-outline" onClick={handleLogout} style={{ height: '40px' }}>
+                            <i className="fas fa-sign-out-alt"></i>
+                            <span className="hidden sm:inline">Logout</span>
                         </button>
                     </div>
                 </header>
@@ -93,7 +97,12 @@ const DashboardLayout = ({ role }) => {
             {sidebarOpen && (
                 <div
                     className="modal-overlay"
-                    style={{ zIndex: 45, justifyContent: 'flex-start', background: 'rgba(0,0,0,0.5)' }}
+                    style={{
+                        zIndex: 45,
+                        justifyContent: 'flex-start',
+                        background: 'rgba(15, 23, 42, 0.4)',
+                        backdropFilter: 'blur(4px)'
+                    }}
                     onClick={() => setSidebarOpen(false)}
                 ></div>
             )}
