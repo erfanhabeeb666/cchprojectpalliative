@@ -77,23 +77,33 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
         {status !== "CANCELLED" && (
           <div className="mb-4">
             <label className="block mb-2 font-medium">Procedures:</label>
-            <select
-              multiple
-              value={selectedProcedures}
-              onChange={(e) =>
-                setSelectedProcedures(
-                  Array.from(e.target.selectedOptions, (option) => option.value)
-                )
-              }
-              className="input-field"
-              style={{ minHeight: '100px' }}
-            >
+            <div className="bg-gray-50 p-3 rounded border border-gray-200" style={{ maxHeight: '200px', overflowY: 'auto' }}>
               {procedures.map((procedure) => (
-                <option key={procedure.procedureId} value={procedure.procedureId}>
-                  {procedure.procedureName}
-                </option>
+                <div key={procedure.procedureId} className="flex items-center mb-2 last:mb-0 hover:bg-gray-100 p-1 rounded cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    id={`proc-admin-${procedure.procedureId}`}
+                    checked={selectedProcedures.includes(String(procedure.procedureId))}
+                    onChange={(e) => {
+                      const id = String(procedure.procedureId);
+                      if (e.target.checked) {
+                        setSelectedProcedures([...selectedProcedures, id]);
+                      } else {
+                        setSelectedProcedures(selectedProcedures.filter((p) => p !== id));
+                      }
+                    }}
+                    style={{ width: '1.1rem', height: '1.1rem', cursor: 'pointer' }}
+                  />
+                  <label
+                    htmlFor={`proc-admin-${procedure.procedureId}`}
+                    className="ml-2 text-sm text-gray-700 cursor-pointer flex-1"
+                  >
+                    {procedure.procedureName}
+                  </label>
+                </div>
               ))}
-            </select>
+            </div>
+            <p className="text-xs text-gray-400 mt-1 italic">* Select all procedures performed during this visit.</p>
           </div>
         )}
 
@@ -141,18 +151,20 @@ const ProcedureModal = ({ visit, procedures, consumables, onClose, onSubmit }) =
           />
         </div>
 
-        <div className="flex gap-4">
-          <button
-            onClick={onClose}
-            className="btn btn-outline flex-1"
-          >
-            Close
-          </button>
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', width: '100%' }}>
           <button
             onClick={handleSubmit}
-            className="btn btn-primary flex-1"
+            className="btn btn-primary"
+            style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
           >
             Submit
+          </button>
+          <button
+            onClick={onClose}
+            className="btn btn-outline"
+            style={{ flex: 1, height: '38px', fontSize: '0.8125rem', whiteSpace: 'nowrap' }}
+          >
+            Close
           </button>
         </div>
       </div>
