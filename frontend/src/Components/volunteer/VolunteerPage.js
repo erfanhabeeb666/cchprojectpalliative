@@ -111,13 +111,14 @@ const VolunteerPage = () => {
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Name</th>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Email</th>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Phone</th>
+              <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Specialization</th>
               <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600', color: 'var(--text-secondary)' }}>Action</th>
             </tr>
           </thead>
           <tbody>
             {volunteerList.length === 0 ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center", padding: "2rem", color: 'var(--text-secondary)' }}>
+                <td colSpan="5" style={{ textAlign: "center", padding: "2rem", color: 'var(--text-secondary)' }}>
                   No volunteers found
                 </td>
               </tr>
@@ -127,6 +128,7 @@ const VolunteerPage = () => {
                   <td style={{ padding: '1rem', fontWeight: '500' }}>{volunteer.name}</td>
                   <td style={{ padding: '1rem' }}>{volunteer.email}</td>
                   <td style={{ padding: '1rem' }}>{volunteer.phoneNumber}</td>
+                  <td style={{ padding: '1rem' }}>{volunteer.specialization || <span className="text-gray-400">Not specified</span>}</td>
                   <td style={{ padding: '1rem' }}>
                     <button
                       onClick={() => handleDelete(volunteer.id)}

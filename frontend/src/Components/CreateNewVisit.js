@@ -238,6 +238,7 @@ const CreateNewVisit = () => {
                   <tr>
                     <th style={{ padding: '0.75rem 1rem', textAlign: 'center', width: '60px' }}>Select</th>
                     <th style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Name</th>
+                    <th style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Specialization</th>
                     <th style={{ padding: '0.75rem 1rem', textAlign: 'left' }}>Contact</th>
                   </tr>
                 </thead>
@@ -254,6 +255,7 @@ const CreateNewVisit = () => {
                         />
                       </td>
                       <td style={{ padding: '0.75rem 1rem' }}>{v.name}</td>
+                      <td style={{ padding: '0.75rem 1rem' }}>{v.specialization || <span className="text-gray-400">Not specified</span>}</td>
                       <td style={{ padding: '0.75rem 1rem' }}>{v.phoneNumber}</td>
                     </tr>
                   ))}
